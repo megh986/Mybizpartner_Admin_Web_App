@@ -1,0 +1,151 @@
+/* Terms & Conditions Page Styles */
+
+.terms-content {
+    background: white;
+    border-radius: 12px;
+    padding: 3rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+    line-height: 1.7;
+}
+
+.terms-intro {
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.terms-intro p {
+    margin-bottom: 1rem;
+    color: #374151;
+    font-size: 1rem;
+}
+
+.terms-intro a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.terms-intro a:hover {
+    text-decoration: underline;
+}
+
+.terms-section {
+    margin-bottom: 2.5rem;
+}
+
+.terms-section h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.terms-section p {
+    color: #374151;
+    margin-bottom: 0.75rem;
+}
+
+.terms-section ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1rem;
+}
+
+.terms-section ul li {
+    position: relative;
+    padding-left: 1.75rem;
+    margin-bottom: 0.75rem;
+    color: #374151;
+}
+
+.terms-section ul li::before {
+    content: "•";
+    position: absolute;
+    left: 0.5rem;
+    color: #667eea;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.terms-section ul ul {
+    margin-top: 0.5rem;
+    margin-left: 1.5rem;
+}
+
+.terms-section ul ul li::before {
+    content: "◦";
+    font-size: 1rem;
+}
+
+.contact-info {
+    background: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    margin-top: 1rem;
+}
+
+.contact-info p {
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.contact-info p:last-child {
+    margin-bottom: 0;
+}
+
+.contact-info strong {
+    color: #1f2937;
+    font-weight: 700;
+}
+
+.contact-info a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .terms-content {
+        padding: 2rem 1.5rem;
+    }
+
+    .terms-section h2 {
+        font-size: 1.25rem;
+    }
+
+    .terms-section ul li {
+        padding-left: 1.5rem;
+    }
+
+    .contact-info {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .terms-content {
+        padding: 1.5rem 1rem;
+    }
+
+    .terms-intro {
+        margin-bottom: 2rem;
+    }
+
+    .terms-section {
+        margin-bottom: 2rem;
+    }
+
+    .terms-section h2 {
+        font-size: 1.125rem;
+    }
+}
