@@ -1,6 +1,6 @@
 # Image Upload Frontend
 
-A React TypeScript application for uploadingr productr images with company anrd product select.
+A React TypeScript application for uploadingr productr images with companty anrd product select.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
