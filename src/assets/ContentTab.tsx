@@ -424,9 +424,11 @@ const ContentTab: React.FC<ContentTabProps> = ({
             product_id: ct === 'product-video' ? product : null,
             category: ct === 'company-video' ? companyVideoCategory : null,
           };
-          setVideoFiles(files);
+          // Append new files to existing ones (accumulate across batches)
+          setVideoFiles(prev => [...prev, ...files]);
           setVideoUploadContext(ctx);
-          setVideoUploadProgress(files.map((f: File) => ({ name: f.name, percent: 0, done: false, error: null, meta: null })));
+          const batchOffset = videoUploadProgress.length;
+          setVideoUploadProgress(prev => [...prev, ...files.map((f: File) => ({ name: f.name, percent: 0, done: false, error: null, meta: null }))]);
 
           const uploadOneVideo = async (file: File, fileIndex: number, updateProgress: (updater: (prev: VideoProgress[]) => VideoProgress[]) => void): Promise<VideoMeta> => {
             const totalChunks = Math.ceil(file.size / VIDEO_CHUNK_SIZE);
@@ -461,16 +463,19 @@ const ContentTab: React.FC<ContentTabProps> = ({
 
           // Upload all in parallel; failures marked per-item, don't block others
           await Promise.allSettled(files.map((f: File, i: number) =>
-            uploadOneVideo(f, i, setVideoUploadProgress).catch((err: any) => {
-              setVideoUploadProgress(prev => prev.map((p, idx) => idx === i ? { ...p, error: err?.message || 'Upload failed', percent: 0 } : p));
+            uploadOneVideo(f, batchOffset + i, setVideoUploadProgress).catch((err: any) => {
+              setVideoUploadProgress(prev => prev.map((p, idx) => idx === batchOffset + i ? { ...p, error: err?.message || 'Upload failed', percent: 0 } : p));
             })
           ));
 
-          // Collect succeeded
+          // Merge succeeded into pending (accumulate across batches)
           setVideoUploadProgress(prev => {
             const succeeded = prev.filter(p => p.done && p.meta).map(p => p.meta!);
             if (succeeded.length > 0) {
-              setPendingVideoFinalize({ videos: succeeded, ...ctx });
+              setPendingVideoFinalize(existing => existing
+                ? { ...existing, videos: succeeded }
+                : { videos: succeeded, ...ctx }
+              );
             }
             return prev;
           });
@@ -1105,7 +1110,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
             </label>
           )}
         </div>
-        {videoUploadProgress.length === 0 && (
+        {(!uploadInProgress) && (
           <div className="flex-1 border-2 border-dashed border-gray-200 rounded-xl bg-background-light hover:bg-gray-50 hover:border-primary/40 transition-all cursor-pointer group relative flex flex-col items-center justify-center p-4 sm:p-8 text-center min-h-[200px] sm:min-h-[280px]">
             <input
               id="file-upload"
@@ -1122,7 +1127,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
               </span>
             </div>
             <h3 className="text-primary-text font-semibold text-lg mb-1 pointer-events-none">
-              Drag & drop {contentType === 'company-video' || contentType === 'product-video' ? 'videos' : 'images'} here
+              {videoUploadProgress.length > 0 ? `Add more ${contentType === 'company-video' || contentType === 'product-video' ? 'videos' : 'images'}` : `Drag & drop ${contentType === 'company-video' || contentType === 'product-video' ? 'videos' : 'images'} here`}
             </h3>
             <p className="text-secondary-text text-sm mb-6 max-w-[300px] pointer-events-none">
               {contentType === 'company-video' || contentType === 'product-video' ? 'Support for MP4, MOV, AVI up to 100MB' : 'Support for PNG, JPG, JPEG up to 50MB per file'}
@@ -1206,7 +1211,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
             {finalizeInProgress ? 'Saving…' : `Finalize Upload (${pendingVideoFinalize.videos.length} video${pendingVideoFinalize.videos.length !== 1 ? 's' : ''})`}
           </button>
         )}
-        {(selectedFiles.length > 0 || uploadInProgress) && !pendingVideoFinalize && (
+        {(selectedFiles.length > 0 || uploadInProgress) && (
           <button
             onClick={handleFileUpload}
             disabled={uploadInProgress}
@@ -1489,9 +1494,6 @@ const ContentTab: React.FC<ContentTabProps> = ({
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
-      {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">{success}</div>}
-
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
         <h3 className="text-lg font-bold text-primary-text mb-4">Select Content Type</h3>
         <div className="flex flex-col gap-2">
@@ -1535,6 +1537,9 @@ const ContentTab: React.FC<ContentTabProps> = ({
           ))}
         </div>
       </div>
+
+      {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
+      {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">{success}</div>}
 
       {contentAction === 'upload' && renderUploadForm()}
       {contentAction === 'view' && renderViewForm()}
