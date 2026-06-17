@@ -149,6 +149,7 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
         setProductSearchQuery('');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProduct]);
 
   const fetchProducts = async (companyId: string) => {
