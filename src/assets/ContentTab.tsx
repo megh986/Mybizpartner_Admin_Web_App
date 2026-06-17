@@ -1679,7 +1679,8 @@ const ContentTab: React.FC<ContentTabProps> = ({
         </div>
       )}
 
-      {/* Delete Confirmation Dialo      {deleteDialogOpen && (
+      {/* Delete Confirmation Dialog */}
+      {deleteDialogOpen && (
         <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
@@ -1690,14 +1691,15 @@ const ContentTab: React.FC<ContentTabProps> = ({
               <p className="text-slate-655 dark:text-slate-400 text-sm leading-relaxed">{deleteDialogMessage}</p>
             </div>
             <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
-              <button onClick={() => setDeleteDialogOpen(false)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>utton>
+              <button onClick={() => setDeleteDialogOpen(false)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>
               <button onClick={performDelete} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer">Delete</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Delete Image Dialo      {imageDeleteDialogOpen && (
+      {/* Delete Image Dialog */}
+      {imageDeleteDialogOpen && (
         <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
@@ -1708,7 +1710,7 @@ const ContentTab: React.FC<ContentTabProps> = ({
               <p className="text-slate-655 dark:text-slate-400 text-sm leading-relaxed">Are you sure you want to delete this image? This action cannot be undone.</p>
             </div>
             <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
-              <button onClick={() => { setImageDeleteDialogOpen(false); setImageToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>utton>
+              <button onClick={() => { setImageDeleteDialogOpen(false); setImageToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>
               <button onClick={performImageDelete} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer">Delete</button>
             </div>
           </div>

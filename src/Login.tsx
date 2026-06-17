@@ -21,24 +21,7 @@ interface UserData {
 
 type ViewMode = 'login' | 'signup' | 'forgot-password' | 'verify-code' | 'reset-password';
 
-// Vector Logo component matching Landing_Page.png precisely
-const Logo: React.FC<{ variant?: 'dark' | 'light'; className?: string }> = ({ variant = 'dark', className = '' }) => {
-  const isLight = variant === 'light';
-  const textColor1 = isLight ? '#FFFFFF' : '#0A1128';
-  const textColor2 = '#FF6B35';
-  return (
-    <div className={`flex items-center gap-2 select-none ${className}`}>
-      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-        <path d="M16 2C8 2 4 6 4 14C4 22 16 30 16 30C16 30 28 22 28 14C28 6 24 2 16 2Z" fill={isLight ? '#FF6B35' : '#0A1128'} />
-        <path d="M16 4C9.5 4 6 7.2 6 14C6 20.4 16 27.2 16 27.2C16 27.2 26 20.4 26 14C26 7.2 22.5 4 16 4Z" fill={isLight ? '#FF8253' : '#172246'} />
-        <path d="M11 21L21 11M21 11H16M21 11V16" stroke={isLight ? '#FFFFFF' : '#FF6B35'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-      <span className="text-base lg:text-lg font-black tracking-tight" style={{ color: textColor1 }}>
-        MyBiz<span style={{ color: textColor2 }}>Partner</span>
-      </span>
-    </div>
-  );
-};
+
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
