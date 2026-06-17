@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type {
   ProductComparisonApiResponse,
   ProductPerfMetrics,
@@ -125,6 +125,18 @@ const ProductComparisonTab: React.FC<ProductComparisonTabProps> = ({
     fetchData();
   }, [fetchData]);
 
+  const maxConvRate = useMemo(() => {
+    if (!data) return 1;
+    const { summary } = data;
+    return Math.max(summary.avg_wom_conv_rate, summary.avg_non_wom_conv_rate) || 1;
+  }, [data]);
+
+  const maxTimeMs = useMemo(() => {
+    if (!data) return 1;
+    const { summary } = data;
+    return Math.max(summary.avg_wom_time_ms, summary.avg_non_wom_time_ms) || 1;
+  }, [data]);
+
   if (loading && !data) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -156,8 +168,6 @@ const ProductComparisonTab: React.FC<ProductComparisonTabProps> = ({
   if (!data) return null;
 
   const { summary, wom_products, non_wom_products } = data;
-  const maxConvRate = Math.max(summary.avg_wom_conv_rate, summary.avg_non_wom_conv_rate) || 1;
-  const maxTimeMs   = Math.max(summary.avg_wom_time_ms, summary.avg_non_wom_time_ms) || 1;
 
   return (
     <div className="flex flex-col gap-6">

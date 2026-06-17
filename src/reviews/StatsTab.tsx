@@ -57,6 +57,29 @@ const StatsTab: React.FC<StatsTabProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.to('.gsap-tab-floater-purple-1', {
+        y: -4,
+        x: 2,
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut'
+      });
+      gsap.to('.gsap-tab-floater-purple-2', {
+        y: 4,
+        x: -2,
+        duration: 2.5,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut',
+        delay: 0.3
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     setStatsResult(null);
   }, [selectedCompany, selectedProduct, statsOption]);
 
@@ -117,7 +140,6 @@ const StatsTab: React.FC<StatsTabProps> = ({
       return next;
     });
   };
-
   return (
     <div className="grid grid-cols-1 gap-6">
       {error && (
@@ -129,97 +151,84 @@ const StatsTab: React.FC<StatsTabProps> = ({
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
-            <span className="material-symbols-outlined">bar_chart</span>
+      {/* Filters Bar */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 relative z-10">
+        {/* Decorative Floating Elements */}
+        <div className="absolute -right-3 -top-3 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shadow-md border border-white gsap-tab-floater-purple-1 pointer-events-none z-50">
+          <span className="material-symbols-outlined text-purple-600 !text-[14px]">bar_chart</span>
+        </div>
+        <div className="absolute -left-3 -bottom-3 w-7 h-7 rounded-full bg-purple-50 flex items-center justify-center shadow-md border border-white gsap-tab-floater-purple-2 pointer-events-none z-50">
+          <span className="material-symbols-outlined text-indigo-500 !text-[12px]">pie_chart</span>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-3 pb-3 border-b border-gray-100/50">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-purple-600 !text-[20px]">bar_chart</span>
+            <h2 className="text-sm font-bold text-primary-text">Image Statistics</h2>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-primary-text">Image Statistics</h2>
-            <p className="text-xs text-secondary-text mt-1">View image statistics by company or product</p>
+          <div className="flex p-0.5 bg-slate-100 rounded-lg border border-slate-200/50 shadow-sm">
+            <button
+              type="button"
+              onClick={() => {
+                setStatsOption('company');
+                setError('');
+                setSuccess('');
+              }}
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                statsOption === 'company'
+                  ? 'bg-white text-purple-600 shadow-sm'
+                  : 'text-slate-600 hover:text-primary-text'
+              }`}
+            >
+              All Products
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatsOption('product');
+                setError('');
+                setSuccess('');
+              }}
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                statsOption === 'product'
+                  ? 'bg-white text-purple-600 shadow-sm'
+                  : 'text-slate-600 hover:text-primary-text'
+              }`}
+            >
+              Specific Product
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col gap-5">
-          <div>
-            <p className="text-primary-text text-sm font-semibold leading-normal pb-3">View Statistics By</p>
-            <div className="flex flex-col gap-2">
-              <label
-                className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${
-                  statsOption === 'company' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="statsOption"
-                  value="company"
-                  checked={statsOption === 'company'}
-                  onChange={() => setStatsOption('company')}
-                  className="w-4 h-4 text-primary"
-                />
-                <span className="text-sm font-medium text-primary-text">All Products</span>
-              </label>
-              <label
-                className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${
-                  statsOption === 'product' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="statsOption"
-                  value="product"
-                  checked={statsOption === 'product'}
-                  onChange={() => setStatsOption('product')}
-                  className="w-4 h-4 text-primary"
-                />
-                <span className="text-sm font-medium text-primary-text">Specific Product</span>
-              </label>
+        <div className="flex flex-col md:flex-row md:items-end gap-3.5" style={{ overflow: 'visible' }}>
+          {!isCompanyAutoSelected && (
+            <div className="flex-1 relative z-30">
+              <label className="block text-xs font-semibold text-primary-text mb-1">Company Name</label>
+              {renderSearchableCompanyDropdown(
+                loading,
+                handleCompanyChange,
+                'Select company...',
+                'focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600'
+              )}
             </div>
-          </div>
-
-          <div
-            className={`grid gap-4 ${
-              isCompanyAutoSelected
-                ? statsOption === 'company'
-                  ? 'grid-cols-1'
-                  : 'grid-cols-1'
-                : statsOption === 'company'
-                  ? 'grid-cols-1'
-                  : 'grid-cols-1 md:grid-cols-2'
-            }`} style={{ overflow: 'visible' }}
-          >
-            {!isCompanyAutoSelected && (
-              <div className="flex flex-col w-full" style={{ position: 'relative', zIndex: 30 }}>
-                <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Select Company *</p>
-                {renderSearchableCompanyDropdown(
-                  loading,
-                  handleCompanyChange,
-                  'Select company...',
-                  'focus:ring-2 focus:ring-primary/20 focus:border-primary'
-                )}
-              </div>
-            )}
-
-            {statsOption === 'product' && (
-              <div className="flex flex-col w-full" style={{ position: 'relative', zIndex: 20 }}>
-                <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Select Product *</p>
-                {renderSearchableProductDropdown(
-                  !selectedCompany || loading,
-                  handleProductChange,
-                  'Select product...',
-                  'focus:ring-2 focus:ring-primary/20 focus:border-primary'
-                )}
-              </div>
-            )}
-          </div>
-
+          )}
+          {statsOption === 'product' && (
+            <div className="flex-1 relative z-20">
+              <label className="block text-xs font-semibold text-primary-text mb-1">Product Name</label>
+              {renderSearchableProductDropdown(
+                !selectedCompany || loading,
+                handleProductChange,
+                'Select product...',
+                'focus:ring-2 focus:ring-purple-600/20 focus:border-purple-600'
+              )}
+            </div>
+          )}
           <button
             onClick={fetchStats}
             disabled={loading || !selectedCompany || (statsOption === 'product' && !selectedProduct)}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20"
+            className="px-6 md:w-auto h-[46px] bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 shrink-0 whitespace-nowrap"
           >
-            <span className="material-symbols-outlined !text-[20px]">bar_chart</span>
-            {loading ? 'Loading...' : 'View Statistics'}
+            <span className="material-symbols-outlined !text-[18px]">search</span>
+            {loading ? 'Loading...' : 'View Stats'}
           </button>
         </div>
       </div>

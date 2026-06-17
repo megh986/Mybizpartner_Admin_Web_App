@@ -5,8 +5,8 @@
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/image.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#081326" />
-  <meta name="description" content="Word of Mouth - The trust infrastructure for businesses" />
+  <meta name="theme-color" content="#FF6B35" />
+  <meta name="description" content="MyBizPartner Admin Portal - Grow your business with intelligent outreach" />
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/image.png" />
   <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap"
     rel="stylesheet" />
 
   <!-- Material Symbols -->
@@ -35,15 +35,17 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#081326",
-            "background-light": "#f6f7f8",
-            "background-dark": "#121720",
-            "border-subtle": "#e2e8f0",
+            "primary": "#0A0F1D",
+            "accent": "#FF6B35",
+            "accent-hover": "#E5521C",
+            "background-light": "#F8FAFC",
+            "background-dark": "#060911",
+            "border-subtle": "#E2E8F0",
             "text-secondary": "#64748b"
           },
           fontFamily: {
-            "display": ["Plus Jakarta Sans", "sans-serif"],
-            "heading": ["Bricolage Grotesque", "Plus Jakarta Sans", "sans-serif"]
+            "display": ["Inter", "Plus Jakarta Sans", "sans-serif"],
+            "heading": ["Inter", "Bricolage Grotesque", "Plus Jakarta Sans", "sans-serif"]
           },
           borderRadius: {
             "DEFAULT": "0.5rem",
@@ -53,7 +55,8 @@
             "subtle": "12px"
           },
           boxShadow: {
-            "soft": "0 2px 10px rgba(8, 19, 38, 0.03)"
+            "soft": "0 4px 15px rgba(255, 107, 53, 0.25)",
+            "orange-glow": "0 6px 20px rgba(255, 107, 53, 0.35)"
           }
         },
       },
@@ -63,12 +66,26 @@
   <style>
     /* Custom overrides for specific design needs */
     body {
+      font-family: 'Inter', system-ui, sans-serif;
       font-feature-settings: "cv11", "ss01";
       -webkit-font-smoothing: antialiased;
     }
 
     .font-heading {
-      font-family: 'Bricolage Grotesque', sans-serif;
+      font-family: 'Inter', 'Bricolage Grotesque', sans-serif;
+    }
+
+    .btn-orange {
+      background: linear-gradient(135deg, #FF6B35, #E5521C);
+      color: #fff;
+      transition: all 0.2s ease;
+    }
+    .btn-orange:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+      transform: translateY(-1px);
+    }
+    .btn-orange:active:not(:disabled) {
+      transform: scale(0.98);
     }
   </style>
 
@@ -81,12 +98,14 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-  <title>Word of Mouth</title>
+  <title>MyBizPartner Admin Portal</title>
 </head>
 
-<body class="bg-white dark:bg-background-dark min-h-screen font-display text-primary transition-colors duration-300">
+<body class="bg-[#F8FAFC] dark:bg-background-dark min-h-screen font-display text-primary transition-colors duration-300">
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

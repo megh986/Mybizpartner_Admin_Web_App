@@ -69,92 +69,88 @@ const Admin: React.FC<AdminProps> = ({ userData, onBack, onNavigateToAssets, onN
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto overflow-x-hidden relative w-full min-w-0 bg-background-light dark:bg-background-dark">
-        {/* Header */}
-        <header className="px-4 py-4 md:px-10 lg:px-12 pb-0 max-w-7xl mx-auto w-full">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-secondary-text mb-4">
-            <button
-              type="button"
-              className="lg:hidden size-10 flex items-center justify-center rounded-lg text-gray-500 hover:text-primary hover:bg-gray-100 transition-colors"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-            <button type="button" onClick={onBack} className="hover:text-primary transition-colors">Home</button>
-            <span>/</span>
-            <span className="text-primary-text">Admin</span>
+        {/* Page Hero Header */}
+        <header className="relative overflow-hidden bg-white border-b border-slate-100">
+          <div className="absolute inset-0 pointer-events-none select-none">
+            <div className="absolute -top-10 -right-8 w-60 h-60 rounded-full bg-indigo-500/7 blur-3xl" />
+            <div className="absolute top-4 right-48 w-40 h-40 rounded-full bg-violet-400/5 blur-2xl" />
           </div>
-
-          {/* Page Header */}
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-primary-text font-heading tracking-tight">
-                Admin Panel
-              </h1>
-              <p className="text-secondary-text mt-2 max-w-2xl">
-                Manage users and companies. Register new users and create company accounts.
-              </p>
-            </div>
-          </div>
-
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <div className="flex gap-1 overflow-x-auto">
+          <div className="relative flex items-center justify-between px-4 md:px-10 lg:px-12 py-6 max-w-7xl mx-auto w-full">
+            <div className="flex items-center gap-4">
               <button
                 type="button"
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'register-user'
-                  ? 'border-indigo-500 text-indigo-500'
-                  : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-                  }`}
-                onClick={() => navigate('/admin/register-user')}
+                className="lg:hidden size-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-[#FF6B35] hover:bg-orange-50 transition-colors shrink-0"
+                onClick={() => setSidebarOpen(true)}
               >
-                <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined !text-[18px]">person_add</span>
-                  Register User
-                </span>
+                <span className="material-symbols-outlined">menu</span>
               </button>
-              <button
-                type="button"
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'create-company'
-                  ? 'border-indigo-500 text-indigo-500'
-                  : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-                  }`}
-                onClick={() => navigate('/admin/create-company')}
-              >
-                <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined !text-[18px]">domain_add</span>
-                  Create Company
-                </span>
-              </button>
-              <button
-                type="button"
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'manage-access'
-                  ? 'border-indigo-500 text-indigo-500'
-                  : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-                  }`}
-                onClick={() => navigate('/admin/manage-access')}
-              >
-                <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined !text-[18px]">shield_person</span>
-                  Manage Access
-                </span>
-              </button>
-              <button
-                type="button"
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'analytics-config'
-                  ? 'border-orange-500 text-orange-500'
-                  : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-                  }`}
-                onClick={() => navigate('/admin/analytics-config')}
-              >
-                <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined !text-[18px]">analytics</span>
-                  Analytics Config
-                </span>
-              </button>
+              <div>
+                <h1 className="text-primary-text text-2xl md:text-3xl font-bold tracking-tight font-heading">
+                  Admin Panel
+                </h1>
+                <p className="text-secondary-text text-sm font-normal mt-0.5">
+                  Manage users and companies. Register new users and create company accounts.
+                </p>
+              </div>
             </div>
           </div>
         </header>
+
+        {/* Tab Navigation */}
+        <div className="px-4 md:px-10 lg:px-12 max-w-7xl mx-auto w-full mt-6">
+          <div className="bg-slate-100/80 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800/60 mb-4 max-w-fit shadow-xs">
+            <div className="flex flex-wrap gap-1">
+              <button
+                type="button"
+                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                  activeTab === 'register-user'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                }`}
+                onClick={() => navigate('/admin/register-user')}
+              >
+                <span className="material-symbols-outlined !text-[16px]">person_add</span>
+                Register User
+              </button>
+              <button
+                type="button"
+                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                  activeTab === 'create-company'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                }`}
+                onClick={() => navigate('/admin/create-company')}
+              >
+                <span className="material-symbols-outlined !text-[16px]">domain_add</span>
+                Create Company
+              </button>
+              <button
+                type="button"
+                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                  activeTab === 'manage-access'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                }`}
+                onClick={() => navigate('/admin/manage-access')}
+              >
+                <span className="material-symbols-outlined !text-[16px]">shield_person</span>
+                Manage Access
+              </button>
+              <button
+                type="button"
+                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                  activeTab === 'analytics-config'
+                    ? 'bg-orange-500 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                }`}
+                onClick={() => navigate('/admin/analytics-config')}
+              >
+                <span className="material-symbols-outlined !text-[16px]">analytics</span>
+                Analytics Config
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Tab Content */}
         <div className="flex-1 px-6 md:px-10 lg:px-12 py-6 max-w-7xl mx-auto w-full flex flex-col gap-8 pb-20">

@@ -62,57 +62,67 @@ const WhatsApp: React.FC<WhatsAppProps> = ({
       />
 
       <main className="flex-1 flex flex-col h-screen overflow-y-auto overflow-x-hidden relative w-full min-w-0 bg-background-light dark:bg-background-dark">
-        {/* Header */}
-        <header className="px-4 py-4 md:px-10 lg:px-12 pb-0 max-w-7xl mx-auto w-full">
-          <div className="flex items-center gap-2 text-sm text-secondary-text mb-4">
-            <button
-              className="lg:hidden size-10 flex items-center justify-center rounded-lg text-gray-500 hover:text-primary hover:bg-gray-100 transition-colors"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-            <button onClick={onBack} className="hover:text-primary transition-colors">Home</button>
-            <span>/</span>
-            <span className="text-primary-text">WhatsApp</span>
-          </div>
-
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-primary-text font-heading tracking-tight">
-                WhatsApp
-              </h1>
-              <p className="text-secondary-text mt-2 max-w-2xl">
-                Manage WhatsApp Business configurations for each company.
-              </p>
+        {/* Page Header & Tabs */}
+        <div className="px-4 md:px-10 lg:px-12 max-w-7xl mx-auto w-full mt-6">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 transition-all duration-300">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3 mb-3.5">
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  className="lg:hidden size-9 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#FF6B35] hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors shrink-0 cursor-pointer"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <span className="material-symbols-outlined">menu</span>
+                </button>
+                <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg shadow-sm hidden lg:block">
+                  <span className="material-symbols-outlined !text-[18px]">chat</span>
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">WhatsApp Integration</h2>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                    Manage WhatsApp Business configurations for each company.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Setup Guide in top right */}
+              <a
+                href="https://www.notion.so/Meta-app-for-whatapp-get-steps-316902d09c9480b6bcd0c458edd3d375"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:flex items-center gap-2 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-800/30 rounded-lg px-3 py-1.5 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors group cursor-pointer shadow-sm"
+              >
+                <span className="material-symbols-outlined !text-[16px] text-indigo-600 dark:text-indigo-400 shrink-0">menu_book</span>
+                <span className="text-xs font-bold text-indigo-800 dark:text-indigo-300">Setup Guide</span>
+                <span className="material-symbols-outlined !text-[14px] text-indigo-400 dark:text-indigo-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors shrink-0">open_in_new</span>
+              </a>
             </div>
-          </div>
 
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <div className="flex gap-1 overflow-x-auto">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
               {([
                 { id: 'create-config', label: 'Create Config', icon: 'add_circle', path: '/whatsapp/create-config' },
                 { id: 'view-config',   label: 'View Config',   icon: 'visibility',  path: '/whatsapp/view-config'   },
                 { id: 'bulk-upload',   label: 'Bulk Upload',   icon: 'upload_file', path: '/whatsapp/bulk-upload'   },
-              ] as { id: WhatsAppTab; label: string; icon: string; path: string }[]).map(tab => (
-                <button
-                  key={tab.id}
-                  className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-indigo-500 text-indigo-500'
-                      : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-                  }`}
-                  onClick={() => navigate(tab.path)}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className="material-symbols-outlined !text-[18px]">{tab.icon}</span>
+              ] as { id: WhatsAppTab; label: string; icon: string; path: string }[]).map(tab => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                      isActive
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50'
+                    }`}
+                    onClick={() => navigate(tab.path)}
+                  >
+                    <span className="material-symbols-outlined !text-[14px]">{tab.icon}</span>
                     {tab.label}
-                  </span>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
-        </header>
+        </div>
 
         {/* Tab Content */}
         <div className="flex-1 px-6 md:px-10 lg:px-12 py-6 max-w-7xl mx-auto w-full flex flex-col gap-8 pb-20">

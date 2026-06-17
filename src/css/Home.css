@@ -1,50 +1,282 @@
-/* Word of Mouth Home Dashboard Styles */
+/* ─── Home Dashboard Styles ────────────────────────────────────────────────── */
 
 /* Material Symbols Icon Styles */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
-
 .icon-filled {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* Custom scrollbar for a premium feel */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+body { overflow: hidden; }
+@media (max-width: 1023px) { body { overflow: auto; } }
+
+/* ─── Hero Banner ─────────────────────────────────────────────────────────── */
+.dashboard-hero {
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  min-height: 170px;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* Animated decorative blobs */
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+.hero-blob-1 {
+  width: 280px; height: 280px;
+  background: rgba(255, 107, 53, 0.08);
+  top: -60px; right: 120px;
+  animation: blobDrift1 8s ease-in-out infinite;
+}
+.hero-blob-2 {
+  width: 200px; height: 200px;
+  background: rgba(59, 130, 246, 0.07);
+  top: 20px; right: -40px;
+  animation: blobDrift2 10s ease-in-out infinite;
+}
+.hero-blob-3 {
+  width: 160px; height: 160px;
+  background: rgba(16, 185, 129, 0.07);
+  bottom: -30px; right: 300px;
+  animation: blobDrift3 12s ease-in-out infinite;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+@keyframes blobDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-20px, 15px) scale(1.05); }
+}
+@keyframes blobDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(15px, -20px) scale(1.08); }
+}
+@keyframes blobDrift3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-10px, 12px) scale(1.04); }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+/* Intro fade-up */
+.dashboard-welcome {
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Dark mode scrollbar */
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
+/* Step badge */
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #FF6B35;
+  background: rgba(255, 107, 53, 0.09);
+  border: 1px solid rgba(255, 107, 53, 0.18);
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+/* Step progress dots */
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  opacity: 0.35;
+}
+.step-dot-orange { background: #FF6B35; }
+.step-dot-blue   { background: #3b82f6; }
+.step-dot-emerald{ background: #10b981; }
+
+/* ─── Setup Cards ─────────────────────────────────────────────────────────── */
+.setup-card {
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #f1f5f9;
+  animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.setup-card:nth-child(1) { animation-delay: 0.05s; }
+.setup-card:nth-child(2) { animation-delay: 0.15s; }
+.setup-card:nth-child(3) { animation-delay: 0.25s; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Ensure body doesn't have conflicting styles */
-body {
+.shadow-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+}
+
+/* Hover lift */
+.setup-card:hover {
+  transform: translateY(-5px);
+}
+.setup-card-orange:hover { box-shadow: 0 16px 40px -10px rgba(255,107,53,0.18), 0 4px 16px rgba(0,0,0,0.05); }
+.setup-card-blue:hover   { box-shadow: 0 16px 40px -10px rgba(59,130,246,0.15), 0 4px 16px rgba(0,0,0,0.05); }
+.setup-card-emerald:hover{ box-shadow: 0 16px 40px -10px rgba(16,185,129,0.14), 0 4px 16px rgba(0,0,0,0.05); }
+
+/* Top accent bar */
+.card-accent-bar {
+  height: 4px;
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+}
+.card-accent-orange { background: linear-gradient(90deg, #FF6B35, #ff9770); }
+.card-accent-blue   { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+.card-accent-emerald{ background: linear-gradient(90deg, #10b981, #14b8a6); }
+
+/* Mockup area (visual zone) */
+.mockup-area {
+  padding: 16px 16px 0;
+}
+.mockup-area-orange { background: linear-gradient(160deg, #fff7f4 0%, #ffffff 100%); }
+.mockup-area-blue   { background: linear-gradient(160deg, #f0f7ff 0%, #ffffff 100%); }
+.mockup-area-emerald{ background: linear-gradient(160deg, #f0fdf4 0%, #ffffff 100%); }
+
+/* Card Mockup Wrapper */
+.card-mockup-wrapper {
+  position: relative;
+  height: 148px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  overflow: visible;
+  margin-bottom: 0;
+}
+
+/* Mockup elements */
+.phone-mockup {
+  width: 128px;
+  height: 124px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
+.phone-header    { padding: 4px 6px; }
+.phone-post-img  { flex: 1; }
+.phone-post-footer { padding: 3px 6px; }
 
-/* Mobile responsive adjustments */
-@media (max-width: 1023px) {
-  body {
-    overflow: auto;
-  }
+.upload-mockup {
+  width: 168px;
+  height: 108px;
+  border-radius: 10px;
+}
+.upload-box {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+@keyframes progressPulse {
+  0%, 100% { opacity: 0.9; }
+  50%       { opacity: 0.55; }
+}
+.upload-progress-bar { animation: progressPulse 1.5s ease-in-out infinite; }
+
+.catalog-mockup {
+  width: 218px;
+  height: 108px;
+  border-radius: 10px;
+}
+.catalog-product-card {
+  border-radius: 6px;
+  transition: transform 0.2s ease;
+}
+.catalog-product-card:hover { transform: scale(1.03); }
+
+/* ─── Floating badges ─────────────────────────────────────────────────────── */
+.floater {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  z-index: 10;
+  font-size: 10px;
+  pointer-events: none;
+  animation: cssFloat1 3s ease-in-out infinite;
+}
+.floater:nth-child(even) { animation: cssFloat2 2.7s ease-in-out infinite; }
+
+@keyframes cssFloat1 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(-8px) rotate(4deg); }
+}
+@keyframes cssFloat2 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(7px) rotate(-4deg); }
+}
+
+/* Card 1 floater positions */
+.floater-instagram { top: 12px; left: 18px; border-radius: 8px; }
+.floater-heart     { bottom: 22px; left: 32px; }
+.floater-chat      { top: 18px; right: 22px; }
+.floater-camera    { bottom: 12px; right: 28px; }
+
+/* Card 2 floater positions */
+.floater-video     { top: 16px; left: 32px; border-radius: 8px; }
+.floater-image     { bottom: 18px; left: 18px; }
+.floater-music     { top: 22px; right: 28px; }
+
+/* Card 3 floater positions */
+.floater-shopify   { top: 10px; left: 22px; border-radius: 8px; }
+.floater-price     { bottom: 18px; left: 12px; border-radius: 6px; width: 28px; height: 18px; font-size: 8px; }
+.floater-tag       { top: 12px; right: 16px; }
+
+/* ─── CTA Buttons ─────────────────────────────────────────────────────────── */
+.card-cta-btn {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+.card-cta-orange {
+  background: linear-gradient(135deg, #FF6B35 0%, #e8541d 100%);
+  box-shadow: 0 4px 14px rgba(255,107,53,0.25);
+}
+.card-cta-orange:hover {
+  background: linear-gradient(135deg, #e8541d 0%, #d44316 100%);
+  box-shadow: 0 6px 20px rgba(255,107,53,0.35);
+  transform: translateY(-1px);
+}
+.card-cta-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 4px 14px rgba(59,130,246,0.25);
+}
+.card-cta-blue:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 6px 20px rgba(59,130,246,0.35);
+  transform: translateY(-1px);
+}
+.card-cta-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+}
+.card-cta-emerald:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 20px rgba(16,185,129,0.35);
+  transform: translateY(-1px);
 }

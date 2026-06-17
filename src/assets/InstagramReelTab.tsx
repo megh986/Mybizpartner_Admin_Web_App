@@ -20,7 +20,7 @@ export interface InstagramReelTabProps {
 interface PendingPost {
   _id: string;
   post_url: string;
-  source_url: string; // The tagged URL that was scraped
+  source_url: string;
   user_id: string;
   company_id: string;
   status: 'pending' | 'classified' | 'saved';
@@ -42,7 +42,7 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
   // Review Posts state
   const [reviewSourceUrl, setReviewSourceUrl] = useState<string>('');
   const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
-  const [reviewEditPostId, setReviewEditPostId] = useState<string | null>(null); // which post's Edit popup is open
+  const [reviewEditPostId, setReviewEditPostId] = useState<string | null>(null);
   const [reviewEditClassification, setReviewEditClassification] = useState<'company' | 'product'>('company');
   const [reviewEditProductId, setReviewEditProductId] = useState<string>('');
   const [, setSelectedPendingPosts] = useState<Set<string>>(new Set());
@@ -54,64 +54,59 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
   const [instagramUrls, setInstagramUrls] = useState<string>('');
   const [existingUrls, setExistingUrls] = useState<string[]>([]);
   const [deleteOption, setDeleteOption] = useState<'company' | 'product'>('company');
-  const [deleteProductOption, setDeleteProductOption] = useState<'all' | 'specific'>('all'); // under "Delete product wise": all products vs specific product
-  const [reelOption, setReelOption] = useState<'company' | 'product'>('product'); // Company wise vs Product wise for View/Upload
-  const [, setExistingUrlsSource] = useState<'company' | 'product'>('product'); // where current existingUrls came from (for delete single URL)
+  const [deleteProductOption, setDeleteProductOption] = useState<'all' | 'specific'>('all');
+  const [reelOption, setReelOption] = useState<'company' | 'product'>('product');
+  const [, setExistingUrlsSource] = useState<'company' | 'product'>('product');
   const [urlToDelete, setUrlToDelete] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [hasFetchedReels, setHasFetchedReels] = useState<boolean>(false);
   
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
-  // Product search state
+  // Dropdown states
   const [productSearchQuery, setProductSearchQuery] = useState<string>('');
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState<boolean>(false);
-
-  // Company search state
   const [companySearchQuery, setCompanySearchQuery] = useState<string>('');
   const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState<boolean>(false);
   const [companyIdSearchQuery, setCompanyIdSearchQuery] = useState<string>('');
   const [isCompanyIdDropdownOpen, setIsCompanyIdDropdownOpen] = useState<boolean>(false);
 
-  // Track if we just saved posts (to show helpful "View Saved Posts" button)
+  // Track actions for contextual redirects
   const [justSavedPosts, setJustSavedPosts] = useState<boolean>(false);
   const [lastSavedCompany, setLastSavedCompany] = useState<string>('');
   const [lastSavedProduct, setLastSavedProduct] = useState<string>('');
-
-  // Track if we just uploaded URLs (to show helpful "View Uploaded URLs" button)
   const [justUploadedUrls, setJustUploadedUrls] = useState<boolean>(false);
   const [lastUploadedCompany, setLastUploadedCompany] = useState<string>('');
   const [lastUploadedProduct, setLastUploadedProduct] = useState<string>('');
   const [lastUploadedType, setLastUploadedType] = useState<'company' | 'product'>('company');
-
-  // Track if we just deleted URLs (to show helpful "View Remaining URLs" button)
   const [justDeletedUrls, setJustDeletedUrls] = useState<boolean>(false);
   const [lastDeletedCompany, setLastDeletedCompany] = useState<string>('');
   const [lastDeletedProduct, setLastDeletedProduct] = useState<string>('');
   const [lastDeletedType, setLastDeletedType] = useState<'company' | 'product'>('company');
 
-  // Determine if company should be auto-selected (non-admin with single company)
   const isCompanyAutoSelected = userData && userData.role !== 'admin' && companies.length === 1;
 
-  // Auto-select company on mount if applicable
   useEffect(() => {
     if (isCompanyAutoSelected && companies.length === 1) {
       const companyId = companies[0].company_id;
       setSelectedCompanyId(companyId);
       setSelectedCompany(companyId);
     }
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.to('.gsap-reel-floater-pink-1', { y: -4, x: 1.5, duration: 1.8, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to('.gsap-reel-floater-pink-2', { y: 4, x: -1.5, duration: 2.2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.2 });
+    }
   }, [companies, isCompanyAutoSelected]);
 
-  // Fetch products when company changes
   useEffect(() => {
     if (selectedCompany && (activeTab === 'view' || activeTab === 'upload' || activeTab === 'delete')) {
       fetchProducts(selectedCompany);
     }
-    // Reset product search when company changes
     setProductSearchQuery('');
     setIsProductDropdownOpen(false);
-    // Reset company search when company changes
     if (selectedCompany) {
       const companyName = companies.find(c => c.company_id === selectedCompany)?.company_id || '';
       setCompanySearchQuery(companyName);
@@ -120,7 +115,6 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
     }
   }, [selectedCompany, activeTab, companies]);
 
-  // Reset company ID search when company ID changes
   useEffect(() => {
     if (selectedCompanyId) {
       const companyName = companies.find(c => c.company_id === selectedCompanyId)?.company_id || '';
@@ -130,38 +124,31 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
     }
   }, [selectedCompanyId, companies]);
 
-  // Fetch products when company is selected in Scraper (for "Product for product-wise reels" dropdown)
   useEffect(() => {
     if (selectedCompanyId && activeTab === 'scraper') {
       fetchProducts(selectedCompanyId);
     }
   }, [selectedCompanyId, activeTab]);
 
-  // Filter products based on search query
   const filteredProducts = products.filter(product =>
     product.product_id.toLowerCase().includes(productSearchQuery.toLowerCase())
   );
 
-  // Filter companies based on search query
   const filteredCompanies = companies.filter(company =>
     company.company_id.toLowerCase().includes(companySearchQuery.toLowerCase())
   );
 
-  // Filter companies for company ID search
   const filteredCompaniesForId = companies.filter(company =>
     company.company_id.toLowerCase().includes(companyIdSearchQuery.toLowerCase())
   );
 
-  // Clear product search when product is cleared
   useEffect(() => {
     if (!selectedProduct && productSearchQuery) {
       const productName = products.find(p => p.product_id === productSearchQuery)?.product_id;
-      // Only clear if the search query doesn't match any selected product
       if (!productName) {
         setProductSearchQuery('');
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProduct]);
 
   const fetchProducts = async (companyId: string) => {
@@ -179,86 +166,58 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
     }
   };
 
-  // Scraper functions
   const handleQueueRequest = async () => {
-    if (!selectedCompanyId) {
-      setError('Please select a company');
-      return;
-    }
-
-    if (!instagramTaggedUrl.trim()) {
-      setError('Please enter an Instagram tagged URL');
-      return;
-    }
-
+    if (!selectedCompanyId) { setError('Select company'); return; }
+    if (!instagramTaggedUrl.trim()) { setError('Enter tagged URL'); return; }
     const taggedUrlPattern = /instagram\.com\/[^/]+\/tagged/i;
     if (!taggedUrlPattern.test(instagramTaggedUrl)) {
-      setError('Please enter a valid Instagram tagged URL format: https://www.instagram.com/username/tagged/');
+      setError('Enter valid tagged URL: https://www.instagram.com/username/tagged/');
       return;
     }
-
     try {
-      setLoading(true);
-      setError('');
-      setSuccessMessage('');
-
+      setLoading(true); setError(''); setSuccessMessage('');
       const response = await fetch(`${API_BASE_URL}/instagram-scraper/queue`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          instagram_url: instagramTaggedUrl,
-          company_id: selectedCompanyId,
-          user_id: userData?.user_id
-        }),
+        body: JSON.stringify({ instagram_url: instagramTaggedUrl, company_id: selectedCompanyId, user_id: userData?.user_id }),
       });
-
       const data = await response.json();
-
       if (data.success) {
-        setSuccessMessage('Your request has been queued! Posts will be scraped in the background. Check the "Review Posts" tab to classify them.');
+        setSuccessMessage('Scraper queued! Classify under Review.');
         setInstagramTaggedUrl('');
       } else {
-        setError(data.message || 'Failed to queue scraping request');
+        setError(data.message || 'Scraping queue failed');
       }
     } catch (err) {
-      setError('Error queuing request. Make sure the backend is running.');
+      setError('Connection error');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Review Posts functions
   const handleFetchPendingPosts = async () => {
     try {
-      setLoading(true);
-      setError('');
-      setSuccessMessage('');
-
+      setLoading(true); setError(''); setSuccessMessage('');
       const params = new URLSearchParams();
-      if (userData?.user_id) {
-        params.append('user_id', userData.user_id);
-      }
-      if (reviewSourceUrl.trim()) {
-        params.append('source_url', reviewSourceUrl.trim());
-      }
+      if (userData?.user_id) params.append('user_id', userData.user_id);
+      if (reviewSourceUrl.trim()) params.append('source_url', reviewSourceUrl.trim());
 
       const response = await fetch(`${API_BASE_URL}/instagram-scraper/pending?${params.toString()}`);
       const data = await response.json();
-
       if (data.success) {
         setPendingPosts(data.pending_posts || []);
         if (data.pending_posts.length === 0) {
-          setSuccessMessage('No pending posts found.');
+          setSuccessMessage('No pending posts.');
         } else {
-          setSuccessMessage(`Found ${data.pending_posts.length} pending post(s) to review.`);
+          setSuccessMessage(`Found ${data.pending_posts.length} pending post(s).`);
         }
       } else {
-        setError(data.message || 'Failed to fetch pending posts');
+        setError(data.message || 'Failed fetching posts');
         setPendingPosts([]);
       }
     } catch (err) {
-      setError('Error fetching pending posts. Make sure the backend is running.');
+      setError('Connection error');
       console.error(err);
       setPendingPosts([]);
     } finally {
@@ -277,21 +236,16 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
   const handleSavePosts = async () => {
     const classifiedPosts = pendingPosts.filter(post => post.status === 'classified');
     if (classifiedPosts.length === 0) {
-      setError('No posts have been classified yet. Please classify at least one post before saving.');
+      setError('Classify at least one post.');
       return;
     }
-
     const missingProduct = classifiedPosts.find(post => post.classification === 'product' && !post.product_id);
     if (missingProduct) {
-      setError('All product-classified posts must have a product selected.');
+      setError('Select a product for classified posts.');
       return;
     }
-
     try {
-      setLoading(true);
-      setError('');
-      setSuccessMessage('');
-
+      setLoading(true); setError(''); setSuccessMessage('');
       const response = await fetch(`${API_BASE_URL}/instagram-scraper/finalize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -304,44 +258,22 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
           }))
         }),
       });
-
       const data = await response.json();
-
       if (data.success) {
-        // Count company vs product posts
-        const companyCount = classifiedPosts.filter(p => p.classification === 'company').length;
-        const productCount = classifiedPosts.filter(p => p.classification === 'product').length;
-
-        let message = `Successfully saved ${classifiedPosts.length} post(s)! `;
-        if (companyCount > 0) {
-          message += `${companyCount} saved as company reels. `;
-        }
-        if (productCount > 0) {
-          message += `${productCount} saved as product reels. `;
-        }
-
-        setSuccessMessage(message);
-
-        // Track what was saved for the "View Saved Posts" button
+        setSuccessMessage(`Saved ${classifiedPosts.length} post(s)!`);
         setJustSavedPosts(true);
-        // Get the company from the first post (all should have the same company)
         if (classifiedPosts.length > 0) {
           setLastSavedCompany(classifiedPosts[0].company_id);
-          // If any product posts, remember the first product
-          const firstProductPost = classifiedPosts.find(p => p.classification === 'product' && p.product_id);
-          if (firstProductPost) {
-            setLastSavedProduct(firstProductPost.product_id || '');
-          }
+          const firstProd = classifiedPosts.find(p => p.classification === 'product' && p.product_id);
+          if (firstProd) setLastSavedProduct(firstProd.product_id || '');
         }
-
-        // Remove saved posts from the list
         setPendingPosts(prev => prev.filter(post => post.status !== 'classified'));
         setSelectedPendingPosts(new Set());
       } else {
-        setError(data.message || 'Failed to save posts');
+        setError(data.message || 'Failed to save');
       }
     } catch (err) {
-      setError('Error saving posts. Make sure the backend is running.');
+      setError('Connection error');
       console.error(err);
     } finally {
       setLoading(false);
@@ -352,7 +284,6 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
     setReviewEditPostId(post._id);
     setReviewEditClassification(post.classification || 'company');
     setReviewEditProductId(post.classification === 'product' && post.product_id ? post.product_id : '');
-    // Fetch products for the post's company if not already loaded
     if (post.company_id && products.length === 0) {
       fetchProducts(post.company_id);
     }
@@ -366,30 +297,18 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
   const saveReviewEditPopup = () => {
     if (!reviewEditPostId) return;
     if (reviewEditClassification === 'product' && !reviewEditProductId) {
-      setError('Please select a product for this post');
+      setError('Select product');
       return;
     }
     handleClassifyPost(reviewEditPostId, reviewEditClassification, reviewEditProductId);
     closeReviewEditPopup();
   };
 
-
-  // View existing URLs (company-wise or product-wise)
   const handleFetchExisting = async () => {
-    if (!selectedCompany) {
-      setError('Please select a company');
-      return;
-    }
-    if (reelOption === 'product' && !selectedProduct) {
-      setError('Please select a product');
-      return;
-    }
-
+    if (!selectedCompany) { setError('Select company'); return; }
+    if (reelOption === 'product' && !selectedProduct) { setError('Select product'); return; }
     try {
-      setLoading(true);
-      setError('');
-      setSuccessMessage('');
-
+      setLoading(true); setError(''); setSuccessMessage(''); setHasFetchedReels(false);
       if (reelOption === 'company') {
         const response = await fetch(`${API_BASE_URL}/instagram-images/${selectedCompany}`);
         const data = await response.json();
@@ -397,9 +316,10 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
           const urls = data.instagram_urls || [];
           setExistingUrls(urls);
           setExistingUrlsSource('company');
-          setSuccessMessage(`Found ${urls.length} company Instagram URLs`);
+          setHasFetchedReels(true);
+          if (urls.length > 0) setSuccessMessage(`Found ${urls.length} URLs`);
         } else {
-          setError(data.message || 'Failed to fetch');
+          setError(data.message || 'Fetch failed');
           setExistingUrls([]);
         }
       } else {
@@ -409,45 +329,28 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
           const urls = data.instagram_urls || data.urls || [];
           setExistingUrls(urls);
           setExistingUrlsSource('product');
-          setSuccessMessage(`Found ${urls.length} product Instagram URLs`);
+          setHasFetchedReels(true);
+          if (urls.length > 0) setSuccessMessage(`Found ${urls.length} URLs`);
         } else {
-          setError(data.message || 'Failed to fetch');
+          setError(data.message || 'Fetch failed');
           setExistingUrls([]);
         }
       }
     } catch (err) {
-      setError('Error fetching Instagram URLs');
+      setError('Fetch failed');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Upload URLs manually (company-wise or product-wise)
   const handleUploadUrls = async () => {
-    if (!selectedCompany) {
-      setError('Please select a company');
-      return;
-    }
-    if (reelOption === 'product' && !selectedProduct) {
-      setError('Please select a product');
-      return;
-    }
-    if (!instagramUrls.trim()) {
-      setError('Please enter Instagram URLs');
-      return;
-    }
-
-    const urlArray = instagramUrls
-      .split('\n')
-      .map((url: string) => url.trim())
-      .filter((url: string) => url.length > 0);
-
+    if (!selectedCompany) { setError('Select company'); return; }
+    if (reelOption === 'product' && !selectedProduct) { setError('Select product'); return; }
+    if (!instagramUrls.trim()) { setError('Enter URLs'); return; }
+    const urlArray = instagramUrls.split('\n').map(url => url.trim()).filter(url => url.length > 0);
     try {
-      setLoading(true);
-      setError('');
-      setSuccessMessage('');
-
+      setLoading(true); setError(''); setSuccessMessage('');
       const url = reelOption === 'company'
         ? `${API_BASE_URL}/instagram-images/company/${selectedCompany}`
         : `${API_BASE_URL}/instagram-images/${selectedCompany}/${selectedProduct}`;
@@ -457,79 +360,45 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
         body: JSON.stringify({ instagram_urls: urlArray }),
       });
       const data = await response.json();
-
       if (data.success) {
-        if (data.urls_inserted !== undefined || data.new_urls_added !== undefined) {
-          const added = data.urls_inserted ?? data.new_urls_added ?? 0;
-          if (data.already_exists > 0) {
-            setSuccessMessage(`${added} URL(s) added. ${data.already_exists} already exist.`);
-          } else {
-            setSuccessMessage(`Successfully added ${added} Instagram URL(s) ${reelOption === 'company' ? '(company)' : '(product)'}`);
-          }
-        } else {
-          setSuccessMessage(`Successfully added Instagram URLs`);
-        }
+        const added = data.urls_inserted ?? data.new_urls_added ?? 0;
+        setSuccessMessage(`Added ${added} URL(s)`);
         setInstagramUrls('');
-
-        // Track what was uploaded for the "View Uploaded URLs" button
         setJustUploadedUrls(true);
         setLastUploadedCompany(selectedCompany);
         setLastUploadedProduct(selectedProduct);
         setLastUploadedType(reelOption);
       } else {
-        setError(data.message || 'Failed to upload URLs');
+        setError(data.message || 'Upload failed');
       }
     } catch (err) {
-      setError('Error uploading URLs');
+      setError('Upload failed');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Delete URLs
   const handleDelete = async () => {
-    if (!selectedCompany) {
-      setError('Please select a company');
-      return;
-    }
-
+    if (!selectedCompany) { setError('Select company'); return; }
     if (deleteOption === 'product' && deleteProductOption === 'specific' && !selectedProduct) {
-      setError('Please select a product');
+      setError('Select product');
       return;
     }
-
     try {
-      setLoading(true);
-      setError('');
-      setSuccessMessage('');
-
-      let url = '';
-      if (deleteOption === 'company') {
-        // Delete company reels only (company_reels array)
-        url = `${API_BASE_URL}/instagram-images/company/${selectedCompany}/company-reels`;
-      } else {
-        // Delete product wise
-        if (deleteProductOption === 'all') {
-          // Delete from all products (entire product_reels)
-          url = `${API_BASE_URL}/instagram-images/company/${selectedCompany}/product-reels`;
-        } else {
-          // Delete from specific product
-          url = `${API_BASE_URL}/instagram-images/${selectedCompany}/${selectedProduct}`;
-        }
-      }
+      setLoading(true); setError(''); setSuccessMessage('');
+      const url = deleteOption === 'company'
+        ? `${API_BASE_URL}/instagram-images/company/${selectedCompany}/company-reels`
+        : deleteProductOption === 'all'
+          ? `${API_BASE_URL}/instagram-images/company/${selectedCompany}/product-reels`
+          : `${API_BASE_URL}/instagram-images/${selectedCompany}/${selectedProduct}`;
 
       const response = await fetch(url, { method: 'DELETE' });
       const data = await response.json();
-
       if (data.success) {
         const deletedCount = data.total_urls_deleted ?? data.deleted_count ?? 0;
-        setSuccessMessage(`Successfully deleted ${deletedCount} Instagram URL(s). Click below to view remaining URLs.`);
-        if (activeTab === 'view') {
-          setExistingUrls([]);
-        }
-
-        // Track what was deleted for the "View Remaining URLs" button
+        setSuccessMessage(`Deleted ${deletedCount} URL(s).`);
+        if (activeTab === 'view') setExistingUrls([]);
         setJustDeletedUrls(true);
         setLastDeletedCompany(selectedCompany);
         if (deleteOption === 'product' && deleteProductOption === 'specific') {
@@ -540,36 +409,36 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
           setLastDeletedType('company');
         }
       } else {
-        setError(data.message || 'Failed to delete URLs');
+        setError(data.message || 'Delete failed');
       }
     } catch (err) {
-      setError('Error deleting URLs');
+      setError('Delete failed');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Reusable Searchable Company Dropdown Component (for selectedCompany)
   const renderSearchableCompanyDropdown = (
     disabled: boolean,
     onCompanyChange: (companyId: string) => void,
-    placeholder: string = "-- Select Company --",
-    focusRingColor: string = "focus:ring-pink-200 focus:border-pink-400"
+    placeholder: string = "Select Company...",
+    focusRingColor: string = "focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
   ) => {
     const selectedCompanyName = companies.find(c => c.company_id === selectedCompany)?.company_id || '';
     const displayValue = isCompanyDropdownOpen ? companySearchQuery : (selectedCompanyName || companySearchQuery);
-    
     return (
-      <div className="relative">
-        <div className="relative">
+      <div className={`relative ${isCompanyDropdownOpen ? 'z-[100]' : 'z-10'}`}>
+        <div className="relative group">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <span className="material-symbols-outlined !text-[17px]">domain</span>
+          </div>
           <input
             type="text"
             value={displayValue}
             onChange={(e) => {
               setCompanySearchQuery(e.target.value);
               setIsCompanyDropdownOpen(true);
-              // Clear selection if user starts typing something different
               if (selectedCompany && e.target.value !== selectedCompanyName) {
                 setSelectedCompany('');
                 onCompanyChange('');
@@ -577,86 +446,100 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
             }}
             onFocus={() => {
               setIsCompanyDropdownOpen(true);
-              // If there's a selected company, show it in search, otherwise keep current search
-              if (selectedCompanyName && !companySearchQuery) {
-                setCompanySearchQuery(selectedCompanyName);
-              }
+              if (selectedCompanyName && !companySearchQuery) setCompanySearchQuery(selectedCompanyName);
             }}
             onBlur={() => {
-              // Delay closing to allow click on dropdown item
               setTimeout(() => {
                 setIsCompanyDropdownOpen(false);
-                // If no company selected, clear search. Otherwise show selected company
-                if (!selectedCompany) {
-                  setCompanySearchQuery('');
-                } else {
-                  setCompanySearchQuery(selectedCompanyName);
-                }
+                setCompanySearchQuery(selectedCompany ? selectedCompanyName : '');
               }, 200);
             }}
             placeholder={placeholder}
             disabled={disabled}
-            className={`w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 ${focusRingColor} block p-3.5 pr-10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl pl-9 pr-9 py-2.5 outline-none transition-all shadow-sm
+              placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5
+              disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-50
+              ${selectedCompany ? 'font-medium' : ''}`}
           />
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-secondary-text">
-            <span className="material-symbols-outlined">search</span>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            {selectedCompany && !disabled ? (
+              <button
+                type="button"
+                onMouseDown={(e) => { e.preventDefault(); setSelectedCompany(''); onCompanyChange(''); setCompanySearchQuery(''); }}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+                tabIndex={-1}
+              >
+                <span className="material-symbols-outlined !text-[16px]">close</span>
+              </button>
+            ) : (
+              <span className="material-symbols-outlined !text-[18px] text-slate-400 pointer-events-none">
+                {isCompanyDropdownOpen ? 'expand_less' : 'expand_more'}
+              </span>
+            )}
           </div>
         </div>
-        
-        {/* Dropdown List */}
-        {isCompanyDropdownOpen && !disabled && filteredCompanies.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            {filteredCompanies.map((company) => (
-              <div
-                key={company._id}
-                onMouseDown={(e) => {
-                  // Use onMouseDown instead of onClick to prevent onBlur from firing first
-                  e.preventDefault();
-                  setSelectedCompany(company.company_id);
-                  setCompanySearchQuery(company.company_id);
-                  setIsCompanyDropdownOpen(false);
-                  onCompanyChange(company.company_id);
-                }}
-                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors ${
-                  selectedCompany === company.company_id ? 'bg-blue-50 text-blue-700' : 'text-primary-text'
-                }`}
-              >
-                {company.company_id}
+        {isCompanyDropdownOpen && !disabled && (
+          <div className="absolute z-[100] w-full mt-1.5 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 overflow-hidden">
+            {filteredCompanies.length > 0 ? (
+              <div className="max-h-56 overflow-y-auto py-1">
+                {filteredCompanies.map(c => (
+                  <div
+                    key={c._id}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setSelectedCompany(c.company_id);
+                      setCompanySearchQuery(c.company_id);
+                      setIsCompanyDropdownOpen(false);
+                      onCompanyChange(c.company_id);
+                    }}
+                    className={`flex items-center justify-between mx-1 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                      selectedCompany === c.company_id
+                        ? 'bg-slate-900 text-white font-semibold'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="material-symbols-outlined !text-[14px] opacity-50">domain</span>
+                      {c.company_id}
+                    </span>
+                    {selectedCompany === c.company_id && (
+                      <span className="material-symbols-outlined !text-[15px]">check</span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-        
-        {/* No results message */}
-        {isCompanyDropdownOpen && !disabled && companySearchQuery && filteredCompanies.length === 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-secondary-text">
-            No companies found matching "{companySearchQuery}"
+            ) : companySearchQuery ? (
+              <div className="flex flex-col items-center gap-1 py-6 text-slate-400">
+                <span className="material-symbols-outlined !text-[28px]">search_off</span>
+                <p className="text-xs font-medium">No companies found for &ldquo;{companySearchQuery}&rdquo;</p>
+              </div>
+            ) : null}
           </div>
         )}
       </div>
     );
   };
 
-  // Reusable Searchable Company Dropdown Component (for selectedCompanyId - scraper tab)
   const renderSearchableCompanyIdDropdown = (
     disabled: boolean,
     onCompanyChange: (companyId: string) => void,
-    placeholder: string = "-- Select Company --",
-    focusRingColor: string = "focus:ring-pink-200 focus:border-pink-400"
+    placeholder: string = "Select Company...",
+    focusRingColor: string = "focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
   ) => {
     const selectedCompanyName = companies.find(c => c.company_id === selectedCompanyId)?.company_id || '';
     const displayValue = isCompanyIdDropdownOpen ? companyIdSearchQuery : (selectedCompanyName || companyIdSearchQuery);
-    
     return (
-      <div className="relative">
-        <div className="relative">
+      <div className={`relative ${isCompanyIdDropdownOpen ? 'z-[100]' : 'z-10'}`}>
+        <div className="relative group">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <span className="material-symbols-outlined !text-[17px]">domain</span>
+          </div>
           <input
             type="text"
             value={displayValue}
             onChange={(e) => {
               setCompanyIdSearchQuery(e.target.value);
               setIsCompanyIdDropdownOpen(true);
-              // Clear selection if user starts typing something different
               if (selectedCompanyId && e.target.value !== selectedCompanyName) {
                 setSelectedCompanyId('');
                 onCompanyChange('');
@@ -664,160 +547,100 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
             }}
             onFocus={() => {
               setIsCompanyIdDropdownOpen(true);
-              // If there's a selected company, show it in search, otherwise keep current search
-              if (selectedCompanyName && !companyIdSearchQuery) {
-                setCompanyIdSearchQuery(selectedCompanyName);
-              }
+              if (selectedCompanyName && !companyIdSearchQuery) setCompanyIdSearchQuery(selectedCompanyName);
             }}
             onBlur={() => {
-              // Delay closing to allow click on dropdown item
               setTimeout(() => {
                 setIsCompanyIdDropdownOpen(false);
-                // If no company selected, clear search. Otherwise show selected company
-                if (!selectedCompanyId) {
-                  setCompanyIdSearchQuery('');
-                } else {
-                  setCompanyIdSearchQuery(selectedCompanyName);
-                }
+                setCompanyIdSearchQuery(selectedCompanyId ? selectedCompanyName : '');
               }, 200);
             }}
             placeholder={placeholder}
             disabled={disabled}
-            className={`w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 ${focusRingColor} block p-3.5 pr-10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl pl-9 pr-9 py-2.5 outline-none transition-all shadow-sm
+              placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5
+              disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-50
+              ${selectedCompanyId ? 'font-medium' : ''}`}
           />
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-secondary-text">
-            <span className="material-symbols-outlined">search</span>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            {selectedCompanyId && !disabled ? (
+              <button
+                type="button"
+                onMouseDown={(e) => { e.preventDefault(); setSelectedCompanyId(''); onCompanyChange(''); setCompanyIdSearchQuery(''); }}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+                tabIndex={-1}
+              >
+                <span className="material-symbols-outlined !text-[16px]">close</span>
+              </button>
+            ) : (
+              <span className="material-symbols-outlined !text-[18px] text-slate-400 pointer-events-none">
+                {isCompanyIdDropdownOpen ? 'expand_less' : 'expand_more'}
+              </span>
+            )}
           </div>
         </div>
-        
-        {/* Dropdown List */}
-        {isCompanyIdDropdownOpen && !disabled && filteredCompaniesForId.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            {filteredCompaniesForId.map((company) => (
-              <div
-                key={company._id}
-                onMouseDown={(e) => {
-                  // Use onMouseDown instead of onClick to prevent onBlur from firing first
-                  e.preventDefault();
-                  setSelectedCompanyId(company.company_id);
-                  setCompanyIdSearchQuery(company.company_id);
-                  setIsCompanyIdDropdownOpen(false);
-                  onCompanyChange(company.company_id);
-                }}
-                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors ${
-                  selectedCompanyId === company.company_id ? 'bg-blue-50 text-blue-700' : 'text-primary-text'
-                }`}
-              >
-                {company.company_id}
+        {isCompanyIdDropdownOpen && !disabled && (
+          <div className="absolute z-[100] w-full mt-1.5 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 overflow-hidden">
+            {filteredCompaniesForId.length > 0 ? (
+              <div className="max-h-56 overflow-y-auto py-1">
+                {filteredCompaniesForId.map(c => (
+                  <div
+                    key={c._id}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setSelectedCompanyId(c.company_id);
+                      setCompanyIdSearchQuery(c.company_id);
+                      setIsCompanyIdDropdownOpen(false);
+                      onCompanyChange(c.company_id);
+                    }}
+                    className={`flex items-center justify-between mx-1 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                      selectedCompanyId === c.company_id
+                        ? 'bg-slate-900 text-white font-semibold'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="material-symbols-outlined !text-[14px] opacity-50">domain</span>
+                      {c.company_id}
+                    </span>
+                    {selectedCompanyId === c.company_id && (
+                      <span className="material-symbols-outlined !text-[15px]">check</span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-        
-        {/* No results message */}
-        {isCompanyIdDropdownOpen && !disabled && companyIdSearchQuery && filteredCompaniesForId.length === 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-secondary-text">
-            No companies found matching "{companyIdSearchQuery}"
+            ) : companyIdSearchQuery ? (
+              <div className="flex flex-col items-center gap-1 py-6 text-slate-400">
+                <span className="material-symbols-outlined !text-[28px]">search_off</span>
+                <p className="text-xs font-medium">No companies found for &ldquo;{companyIdSearchQuery}&rdquo;</p>
+              </div>
+            ) : null}
           </div>
         )}
       </div>
     );
   };
 
-  const renderScraper = () => (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        {!isCompanyAutoSelected && (
-          <label className="flex flex-col w-full">
-            <p className="text-primary-text text-sm font-semibold leading-normal pb-2">
-              Select Company <span className="text-red-500">*</span>
-            </p>
-            {renderSearchableCompanyIdDropdown(
-              loading || parentLoading,
-              (companyId) => {
-                setSelectedCompanyId(companyId);
-                setError('');
-                setSuccessMessage('');
-              },
-              "-- Select Company --",
-              "focus:ring-pink-200 focus:border-pink-400"
-            )}
-          </label>
-        )}
-
-        <label className="flex flex-col w-full">
-          <p className="text-primary-text text-sm font-semibold leading-normal pb-2">
-            Instagram Tagged URL <span className="text-red-500">*</span>
-          </p>
-          <p className="text-xs text-secondary-text pb-2">
-            Enter the tagged posts URL of an Instagram profile (e.g., https://www.instagram.com/username/tagged/)
-          </p>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-secondary-text">
-              <span className="material-symbols-outlined !text-[20px]">link</span>
-            </span>
-            <input
-              type="url"
-              value={instagramTaggedUrl}
-              onChange={(e) => {
-                setInstagramTaggedUrl(e.target.value);
-                setError('');
-              }}
-              placeholder="https://www.instagram.com/username/tagged/"
-              disabled={loading || !selectedCompanyId}
-              className="w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 focus:ring-pink-200 focus:border-pink-400 block p-3.5 pl-10 outline-none transition-all placeholder:text-secondary-text/60 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-        </label>
-      </div>
-
-      <button
-        onClick={handleQueueRequest}
-        disabled={loading || !selectedCompanyId || !instagramTaggedUrl.trim()}
-        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20"
-      >
-        <span className="material-symbols-outlined !text-[20px]">
-          {loading ? 'sync' : 'schedule'}
-        </span>
-        {loading ? 'Queuing Request...' : 'Queue Scraping Request'}
-      </button>
-
-      <div className="border-t border-gray-100 pt-6 mt-6">
-        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg flex items-start gap-3">
-          <span className="material-symbols-outlined !text-[20px] shrink-0">info</span>
-          <div className="text-sm">
-            <p className="font-semibold mb-1">How it works:</p>
-            <ol className="list-decimal list-inside space-y-1">
-              <li>Queue your Instagram tagged URL here</li>
-              <li>Our system will scrape the posts in the background</li>
-              <li>Go to the "Review Posts" tab to classify and save them</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Reusable Searchable Product Dropdown Component
   const renderSearchableProductDropdown = (
     disabled: boolean,
     onProductChange: (productId: string) => void,
-    placeholder: string = "-- Select Product --",
-    focusRingColor: string = "focus:ring-pink-200 focus:border-pink-400"
+    placeholder: string = "Select Product...",
+    focusRingColor: string = "focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
   ) => {
     const selectedProductName = products.find(p => p.product_id === selectedProduct)?.product_id || '';
     const displayValue = isProductDropdownOpen ? productSearchQuery : (selectedProductName || productSearchQuery);
-    
     return (
-      <div className="relative">
-        <div className="relative">
+      <div className={`relative ${isProductDropdownOpen ? 'z-[100]' : 'z-10'}`}>
+        <div className="relative group">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <span className="material-symbols-outlined !text-[17px]">search</span>
+          </div>
           <input
             type="text"
             value={displayValue}
             onChange={(e) => {
               setProductSearchQuery(e.target.value);
               setIsProductDropdownOpen(true);
-              // Clear selection if user starts typing something different
               if (selectedProduct && e.target.value !== selectedProductName) {
                 setSelectedProduct('');
                 onProductChange('');
@@ -825,818 +648,120 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
             }}
             onFocus={() => {
               setIsProductDropdownOpen(true);
-              // If there's a selected product, show it in search, otherwise keep current search
-              if (selectedProductName && !productSearchQuery) {
-                setProductSearchQuery(selectedProductName);
-              }
+              if (selectedProductName && !productSearchQuery) setProductSearchQuery(selectedProductName);
             }}
             onBlur={() => {
-              // Delay closing to allow click on dropdown item
               setTimeout(() => {
                 setIsProductDropdownOpen(false);
-                // If no product selected, clear search. Otherwise show selected product
-                if (!selectedProduct) {
-                  setProductSearchQuery('');
-                } else {
-                  setProductSearchQuery(selectedProductName);
-                }
+                setProductSearchQuery(selectedProduct ? selectedProductName : '');
               }, 200);
             }}
             placeholder={placeholder}
             disabled={disabled}
-            className={`w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 ${focusRingColor} block p-3.5 pr-10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl pl-9 pr-9 py-2.5 outline-none transition-all shadow-sm
+              placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5
+              disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-50
+              ${selectedProduct ? 'font-medium' : ''}`}
           />
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-secondary-text">
-            <span className="material-symbols-outlined">search</span>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            {selectedProduct && !disabled ? (
+              <button
+                type="button"
+                onMouseDown={(e) => { e.preventDefault(); setSelectedProduct(''); onProductChange(''); setProductSearchQuery(''); }}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+                tabIndex={-1}
+              >
+                <span className="material-symbols-outlined !text-[16px]">close</span>
+              </button>
+            ) : (
+              <span className="material-symbols-outlined !text-[18px] text-slate-400 pointer-events-none">
+                {isProductDropdownOpen ? 'expand_less' : 'expand_more'}
+              </span>
+            )}
           </div>
         </div>
-        
-        {/* Dropdown List */}
-        {isProductDropdownOpen && !disabled && filteredProducts.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            {filteredProducts.map((product) => (
-              <div
-                key={product._id}
-                onMouseDown={(e) => {
-                  // Use onMouseDown instead of onClick to prevent onBlur from firing first
-                  e.preventDefault();
-                  setSelectedProduct(product.product_id);
-                  setProductSearchQuery(product.product_id);
-                  setIsProductDropdownOpen(false);
-                  onProductChange(product.product_id);
-                }}
-                className={`px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors ${
-                  selectedProduct === product.product_id ? 'bg-blue-50 text-blue-700' : 'text-primary-text'
-                }`}
-              >
-                {product.product_id}
+        {isProductDropdownOpen && !disabled && (
+          <div className="absolute z-[100] w-full mt-1.5 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-xl shadow-slate-900/10 overflow-hidden">
+            {filteredProducts.length > 0 ? (
+              <div className="max-h-56 overflow-y-auto py-1">
+                {filteredProducts.map(p => (
+                  <div
+                    key={p._id}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setSelectedProduct(p.product_id);
+                      setProductSearchQuery(p.product_id);
+                      setIsProductDropdownOpen(false);
+                      onProductChange(p.product_id);
+                    }}
+                    className={`flex items-center justify-between mx-1 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                      selectedProduct === p.product_id
+                        ? 'bg-slate-900 text-white font-semibold'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="material-symbols-outlined !text-[14px] opacity-50">inventory_2</span>
+                      {p.product_id}
+                    </span>
+                    {selectedProduct === p.product_id && (
+                      <span className="material-symbols-outlined !text-[15px]">check</span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-        
-        {/* No results message */}
-        {isProductDropdownOpen && !disabled && productSearchQuery && filteredProducts.length === 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-secondary-text">
-            No products found matching "{productSearchQuery}"
+            ) : productSearchQuery ? (
+              <div className="flex flex-col items-center gap-1 py-6 text-slate-400">
+                <span className="material-symbols-outlined !text-[28px]">search_off</span>
+                <p className="text-xs font-medium">No products found for &ldquo;{productSearchQuery}&rdquo;</p>
+              </div>
+            ) : null}
           </div>
         )}
       </div>
     );
   };
 
-  const renderReview = () => (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        <label className="flex flex-col w-full">
-          <p className="text-primary-text text-sm font-semibold leading-normal pb-2">
-            Instagram Tagged URL (Optional)
-          </p>
-          <p className="text-xs text-secondary-text pb-2">
-            Enter the source URL to filter posts, or leave empty to see all your pending posts
-          </p>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-secondary-text">
-              <span className="material-symbols-outlined !text-[20px]">link</span>
-            </span>
-            <input
-              type="url"
-              value={reviewSourceUrl}
-              onChange={(e) => {
-                setReviewSourceUrl(e.target.value);
-                setError('');
-              }}
-              placeholder="https://www.instagram.com/username/tagged/ (optional)"
-              disabled={loading}
-              className="w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 focus:ring-pink-200 focus:border-pink-400 block p-3.5 pl-10 outline-none transition-all placeholder:text-secondary-text/60 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
-          </div>
-        </label>
-      </div>
-
-      <button
-        onClick={handleFetchPendingPosts}
-        disabled={loading}
-        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20"
-      >
-        <span className="material-symbols-outlined !text-[20px]">
-          {loading ? 'sync' : 'refresh'}
-        </span>
-        {loading ? 'Loading...' : 'Fetch Pending Posts'}
-      </button>
-
-      {pendingPosts.length > 0 && (
-        <div className="border-t border-gray-100 pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-pink-500 !text-[24px]">pending</span>
-              <h3 className="text-base font-bold text-primary-text">
-                Pending Posts ({pendingPosts.length})
-              </h3>
-            </div>
-            <button
-              onClick={handleSavePosts}
-              disabled={loading || !pendingPosts.some(post => post.status === 'classified')}
-              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-green-600/20"
-            >
-              <span className="material-symbols-outlined !text-[20px]">
-                {loading ? 'sync' : 'save'}
-              </span>
-              {loading ? 'Saving...' : 'Save Classified Posts'}
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pendingPosts.map((post) => (
-              <div
-                key={post._id}
-                className={`border rounded-xl overflow-hidden transition-all ${
-                  post.status === 'classified'
-                    ? 'border-green-300 bg-green-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="relative bg-gray-100" style={{ paddingBottom: '125%' }}>
-                  {post.thumbnail_url ? (
-                    <img
-                      src={post.thumbnail_url}
-                      alt="Post preview"
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-gray-400 !text-[48px]">image</span>
-                    </div>
-                  )}
-                  <div className="absolute top-2 right-2">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      post.status === 'classified'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-yellow-500 text-white'
-                    }`}>
-                      {post.status === 'classified' ? 'Classified' : 'Pending'}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <a
-                    href={post.post_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:text-blue-700 hover:underline truncate block mb-3"
-                  >
-                    View on Instagram
-                  </a>
-                  {post.status === 'classified' && (
-                    <div className="mb-3 p-2 bg-white rounded-lg border border-gray-200">
-                      <p className="text-xs text-secondary-text mb-1">Classification:</p>
-                      <p className={`text-sm font-medium ${post.classification === 'company' ? 'text-pink-600' : 'text-purple-600'}`}>
-                        {post.classification === 'company' ? 'Company Video' : `Product Video${post.product_id ? ` (${post.product_id})` : ''}`}
-                      </p>
-                    </div>
-                  )}
-                  <button
-                    onClick={() => openReviewEditPopup(post)}
-                    className="w-full py-2.5 px-4 bg-pink-600 hover:bg-pink-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-                  >
-                    <span className="material-symbols-outlined !text-[18px]">edit</span>
-                    {post.status === 'classified' ? 'Edit Classification' : 'Classify Post'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Edit Classification Popup */}
-      {reviewEditPostId && (() => {
-        const editPost = pendingPosts.find(p => p._id === reviewEditPostId);
-        if (!editPost) return null;
-        return (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
-              <div className="flex items-center gap-3 p-4 border-b border-gray-100 shrink-0">
-                <div className="p-3 bg-pink-100 text-pink-600 rounded-full">
-                  <span className="material-symbols-outlined">edit</span>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Classify Post</h3>
-              </div>
-              <div className="flex-1 overflow-y-auto p-6">
-                <div className="flex flex-col gap-4">
-                  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    {editPost.thumbnail_url ? (
-                      <img
-                        src={editPost.thumbnail_url}
-                        alt="Post preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="material-symbols-outlined text-gray-400 !text-[64px]">image</span>
-                      </div>
-                    )}
-                  </div>
-                  <a
-                    href={editPost.post_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:text-blue-700 hover:underline truncate"
-                  >
-                    {editPost.post_url}
-                  </a>
-                  <div>
-                    <p className="text-primary-text text-sm font-semibold mb-3">Classify as</p>
-                    <div className="flex flex-col gap-2">
-                      <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${reviewEditClassification === 'company' ? 'border-pink-400 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                        <input
-                          type="radio"
-                          name="reviewEditClassification"
-                          checked={reviewEditClassification === 'company'}
-                          onChange={() => setReviewEditClassification('company')}
-                          className="w-4 h-4 text-pink-600"
-                        />
-                        <span className="text-sm font-medium text-primary-text">Company Video</span>
-                      </label>
-                      <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${reviewEditClassification === 'product' ? 'border-pink-400 bg-pink-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                        <input
-                          type="radio"
-                          name="reviewEditClassification"
-                          checked={reviewEditClassification === 'product'}
-                          onChange={() => setReviewEditClassification('product')}
-                          className="w-4 h-4 text-pink-600"
-                        />
-                        <span className="text-sm font-medium text-primary-text">Product Video</span>
-                      </label>
-                    </div>
-                  </div>
-                  {reviewEditClassification === 'product' && (
-                    <div>
-                      <p className="text-primary-text text-sm font-semibold mb-2">Select Product *</p>
-                      <div className="relative">
-                        <select
-                          value={reviewEditProductId}
-                          onChange={(e) => setReviewEditProductId(e.target.value)}
-                          className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-3 pr-8 text-sm text-primary-text focus:ring-2 focus:ring-pink-200 focus:border-pink-400"
-                        >
-                          <option value="">-- Select Product --</option>
-                          {products.map((p) => (
-                            <option key={p._id} value={p.product_id}>{p.product_id}</option>
-                          ))}
-                        </select>
-                        <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none !text-[18px]">expand_more</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100 shrink-0">
-                <button
-                  onClick={closeReviewEditPopup}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={saveReviewEditPopup}
-                  disabled={reviewEditClassification === 'product' && !reviewEditProductId}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-pink-600 rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Save Classification
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-    </div>
-  );
-
-  const renderView = () => (
-    <div className="flex flex-col gap-6">
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-        <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Show reels</p>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="reelOptionView"
-              value="company"
-              checked={reelOption === 'company'}
-              onChange={() => { setReelOption('company'); setExistingUrls([]); setError(''); setSuccessMessage(''); }}
-              className="w-4 h-4 text-pink-600"
-            />
-            <span className="text-sm text-primary-text">Company wise</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="reelOptionView"
-              value="product"
-              checked={reelOption === 'product'}
-              onChange={() => { setReelOption('product'); setExistingUrls([]); setError(''); setSuccessMessage(''); }}
-              className="w-4 h-4 text-pink-600"
-            />
-            <span className="text-sm text-primary-text">Product wise</span>
-          </label>
-        </div>
-      </div>
-      <div className={`grid gap-4 ${isCompanyAutoSelected ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
-        {!isCompanyAutoSelected && (
-          <label className="flex flex-col w-full">
-            <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Company *</p>
-            {renderSearchableCompanyDropdown(
-              loading,
-              (companyId) => {
-                setSelectedCompany(companyId);
-                setSelectedProduct('');
-                setError('');
-                setSuccessMessage('');
-                setExistingUrls([]);
-              },
-              "-- Select Company --",
-              "focus:ring-pink-200 focus:border-pink-400"
-            )}
-          </label>
-        )}
-
-        {reelOption === 'product' && (
-          <label className="flex flex-col w-full">
-            <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Product *</p>
-            {renderSearchableProductDropdown(
-            loading || !selectedCompany,
-            (productId) => {
-              setSelectedProduct(productId);
-              setError('');
-              setSuccessMessage('');
-              setExistingUrls([]);
-            },
-            "-- Select Product --",
-            "focus:ring-pink-200 focus:border-pink-400"
-          )}
-          </label>
-        )}
-      </div>
-
-      <button
-        onClick={handleFetchExisting}
-        disabled={loading || !selectedCompany || (reelOption === 'product' && !selectedProduct)}
-        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20"
-      >
-        <span className="material-symbols-outlined !text-[20px]">search</span>
-        {loading ? 'Fetching...' : 'Fetch URLs'}
-      </button>
-
-      {existingUrls.length > 0 && (
-        <div className="border-t border-gray-100 pt-6">
-          <h3 className="text-base font-bold text-primary-text mb-4">
-            Found {existingUrls.length} Instagram URL(s)
-          </h3>
-          <div className="flex flex-col gap-2">
-            {existingUrls.map((url, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <span className="material-symbols-outlined text-pink-500">link</span>
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 truncate flex-1 hover:underline"
-                >
-                  {url}
-                </a>
-                <span className="material-symbols-outlined text-gray-400">open_in_new</span>
-                <button
-                  onClick={() => {
-                    setUrlToDelete(url);
-                    setDeleteDialogOpen(true);
-                  }}
-                  disabled={loading}
-                  className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0 opacity-0 group-hover:opacity-100 disabled:opacity-50"
-                  title="Delete this URL"
-                >
-                  <span className="material-symbols-outlined !text-[18px]">delete</span>
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      {deleteDialogOpen && urlToDelete && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-red-100 text-red-600 rounded-full">
-                  <span className="material-symbols-outlined">delete</span>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">Delete Instagram URL</h3>
-              </div>
-              <p className="text-gray-600 text-sm leading-relaxed mb-2">
-                Are you sure you want to delete this Instagram URL?
-              </p>
-              <p className="text-xs text-gray-500 break-all bg-gray-50 p-2 rounded">
-                {urlToDelete}
-              </p>
-              <p className="text-gray-600 text-sm leading-relaxed mt-2">
-                This action cannot be undone.
-              </p>
-            </div>
-            <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-              <button
-                onClick={() => {
-                  setDeleteDialogOpen(false);
-                  setUrlToDelete(null);
-                }}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  if (!urlToDelete || !selectedCompany) return;
-                  if (reelOption === 'product' && !selectedProduct) return;
-
-                  setDeleteDialogOpen(false);
-                  setLoading(true);
-                  setError('');
-                  setSuccessMessage('');
-
-                  try {
-                    const deleteUrl = reelOption === 'company'
-                      ? `${API_BASE_URL}/instagram-images/company/${selectedCompany}/url?instagram_url=${encodeURIComponent(urlToDelete)}`
-                      : `${API_BASE_URL}/instagram-images/${selectedCompany}/${selectedProduct}/url?instagram_url=${encodeURIComponent(urlToDelete)}`;
-                    const response = await fetch(deleteUrl, { method: 'DELETE' });
-                    let data: { success?: boolean; message?: string } = {};
-                    try {
-                      data = await response.json();
-                    } catch {
-                      setError(response.ok ? 'Invalid response from server' : `Delete failed (${response.status})`);
-                      setLoading(false);
-                      setUrlToDelete(null);
-                      return;
-                    }
-
-                    if (response.ok && data.success) {
-                      setSuccessMessage('Instagram URL deleted successfully');
-                      setExistingUrls(prev => prev.filter(url => url !== urlToDelete));
-                      await handleFetchExisting();
-                    } else {
-                      setError(data.message || (response.ok ? 'Failed to delete URL' : `Delete failed (${response.status})`));
-                    }
-                  } catch (err) {
-                    setError('Error deleting URL');
-                    console.error(err);
-                  } finally {
-                    setLoading(false);
-                    setUrlToDelete(null);
-                  }
-                }}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderUpload = () => (
-    <div className="flex flex-col gap-6">
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-        <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Upload reels</p>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="reelOptionUpload"
-              value="company"
-              checked={reelOption === 'company'}
-              onChange={() => { setReelOption('company'); setError(''); setSuccessMessage(''); }}
-              className="w-4 h-4 text-pink-600"
-            />
-            <span className="text-sm text-primary-text">Company wise</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="reelOptionUpload"
-              value="product"
-              checked={reelOption === 'product'}
-              onChange={() => { setReelOption('product'); setError(''); setSuccessMessage(''); }}
-              className="w-4 h-4 text-pink-600"
-            />
-            <span className="text-sm text-primary-text">Product wise</span>
-          </label>
-        </div>
-      </div>
-      <div className={`grid gap-4 ${isCompanyAutoSelected ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
-        {!isCompanyAutoSelected && (
-          <label className="flex flex-col w-full">
-            <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Company *</p>
-            {renderSearchableCompanyDropdown(
-              loading,
-              (companyId) => {
-                setSelectedCompany(companyId);
-                setSelectedProduct('');
-                setError('');
-                setSuccessMessage('');
-              },
-              "-- Select Company --",
-              "focus:ring-pink-200 focus:border-pink-400"
-            )}
-          </label>
-        )}
-
-        {reelOption === 'product' && (
-          <label className="flex flex-col w-full">
-            <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Product *</p>
-            {renderSearchableProductDropdown(
-              loading || !selectedCompany,
-              (productId) => {
-                setSelectedProduct(productId);
-                setError('');
-                setSuccessMessage('');
-              },
-              "-- Select Product --",
-              "focus:ring-pink-200 focus:border-pink-400"
-            )}
-          </label>
-        )}
-      </div>
-
-      <label className="flex flex-col w-full">
-        <p className="text-primary-text text-sm font-semibold leading-normal pb-2">
-          Instagram Post URLs *
-        </p>
-        <p className="text-xs text-secondary-text pb-2">
-          Enter one URL per line. Example: https://www.instagram.com/p/ABC123/
-        </p>
-        <textarea
-          className="w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 focus:ring-pink-200 focus:border-pink-400 block p-3.5 outline-none transition-all min-h-[200px] resize-y"
-          placeholder="https://www.instagram.com/p/ABC123/&#10;https://www.instagram.com/p/DEF456/"
-          value={instagramUrls}
-          onChange={(e) => setInstagramUrls(e.target.value)}
-          disabled={loading}
-        />
-      </label>
-
-      {instagramUrls.trim() && (
-        <p className="text-xs text-primary-text font-medium">
-          {instagramUrls.split('\n').filter((url: string) => url.trim()).length} URL(s) entered
-        </p>
-      )}
-
-      <button
-        onClick={handleUploadUrls}
-        disabled={loading || !selectedCompany || (reelOption === 'product' && !selectedProduct) || !instagramUrls.trim()}
-        className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20"
-      >
-        <span className="material-symbols-outlined !text-[20px]">cloud_upload</span>
-        {loading ? 'Uploading...' : `Add ${instagramUrls.split('\n').filter((url: string) => url.trim()).length} URL(s)`}
-      </button>
-    </div>
-  );
-
-  const renderDelete = () => (
-    <div className="flex flex-col gap-6">
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h3 className="text-lg font-bold text-primary-text mb-4">Select Delete Option</h3>
-        <div className="flex flex-col gap-2">
-          <label className="flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all border-gray-200 hover:border-gray-300">
-            <input
-              type="radio"
-              name="deleteOption"
-              value="company"
-              checked={deleteOption === 'company'}
-              onChange={() => {
-                setDeleteOption('company');
-                setError('');
-                setSuccessMessage('');
-              }}
-              className="w-4 h-4 text-red-600"
-            />
-            <span className="text-sm font-medium text-primary-text">Delete company insta URL</span>
-          </label>
-          <label className="flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all border-gray-200 hover:border-gray-300">
-            <input
-              type="radio"
-              name="deleteOption"
-              value="product"
-              checked={deleteOption === 'product'}
-              onChange={() => {
-                setDeleteOption('product');
-                setError('');
-                setSuccessMessage('');
-              }}
-              className="w-4 h-4 text-red-600"
-            />
-            <span className="text-sm font-medium text-primary-text">Delete product wise</span>
-          </label>
-
-          {deleteOption === 'product' && (
-            <div className="ml-6 mt-2 flex flex-col gap-2 border-l-2 border-gray-200 pl-4">
-              <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all border-gray-200 hover:border-gray-300">
-                <input
-                  type="radio"
-                  name="deleteProductOption"
-                  value="all"
-                  checked={deleteProductOption === 'all'}
-                  onChange={() => {
-                    setDeleteProductOption('all');
-                    setSelectedProduct('');
-                    setError('');
-                    setSuccessMessage('');
-                  }}
-                  className="w-4 h-4 text-red-600"
-                />
-                <span className="text-sm font-medium text-primary-text">Delete from all product</span>
-              </label>
-              <label className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all border-gray-200 hover:border-gray-300">
-                <input
-                  type="radio"
-                  name="deleteProductOption"
-                  value="specific"
-                  checked={deleteProductOption === 'specific'}
-                  onChange={() => {
-                    setDeleteProductOption('specific');
-                    setError('');
-                    setSuccessMessage('');
-                  }}
-                  className="w-4 h-4 text-red-600"
-                />
-                <span className="text-sm font-medium text-primary-text">Delete from specific product</span>
-              </label>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className={`grid gap-4 ${isCompanyAutoSelected ? 'grid-cols-1' : (deleteOption === 'product' && deleteProductOption === 'specific' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1')}`}>
-        {!isCompanyAutoSelected && (
-          <label className="flex flex-col w-full">
-            <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Company *</p>
-            {renderSearchableCompanyDropdown(
-              loading,
-              (companyId) => {
-                setSelectedCompany(companyId);
-                setSelectedProduct('');
-                setError('');
-                setSuccessMessage('');
-              },
-              "-- Select Company --",
-              "focus:ring-red-200 focus:border-red-400"
-            )}
-          </label>
-        )}
-
-        {deleteOption === 'product' && deleteProductOption === 'specific' && (
-          <label className="flex flex-col w-full">
-            <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Product *</p>
-            {renderSearchableProductDropdown(
-              loading || !selectedCompany,
-              (productId) => {
-                setSelectedProduct(productId);
-                setError('');
-                setSuccessMessage('');
-              },
-              "-- Select Product --",
-              "focus:ring-red-200 focus:border-red-400"
-            )}
-          </label>
-        )}
-      </div>
-
-      <button
-        onClick={handleDelete}
-        disabled={loading || !selectedCompany || (deleteOption === 'product' && deleteProductOption === 'specific' && !selectedProduct)}
-        className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
-      >
-        <span className="material-symbols-outlined !text-[20px]">delete</span>
-        {loading ? 'Deleting...' : 'Delete Instagram URLs'}
-      </button>
-    </div>
-  );
-
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-    <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-gradient-to-br from-pink-500 to-purple-600 text-white rounded-lg">
-          <span className="material-symbols-outlined">photo_camera</span>
+    <div className="grid grid-cols-1 gap-6 relative">
+      {/* Floating Animations */}
+      <div className="absolute top-3 right-3 flex gap-1.5 pointer-events-none select-none z-10">
+        <div className="gsap-reel-floater-pink-1 w-6 h-6 rounded-full bg-[#FF6B35]/10 text-[#FF6B35] flex items-center justify-center opacity-60">
+          <span className="material-symbols-outlined !text-[13px]">movie</span>
         </div>
-        <div>
-          <h2 className="text-lg font-bold text-primary-text">Instagram Post URLs</h2>
-          <p className="text-xs text-secondary-text">Manage Instagram post URLs for your products</p>
+        <div className="gsap-reel-floater-pink-2 w-6 h-6 rounded-full bg-purple-500/10 text-purple-600 flex items-center justify-center opacity-60">
+          <span className="material-symbols-outlined !text-[13px]">link</span>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <div className="flex gap-1 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('scraper')}
-            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'scraper'
-                ? 'border-pink-500 text-pink-600'
-                : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-            }`}
-          >
-            Queue Request
-          </button>
-          <button
-            onClick={() => setActiveTab('review')}
-            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'review'
-                ? 'border-pink-500 text-pink-600'
-                : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-            }`}
-          >
-            Review Posts
-          </button>
-          <button
-            onClick={() => setActiveTab('view')}
-            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'view'
-                ? 'border-pink-500 text-pink-600'
-                : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-            }`}
-          >
-            View Existing
-          </button>
-          <button
-            onClick={() => setActiveTab('upload')}
-            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'upload'
-                ? 'border-pink-500 text-pink-600'
-                : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-            }`}
-          >
-            Upload URLs
-          </button>
-          <button
-            onClick={() => setActiveTab('delete')}
-            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-              activeTab === 'delete'
-                ? 'border-pink-500 text-pink-600'
-                : 'border-transparent text-secondary-text hover:text-primary-text hover:border-gray-300'
-            }`}
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-
-      {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
-          <span className="material-symbols-outlined !text-[20px]">error</span>
-          <span className="text-sm">{error}</span>
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-400 px-4 py-3.5 rounded-xl text-sm font-semibold shadow-sm flex items-center gap-2">
+          <span className="material-symbols-outlined !text-[18px]">error</span>
+          {error}
         </div>
       )}
 
-      {/* Success Message */}
       {successMessage && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+        <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-400 px-4 py-3.5 rounded-xl text-sm font-semibold shadow-sm flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined !text-[20px]">check_circle</span>
-            <span className="text-sm flex-1">{successMessage}</span>
+            <span className="material-symbols-outlined !text-[18px]">check_circle</span>
+            <span className="flex-1">{successMessage}</span>
           </div>
           {justSavedPosts && (
             <button
               type="button"
               onClick={() => {
-                setActiveTab('view');
-                setJustSavedPosts(false);
-                // Set company and auto-fetch if we have the data
+                setActiveTab('view'); setJustSavedPosts(false);
                 if (lastSavedCompany) {
                   setSelectedCompany(lastSavedCompany);
-                  if (lastSavedProduct) {
-                    setReelOption('product');
-                    setSelectedProduct(lastSavedProduct);
-                    // Auto-fetch after a short delay to allow state to update
-                    setTimeout(() => {
-                      handleFetchExisting();
-                    }, 100);
-                  } else {
-                    setReelOption('company');
-                    // Auto-fetch after a short delay
-                    setTimeout(() => {
-                      handleFetchExisting();
-                    }, 100);
-                  }
+                  if (lastSavedProduct) { setReelOption('product'); setSelectedProduct(lastSavedProduct); }
+                  else { setReelOption('company'); }
+                  setTimeout(() => handleFetchExisting(), 100);
                 }
               }}
-              className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="mt-1 w-fit bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
             >
-              <span className="material-symbols-outlined !text-[20px]">visibility</span>
+              <span className="material-symbols-outlined !text-[14px]">visibility</span>
               View Saved Posts
             </button>
           )}
@@ -1644,28 +769,18 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
             <button
               type="button"
               onClick={() => {
-                setActiveTab('view');
-                setJustUploadedUrls(false);
-                // Set company and auto-fetch
+                setActiveTab('view'); setJustUploadedUrls(false);
                 if (lastUploadedCompany) {
                   setSelectedCompany(lastUploadedCompany);
                   if (lastUploadedType === 'product' && lastUploadedProduct) {
-                    setReelOption('product');
-                    setSelectedProduct(lastUploadedProduct);
-                    setTimeout(() => {
-                      handleFetchExisting();
-                    }, 100);
-                  } else {
-                    setReelOption('company');
-                    setTimeout(() => {
-                      handleFetchExisting();
-                    }, 100);
-                  }
+                    setReelOption('product'); setSelectedProduct(lastUploadedProduct);
+                  } else { setReelOption('company'); }
+                  setTimeout(() => handleFetchExisting(), 100);
                 }
               }}
-              className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="mt-1 w-fit bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
             >
-              <span className="material-symbols-outlined !text-[20px]">visibility</span>
+              <span className="material-symbols-outlined !text-[14px]">visibility</span>
               View Uploaded URLs
             </button>
           )}
@@ -1673,43 +788,460 @@ const InstagramReelTab: React.FC<InstagramReelTabProps> = ({ companies, loading:
             <button
               type="button"
               onClick={() => {
-                setActiveTab('view');
-                setJustDeletedUrls(false);
-                // Set company and auto-fetch remaining URLs
+                setActiveTab('view'); setJustDeletedUrls(false);
                 if (lastDeletedCompany) {
                   setSelectedCompany(lastDeletedCompany);
                   if (lastDeletedType === 'product' && lastDeletedProduct) {
-                    setReelOption('product');
-                    setSelectedProduct(lastDeletedProduct);
-                    setTimeout(() => {
-                      handleFetchExisting();
-                    }, 100);
-                  } else {
-                    setReelOption('company');
-                    setTimeout(() => {
-                      handleFetchExisting();
-                    }, 100);
-                  }
+                    setReelOption('product'); setSelectedProduct(lastDeletedProduct);
+                  } else { setReelOption('company'); }
+                  setTimeout(() => handleFetchExisting(), 100);
                 }
               }}
-              className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="mt-1 w-fit bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
             >
-              <span className="material-symbols-outlined !text-[20px]">visibility</span>
+              <span className="material-symbols-outlined !text-[14px]">visibility</span>
               View Remaining URLs
             </button>
           )}
         </div>
       )}
 
-      {/* Tab Content */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        {activeTab === 'scraper' && renderScraper()}
-        {activeTab === 'review' && renderReview()}
-        {activeTab === 'view' && renderView()}
-        {activeTab === 'upload' && renderUpload()}
-        {activeTab === 'delete' && renderDelete()}
+      {/* Card 1: Header & Tab Navigation */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm p-4 transition-all relative">
+        <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800/60 pb-3 mb-3.5">
+          <div className="p-2 bg-[#FF6B35]/10 text-[#FF6B35] rounded-lg shadow-sm">
+            <span className="material-symbols-outlined !text-[18px]">movie</span>
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">Instagram Reels Mapping</h2>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+              Scrape tagged posts, classify them to products or company levels, and manage live URL connections.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5">
+          {[
+            { id: 'scraper', label: 'Scraper', icon: 'schedule' },
+            { id: 'review', label: 'Review', icon: 'pending' },
+            { id: 'view', label: 'View', icon: 'visibility' },
+            { id: 'upload', label: 'Upload', icon: 'cloud_upload' },
+            { id: 'delete', label: 'Delete', icon: 'delete' },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setActiveTab(t.id as any);
+                setError('');
+                setSuccessMessage('');
+              }}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                activeTab === t.id
+                  ? 'bg-[#FF6B35] text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+            >
+              <span className="material-symbols-outlined !text-[14px]">{t.icon}</span>
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* Card 2: Form & Workspace Panel */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 p-4 shadow-sm transition-all">
+        {activeTab === 'scraper' && (
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Queue Scraping Job</h3>
+            {!isCompanyAutoSelected && (
+              <div className="flex flex-col w-full">
+                <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Select Company *</span>
+                {renderSearchableCompanyIdDropdown(loading || parentLoading, (id) => { setSelectedCompanyId(id); setError(''); setSuccessMessage(''); })}
+              </div>
+            )}
+            <div className="flex flex-col w-full">
+              <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Instagram Tagged URL *</span>
+              <input
+                type="url"
+                value={instagramTaggedUrl}
+                onChange={(e) => { setInstagramTaggedUrl(e.target.value); setError(''); }}
+                placeholder="https://www.instagram.com/username/tagged/"
+                disabled={loading || !selectedCompanyId}
+                className="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl p-2.5 outline-none transition-all focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] placeholder:text-slate-400 disabled:opacity-50"
+              />
+            </div>
+            <button
+              onClick={handleQueueRequest}
+              disabled={loading || !selectedCompanyId || !instagramTaggedUrl.trim()}
+              className="w-full bg-[#FF6B35] hover:bg-[#E5521C] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer shadow-sm active:scale-[0.99]"
+            >
+              <span className="material-symbols-outlined !text-[16px]">{loading ? 'sync' : 'schedule'}</span>
+              {loading ? 'Queuing...' : 'Queue Scraping Request'}
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'review' && (
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Review Tagged Scraped Posts</h3>
+            <div className="flex flex-col w-full">
+              <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Instagram Tagged URL (Optional filter)</span>
+              <input
+                type="url"
+                value={reviewSourceUrl}
+                onChange={(e) => { setReviewSourceUrl(e.target.value); setError(''); }}
+                placeholder="https://www.instagram.com/username/tagged/ (optional)"
+                disabled={loading}
+                className="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl p-2.5 outline-none transition-all focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] placeholder:text-slate-400"
+              />
+            </div>
+            <button
+              onClick={handleFetchPendingPosts}
+              disabled={loading}
+              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer shadow-sm active:scale-[0.99]"
+            >
+              <span className="material-symbols-outlined !text-[16px]">{loading ? 'sync' : 'refresh'}</span>
+              Fetch Pending Posts
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'view' && (
+          <div className="flex flex-col gap-4">
+            {/* Inline fetch-result callout — shown right at top of the view panel */}
+            {hasFetchedReels && (
+              existingUrls.length === 0 ? (
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-sm">
+                  <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center">
+                    <span className="material-symbols-outlined !text-[20px] text-amber-600">link_off</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-amber-800">No reels mapped yet</p>
+                    <p className="text-xs text-amber-600 mt-0.5">
+                      No Instagram URLs are mapped for the selected {reelOption === 'product' ? 'product' : 'company'}.
+                      Switch to the <span className="font-semibold">Upload</span> tab to add reel URLs.
+                    </p>
+                  </div>
+                  <span className="flex-shrink-0 text-xs font-bold text-amber-500 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5">0 URLs</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-emerald-50 border border-emerald-200 rounded-xl">
+                  <span className="material-symbols-outlined !text-[18px] text-emerald-600">check_circle</span>
+                  <p className="flex-1 text-xs font-semibold text-emerald-700">Fetched successfully</p>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2.5 py-0.5">{existingUrls.length} URLs</span>
+                </div>
+              )
+            )}
+
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">View Mapped Reels</h3>
+            <div className="flex gap-4 p-2.5 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-slate-200/50">
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <input type="radio" value="company" checked={reelOption === 'company'} onChange={() => { setReelOption('company'); setExistingUrls([]); setError(''); setSuccessMessage(''); setHasFetchedReels(false); }} className="w-3.5 h-3.5 text-[#FF6B35] focus:ring-[#FF6B35]" />
+                Company reels
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <input type="radio" value="product" checked={reelOption === 'product'} onChange={() => { setReelOption('product'); setExistingUrls([]); setError(''); setSuccessMessage(''); setHasFetchedReels(false); }} className="w-3.5 h-3.5 text-[#FF6B35] focus:ring-[#FF6B35]" />
+                Product reels
+              </label>
+            </div>
+
+            <div className={`grid gap-3 ${isCompanyAutoSelected ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
+              {!isCompanyAutoSelected && (
+                <div className="flex flex-col w-full">
+                  <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Company *</span>
+                  {renderSearchableCompanyDropdown(loading, (id) => { setSelectedCompany(id); setSelectedProduct(''); setError(''); setSuccessMessage(''); setExistingUrls([]); setHasFetchedReels(false); })}
+                </div>
+              )}
+              {reelOption === 'product' && (
+                <div className="flex flex-col w-full">
+                  <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Product *</span>
+                  {renderSearchableProductDropdown(loading || !selectedCompany, (id) => { setSelectedProduct(id); setError(''); setSuccessMessage(''); setExistingUrls([]); setHasFetchedReels(false); })}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleFetchExisting}
+              disabled={loading || !selectedCompany || (reelOption === 'product' && !selectedProduct)}
+              className="w-full bg-[#FF6B35] hover:bg-[#E5521C] disabled:opacity-50 text-white font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer shadow-sm active:scale-[0.99]"
+            >
+              <span className="material-symbols-outlined !text-[16px]">search</span>
+              Fetch Reels
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'upload' && (
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Add/Upload Reel URLs</h3>
+            <div className="flex gap-4 p-2.5 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-slate-200/50">
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <input type="radio" value="company" checked={reelOption === 'company'} onChange={() => { setReelOption('company'); setError(''); setSuccessMessage(''); }} className="w-3.5 h-3.5 text-[#FF6B35] focus:ring-[#FF6B35]" />
+                Company reels
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <input type="radio" value="product" checked={reelOption === 'product'} onChange={() => { setReelOption('product'); setError(''); setSuccessMessage(''); }} className="w-3.5 h-3.5 text-[#FF6B35] focus:ring-[#FF6B35]" />
+                Product reels
+              </label>
+            </div>
+
+            <div className={`grid gap-3 ${isCompanyAutoSelected ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
+              {!isCompanyAutoSelected && (
+                <div className="flex flex-col w-full">
+                  <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Company *</span>
+                  {renderSearchableCompanyDropdown(loading, (id) => { setSelectedCompany(id); setSelectedProduct(''); setError(''); setSuccessMessage(''); })}
+                </div>
+              )}
+              {reelOption === 'product' && (
+                <div className="flex flex-col w-full">
+                  <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Product *</span>
+                  {renderSearchableProductDropdown(loading || !selectedCompany, (id) => { setSelectedProduct(id); setError(''); setSuccessMessage(''); })}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col w-full">
+              <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Instagram Post URLs (One per line) *</span>
+              <textarea
+                className="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-xs rounded-xl p-3 outline-none focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] min-h-[90px] font-mono transition-all"
+                placeholder="https://www.instagram.com/p/ABC123/&#10;https://www.instagram.com/p/DEF456/"
+                value={instagramUrls}
+                onChange={(e) => setInstagramUrls(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            <button
+              onClick={handleUploadUrls}
+              disabled={loading || !selectedCompany || (reelOption === 'product' && !selectedProduct) || !instagramUrls.trim()}
+              className="w-full bg-[#FF6B35] hover:bg-[#E5521C] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer shadow-sm active:scale-[0.99]"
+            >
+              <span className="material-symbols-outlined !text-[16px]">cloud_upload</span>
+              Upload URLs
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'delete' && (
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Delete Reels Configuration</h3>
+            <div className="flex flex-col gap-2.5 p-3 bg-slate-50/50 dark:bg-slate-900/30 rounded-xl border border-slate-200/50">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-800 dark:text-slate-100">
+                <input type="radio" name="deleteOption" value="company" checked={deleteOption === 'company'} onChange={() => { setDeleteOption('company'); setError(''); setSuccessMessage(''); }} className="w-3.5 h-3.5 text-red-650 focus:ring-red-500" />
+                Delete company level reels
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-800 dark:text-slate-100">
+                <input type="radio" name="deleteOption" value="product" checked={deleteOption === 'product'} onChange={() => { setDeleteOption('product'); setError(''); setSuccessMessage(''); }} className="w-3.5 h-3.5 text-red-650 focus:ring-red-500" />
+                Delete product wise reels
+              </label>
+              {deleteOption === 'product' && (
+                <div className="ml-5 flex flex-col gap-2 border-l-2 border-slate-200 dark:border-slate-800 pl-3 mt-1">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <input type="radio" name="deleteProductOption" value="all" checked={deleteProductOption === 'all'} onChange={() => { setDeleteProductOption('all'); setSelectedProduct(''); setError(''); setSuccessMessage(''); }} className="w-3 h-3 text-red-500 focus:ring-red-400" />
+                    Delete from all products
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <input type="radio" name="deleteProductOption" value="specific" checked={deleteProductOption === 'specific'} onChange={() => { setDeleteProductOption('specific'); setError(''); setSuccessMessage(''); }} className="w-3 h-3 text-red-550 focus:ring-red-400" />
+                    Delete specific product
+                  </label>
+                </div>
+              )}
+            </div>
+
+            <div className={`grid gap-3 ${isCompanyAutoSelected ? 'grid-cols-1' : (deleteOption === 'product' && deleteProductOption === 'specific' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1')}`}>
+              {!isCompanyAutoSelected && (
+                <div className="flex flex-col w-full">
+                  <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Company *</span>
+                  {renderSearchableCompanyDropdown(loading, (id) => { setSelectedCompany(id); setSelectedProduct(''); setError(''); setSuccessMessage(''); })}
+                </div>
+              )}
+              {deleteOption === 'product' && deleteProductOption === 'specific' && (
+                <div className="flex flex-col w-full">
+                  <span className="text-slate-700 dark:text-slate-300 text-xs font-bold pb-1">Product *</span>
+                  {renderSearchableProductDropdown(loading || !selectedCompany, (id) => { setSelectedProduct(id); setError(''); setSuccessMessage(''); })}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handleDelete}
+              disabled={loading || !selectedCompany || (deleteOption === 'product' && deleteProductOption === 'specific' && !selectedProduct)}
+              className="w-full bg-red-650 hover:bg-red-750 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer shadow-sm active:scale-[0.99]"
+            >
+              <span className="material-symbols-outlined !text-[16px]">delete_forever</span>
+              Delete Mapped Reels
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Card 3: Results Display Panel (Conditional) */}
+      {activeTab === 'review' && pendingPosts.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm p-4 transition-all">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800/60 pb-3 mb-4">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[#FF6B35] !text-[16px]">pending</span>
+              Pending Posts ({pendingPosts.length})
+            </span>
+            <button
+              onClick={handleSavePosts}
+              disabled={loading || !pendingPosts.some(p => p.status === 'classified')}
+              className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-1.5 px-3.5 rounded-xl text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
+            >
+              <span className="material-symbols-outlined !text-[15px]">save</span>
+              Save Classified
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {pendingPosts.map((post) => (
+              <div key={post._id} className={`border rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm p-2 flex flex-col gap-2.5 transition-all ${post.status === 'classified' ? 'border-emerald-300 bg-emerald-50/5' : 'border-slate-100 dark:border-slate-800'}`}>
+                <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-slate-50/50 dark:bg-slate-950">
+                  {post.thumbnail_url ? (
+                    <img src={post.thumbnail_url} alt="Post" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700"><span className="material-symbols-outlined text-[32px]">image</span></div>
+                  )}
+                  <span className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[9px] font-bold rounded-md uppercase tracking-wider text-white ${post.status === 'classified' ? 'bg-emerald-600' : 'bg-[#FF6B35]'}`}>
+                    {post.status === 'classified' ? 'Done' : 'Pending'}
+                  </span>
+                </div>
+                <a href={post.post_url} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold text-blue-600 hover:underline flex items-center gap-0.5 truncate">
+                  Instagram <span className="material-symbols-outlined !text-[11px]">open_in_new</span>
+                </a>
+                {post.status === 'classified' && (
+                  <span className="text-[10px] font-bold text-[#FF6B35] bg-[#FF6B35]/10 px-2 py-0.5 rounded-md self-start truncate max-w-full">
+                    {post.classification === 'company' ? 'Company' : `Prod: ${post.product_id}`}
+                  </span>
+                )}
+                <button
+                  onClick={() => openReviewEditPopup(post)}
+                  className="w-full py-1.5 bg-[#FF6B35]/10 hover:bg-[#FF6B35]/25 text-[#FF6B35] text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined !text-[14px]">edit</span>
+                  Classify
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'view' && existingUrls.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm p-4 transition-all">
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block border-b border-slate-100 dark:border-slate-800/60 pb-3 mb-3">
+            Existing Mapped URLs ({existingUrls.length})
+          </span>
+          <div className="flex flex-col gap-2">
+            {existingUrls.map((url, idx) => (
+              <div key={idx} className="flex items-center gap-2 p-2.5 border border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-slate-950/20 rounded-xl hover:shadow-xs group transition-all">
+                <span className="material-symbols-outlined text-[#FF6B35] !text-[15px]">link</span>
+                <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-blue-600 truncate flex-1 hover:underline">{url}</a>
+                <span className="material-symbols-outlined text-slate-400 !text-[14px]">open_in_new</span>
+                <button
+                  onClick={() => { setUrlToDelete(url); setDeleteDialogOpen(true); }}
+                  disabled={loading}
+                  className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 rounded-lg opacity-0 group-hover:opacity-100 cursor-pointer transition-all"
+                  title="Delete URL"
+                >
+                  <span className="material-symbols-outlined !text-[15px]">delete</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Edit classification modal overlay popup */}
+      {reviewEditPostId && (() => {
+        const editPost = pendingPosts.find(p => p._id === reviewEditPostId);
+        if (!editPost) return null;
+        return (
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-sm w-full flex flex-col overflow-hidden border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2 p-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                <span className="material-symbols-outlined text-[#FF6B35] !text-[18px]">edit</span>
+                <h3 className="text-sm font-bold text-slate-855 dark:text-slate-100">Classify Video</h3>
+              </div>
+              <div className="p-4 flex flex-col gap-3.5 max-h-[70vh] overflow-y-auto">
+                <div className="aspect-square max-h-[140px] bg-slate-100 dark:bg-slate-950 rounded-lg overflow-hidden self-center border border-slate-100 dark:border-slate-800">
+                  {editPost.thumbnail_url ? <img src={editPost.thumbnail_url} alt="Post" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-400"><span className="material-symbols-outlined">image</span></div>}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all ${reviewEditClassification === 'company' ? 'border-[#FF6B35]/40 bg-[#FF6B35]/5 text-[#FF6B35]' : 'border-slate-150 dark:border-slate-800'}`}>
+                    <input type="radio" checked={reviewEditClassification === 'company'} onChange={() => setReviewEditClassification('company')} className="w-4 h-4 text-[#FF6B35] focus:ring-[#FF6B35]" />
+                    <span className="text-xs font-bold">Company Video</span>
+                  </label>
+                  <label className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all ${reviewEditClassification === 'product' ? 'border-[#FF6B35]/40 bg-[#FF6B35]/5 text-[#FF6B35]' : 'border-slate-150 dark:border-slate-800'}`}>
+                    <input type="radio" checked={reviewEditClassification === 'product'} onChange={() => setReviewEditClassification('product')} className="w-4 h-4 text-[#FF6B35] focus:ring-[#FF6B35]" />
+                    <span className="text-xs font-bold">Product Video</span>
+                  </label>
+                </div>
+                {reviewEditClassification === 'product' && (
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-350">Select Product *</span>
+                    <select
+                      value={reviewEditProductId}
+                      onChange={(e) => setReviewEditProductId(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-2 px-3 text-xs outline-none focus:border-[#FF6B35] focus:ring-1 focus:ring-[#FF6B35]/20 text-slate-800 dark:text-slate-100"
+                    >
+                      <option value="">Select Product...</option>
+                      {products.map(p => <option key={p._id} value={p.product_id}>{p.product_id}</option>)}
+                    </select>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2.5 p-3.5 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-100 dark:border-slate-800 shrink-0">
+                <button onClick={closeReviewEditPopup} className="flex-1 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">Cancel</button>
+                <button onClick={saveReviewEditPopup} disabled={reviewEditClassification === 'product' && !reviewEditProductId} className="flex-1 py-2 text-xs font-semibold text-white bg-[#FF6B35] hover:bg-[#E5521C] rounded-xl cursor-pointer disabled:opacity-50">Save</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Delete URL Modal Overlay */}
+      {deleteDialogOpen && urlToDelete && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl max-w-xs w-full overflow-hidden border border-slate-100 dark:border-slate-800">
+            <div className="p-4 flex flex-col gap-2">
+              <h3 className="text-sm font-bold text-slate-855 dark:text-slate-100">Delete Link?</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 break-all p-2 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-150 dark:border-slate-800/80 font-mono">{urlToDelete}</p>
+            </div>
+            <div className="flex gap-2 p-3 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => { setDeleteDialogOpen(false); setUrlToDelete(null); }} className="flex-1 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">Cancel</button>
+              <button
+                onClick={async () => {
+                  if (!urlToDelete || !selectedCompany) return;
+                  if (reelOption === 'product' && !selectedProduct) return;
+                  setDeleteDialogOpen(false); setLoading(true); setError(''); setSuccessMessage('');
+                  try {
+                    const deleteUrl = reelOption === 'company'
+                      ? `${API_BASE_URL}/instagram-images/company/${selectedCompany}/url?instagram_url=${encodeURIComponent(urlToDelete)}`
+                      : `${API_BASE_URL}/instagram-images/${selectedCompany}/${selectedProduct}/url?instagram_url=${encodeURIComponent(urlToDelete)}`;
+                    const response = await fetch(deleteUrl, { method: 'DELETE' });
+                    const data = await response.json();
+                    if (data.success) {
+                      setSuccessMessage('URL deleted successfully');
+                      setExistingUrls(prev => prev.filter(url => url !== urlToDelete));
+                      await handleFetchExisting();
+                    } else {
+                      setError(data.message || 'Failed to delete');
+                    }
+                  } catch (err) {
+                    setError('Error deleting URL');
+                    console.error(err);
+                  } finally {
+                    setLoading(false); setUrlToDelete(null);
+                  }
+                }}
+                className="flex-1 py-1.5 text-xs font-semibold text-white bg-red-650 hover:bg-red-755 rounded-lg cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

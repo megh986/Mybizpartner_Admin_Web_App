@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { UserPatternsApiResponse, EngagementSegment, FunnelStep, ArchetypeAtcRate } from './types';
 
 const API_BASE_URL =
@@ -41,6 +41,10 @@ const archetypeColors: Record<string, { bg: string; text: string; icon: string }
   'Passive':            { bg: 'bg-gray-50 border-gray-200',   text: 'text-gray-600',   icon: 'visibility' },
 };
 
+const SEGMENT_COLORS = [
+  'bg-gray-300', 'bg-purple-300', 'bg-purple-400', 'bg-purple-500', 'bg-purple-700',
+];
+
 // ── Main ─────────────────────────────────────────────────────────────────────
 const UserPatternsTab: React.FC<UserPatternsTabProps> = ({ selectedCompany, companyName }) => {
   const [timeRange, setTimeRange] = useState<'7d' | '14d' | '30d'>('7d');
@@ -73,6 +77,11 @@ const UserPatternsTab: React.FC<UserPatternsTabProps> = ({ selectedCompany, comp
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const maxSegPct = useMemo(() => {
+    if (!data) return 1;
+    return Math.max(...(data.engagement_segments || []).map((s) => s.pct), 1);
+  }, [data]);
+
   if (loading && !data) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -104,10 +113,6 @@ const UserPatternsTab: React.FC<UserPatternsTabProps> = ({ selectedCompany, comp
     totals, engagement_segments, funnel,
     non_engager_count = 0, non_engager_rate = 0, archetype_atc_rates = [],
   } = data as UserPatternsApiResponse & { non_engager_count?: number; non_engager_rate?: number; archetype_atc_rates?: ArchetypeAtcRate[] };
-  const maxSegPct = Math.max(...engagement_segments.map((s) => s.pct), 1);
-  const segmentColors = [
-    'bg-gray-300', 'bg-purple-300', 'bg-purple-400', 'bg-purple-500', 'bg-purple-700',
-  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -195,7 +200,7 @@ const UserPatternsTab: React.FC<UserPatternsTabProps> = ({ selectedCompany, comp
               value={seg.users}
               pct={seg.pct}
               maxPct={maxSegPct}
-              color={segmentColors[i] || 'bg-purple-500'}
+              color={SEGMENT_COLORS[i] || 'bg-purple-500'}
             />
           ))}
         </div>

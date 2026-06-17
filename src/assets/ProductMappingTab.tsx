@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Company, Product, ProductMappingRow } from './types';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.thewordofmouth.in/api';
@@ -58,6 +58,29 @@ const ProductMappingTab: React.FC<ProductMappingTabProps> = ({
     amazon_images?: string[];
   } | null>(null);
   const [imageViewerTab, setImageViewerTab] = useState<'myntra' | 'amazon' | 'all'>('all');
+
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.to('.gsap-assets-floater-orange-1', {
+        y: -6,
+        x: 3,
+        duration: 2.2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut'
+      });
+      gsap.to('.gsap-assets-floater-orange-2', {
+        y: 6,
+        x: -3,
+        duration: 2.8,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 0.4
+      });
+    }
+  }, []);
 
   const handleUploadProductMapping = () => {
     if (!selectedCompany) {
@@ -247,190 +270,216 @@ const ProductMappingTab: React.FC<ProductMappingTabProps> = ({
   return (
     <div className="grid grid-cols-1 gap-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">{error}</div>
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/60 text-red-700 dark:text-red-400 px-4 py-3.5 rounded-xl text-sm font-semibold shadow-sm flex items-center gap-2">
+          <span className="material-symbols-outlined !text-[18px]">error</span>
+          {error}
+        </div>
       )}
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+        <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-400 px-4 py-3.5 rounded-xl text-sm font-semibold shadow-sm flex items-center gap-2">
+          <span className="material-symbols-outlined !text-[18px]">check_circle</span>
           {success}
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
-            <span className="material-symbols-outlined">inventory_2</span>
+      {/* Card 1: Header & Selection */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 transition-all duration-300">
+        <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800/60 pb-3 mb-3.5">
+          <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-lg shadow-sm">
+            <span className="material-symbols-outlined !text-[18px]">inventory_2</span>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-primary-text">Product Mapping</h2>
-            <p className="text-xs text-secondary-text mt-1">
+            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">Product Mapping</h2>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
               Upload CSV to map products to external store links (Amazon, Myntra, etc.)
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-5">
-          {!isCompanyAutoSelected && (
-            <label className="flex flex-col w-full">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Select Company</p>
-              {renderSearchableCompanyDropdown(
-                loading,
-                handleCompanyChange,
-                'Select company...',
-                'focus:ring-2 focus:ring-primary/20 focus:border-primary',
-                false
-              )}
-            </label>
-          )}
+        {!isCompanyAutoSelected && (
+          <label className="flex flex-col w-full">
+            <span className="text-slate-755 dark:text-slate-300 text-xs font-bold leading-normal pb-1">Select Company</span>
+            {renderSearchableCompanyDropdown(
+              loading,
+              handleCompanyChange,
+              'Select company...',
+              'focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]',
+              false
+            )}
+          </label>
+        )}
+      </div>
 
-          {selectedCompany && (
-            <>
-              <div className="border-t border-gray-100 pt-5">
-                <label className="flex flex-col w-full">
-                  <p className="text-primary-text text-sm font-semibold leading-normal pb-2">
-                    Upload CSV/Excel File
-                  </p>
-                  <p className="text-xs text-secondary-text pb-3">
-                    File should contain columns: product_id (or handle), amazon_link, myntra_link
-                  </p>
-                  <input
-                    id="mappingFile"
-                    type="file"
-                    accept=".csv,.xlsx,.xls"
-                    onChange={(e) => {
-                      if (e.target.files?.[0]) setMappingFile(e.target.files[0]);
-                    }}
-                    className="w-full bg-background-light border border-gray-200 text-primary-text text-sm rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary block p-3 outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
-                    disabled={loading}
-                  />
-                  {mappingFile && (
-                    <p className="text-xs text-primary-text mt-2 font-medium">Selected: {mappingFile.name}</p>
-                  )}
-                </label>
-              </div>
-
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <button
-                  onClick={handleUploadProductMapping}
-                  disabled={uploadInProgress || !mappingFile}
-                  className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
-                >
-                  <span className="material-symbols-outlined !text-[18px]">upload</span>
-                  {uploadInProgress ? 'Uploading…' : 'Upload'}
-                </button>
-                <button
-                  onClick={handleFetchProductMapping}
+      {/* Card 2: Upload CSV / Action buttons */}
+      {selectedCompany && (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 transition-all duration-300">
+          <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 mb-2.5">Upload & Actions</h3>
+          <div className="flex flex-col gap-3">
+            <label className="flex flex-col w-full gap-1">
+              <span className="text-slate-700 dark:text-slate-300 text-xs font-bold">
+                Upload CSV/Excel File
+              </span>
+              
+              <div className="relative group mt-0.5">
+                <input
+                  id="mappingFile"
+                  type="file"
+                  accept=".csv,.xlsx,.xls"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) setMappingFile(e.target.files[0]);
+                  }}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
-                >
-                  <span className="material-symbols-outlined !text-[18px]">visibility</span>
-                  {loading ? 'Loading...' : 'View'}
-                </button>
-                <button
-                  onClick={handleExportProductMapping}
-                  disabled={loading || mappingData.length === 0}
-                  className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
-                >
-                  <span className="material-symbols-outlined !text-[18px]">download</span>
-                  Export
-                </button>
-                <button
-                  onClick={handleDeleteAllProductMapping}
-                  disabled={loading || mappingData.length === 0}
-                  className="bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm"
-                >
-                  <span className="material-symbols-outlined !text-[18px]">delete</span>
-                  Delete All
-                </button>
+                />
+                <div className="border border-dashed border-slate-200 dark:border-slate-800 group-hover:border-[#FF6B35] rounded-xl p-4 transition-all flex flex-col items-center justify-center gap-1.5 bg-slate-50/50 dark:bg-slate-900/30 group-hover:bg-white dark:group-hover:bg-slate-950">
+                  <div className="size-8 rounded-full bg-[#FF6B35]/10 text-[#FF6B35] flex items-center justify-center transition-transform group-hover:scale-110">
+                    <span className="material-symbols-outlined !text-[16px]">upload_file</span>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                      {mappingFile ? mappingFile.name : 'Click to upload or drag CSV/Excel'}
+                    </p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                      File should contain columns: product_id, amazon_link, myntra_link
+                    </p>
+                  </div>
+                </div>
               </div>
+            </label>
 
-              {mappingData.length > 0 && (
-                <div className="border-t border-gray-100 pt-5">
-                  <h3 className="text-sm font-bold text-primary-text mb-3">
-                    Product Mappings ({mappingData.length})
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mt-2">
+              <button
+                onClick={handleUploadProductMapping}
+                disabled={uploadInProgress || !mappingFile}
+                className="bg-[#FF6B35] hover:bg-[#E5521C] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-xl transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 text-xs cursor-pointer"
+              >
+                <span className="material-symbols-outlined !text-[16px]">upload</span>
+                {uploadInProgress ? 'Uploading…' : 'Upload CSV'}
+              </button>
+              <button
+                onClick={handleFetchProductMapping}
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-xl transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-1.5 text-xs cursor-pointer"
+              >
+                <span className="material-symbols-outlined !text-[16px]">visibility</span>
+                {loading ? 'Loading...' : 'View Mappings'}
+              </button>
+              <button
+                onClick={handleExportProductMapping}
+                disabled={loading || mappingData.length === 0}
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed font-bold py-2.5 px-3 rounded-xl transition-all shadow-sm hover:shadow flex items-center justify-center gap-1.5 text-xs cursor-pointer"
+              >
+                <span className="material-symbols-outlined !text-[16px]">download</span>
+                Export Data
+              </button>
+              <button
+                onClick={handleDeleteAllProductMapping}
+                disabled={loading || mappingData.length === 0}
+                className="bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-xl transition-all shadow-sm hover:shadow flex items-center justify-center gap-1.5 text-xs cursor-pointer"
+              >
+                <span className="material-symbols-outlined !text-[16px]">delete_forever</span>
+                Delete All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Card 3: Mappings Table */}
+      {selectedCompany && mappingData.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 transition-all duration-300">
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2.5 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[#FF6B35] !text-[16px]">list_alt</span>
+                    Product Mappings 
+                    <span className="text-[10px] font-semibold bg-[#FF6B35]/10 text-[#FF6B35] px-2 py-0.5 rounded-full">
+                      {mappingData.length} entries
+                    </span>
                   </h3>
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800/80">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-background-light/50 border-b border-gray-100">
-                          <th className="px-4 py-3 text-xs font-semibold text-secondary-text uppercase tracking-wider">Product ID</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-secondary-text uppercase tracking-wider">Amazon Link</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-secondary-text uppercase tracking-wider">Amazon Status</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-secondary-text uppercase tracking-wider">Myntra Link</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-secondary-text uppercase tracking-wider">Myntra Status</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-secondary-text uppercase tracking-wider">Last Updated</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-secondary-text uppercase tracking-wider">View Images</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-secondary-text uppercase tracking-wider">Actions</th>
+                        <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800/80">
+                          <th className="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Product ID</th>
+                          <th className="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Amazon Link</th>
+                          <th className="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Amazon Status</th>
+                          <th className="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Myntra Link</th>
+                          <th className="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Myntra Status</th>
+                          <th className="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Last Updated</th>
+                          <th className="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">View Images</th>
+                          <th className="px-3 py-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-100">
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
                         {mappingData.map((mapping, index) => (
-                          <tr key={mapping.id || index} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-4 py-3">
-                              <p className="text-sm font-medium text-primary-text">{mapping.product_id}</p>
+                          <tr key={mapping.id || index} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all duration-150">
+                            <td className="px-3 py-1.5">
+                              <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{mapping.product_id}</p>
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-3 py-1.5">
                               {mapping.amazon_link ? (
                                 <a
                                   href={mapping.amazon_link}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-sm text-blue-600 hover:underline truncate block max-w-[150px]"
+                                  className="text-xs font-semibold text-[#FF6B35] hover:text-[#E5521C] hover:underline truncate flex items-center gap-1 max-w-[150px]"
                                   title={mapping.amazon_link}
                                 >
                                   {mapping.amazon_link}
+                                  <span className="material-symbols-outlined !text-[13px]">open_in_new</span>
                                 </a>
                               ) : (
-                                <span className="text-sm text-gray-400">-</span>
+                                <span className="text-xs text-slate-350">-</span>
                               )}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-3 py-1.5">
                               <span
-                                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                                   mapping.amazon_status === 'completed'
-                                    ? 'bg-green-100 text-green-700'
+                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20'
                                     : mapping.amazon_status === 'in_progress'
-                                      ? 'bg-blue-100 text-blue-700'
+                                      ? 'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400 border-sky-100 dark:border-sky-500/20'
                                       : mapping.amazon_status === 'failed'
-                                        ? 'bg-red-100 text-red-700'
-                                        : 'bg-yellow-100 text-yellow-700'
+                                        ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border-rose-100 dark:border-rose-500/20'
+                                        : 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border-amber-100 dark:border-amber-500/20'
                                 }`}
                               >
                                 {mapping.amazon_status || 'pending'}
                               </span>
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-3 py-1.5">
                               {mapping.myntra_link ? (
                                 <a
                                   href={mapping.myntra_link}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-sm text-blue-600 hover:underline truncate block max-w-[150px]"
+                                  className="text-xs font-semibold text-[#FF6B35] hover:text-[#E5521C] hover:underline truncate flex items-center gap-1 max-w-[150px]"
                                   title={mapping.myntra_link}
                                 >
                                   {mapping.myntra_link}
+                                  <span className="material-symbols-outlined !text-[13px]">open_in_new</span>
                                 </a>
                               ) : (
-                                <span className="text-sm text-gray-400">-</span>
+                                <span className="text-xs text-slate-350">-</span>
                               )}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-3 py-1.5">
                               <span
-                                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                                   mapping.myntra_status === 'completed'
-                                    ? 'bg-green-100 text-green-700'
+                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20'
                                     : mapping.myntra_status === 'in_progress'
-                                      ? 'bg-blue-100 text-blue-700'
+                                      ? 'bg-sky-50 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400 border-sky-100 dark:border-sky-500/20'
                                       : mapping.myntra_status === 'failed'
-                                        ? 'bg-red-100 text-red-700'
-                                        : 'bg-yellow-100 text-yellow-700'
+                                        ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border-rose-100 dark:border-rose-500/20'
+                                        : 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border-amber-100 dark:border-amber-500/20'
                                 }`}
                               >
                                 {mapping.myntra_status || 'pending'}
                               </span>
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-3 py-1.5">
                               {mapping.updated_at ? (
-                                <span className="text-xs text-secondary-text">
+                                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                                   {new Date(mapping.updated_at).toLocaleString('en-US', {
                                     year: 'numeric',
                                     month: 'short',
@@ -440,26 +489,26 @@ const ProductMappingTab: React.FC<ProductMappingTabProps> = ({
                                   })}
                                 </span>
                               ) : (
-                                <span className="text-xs text-gray-400">-</span>
+                                <span className="text-xs text-slate-350">-</span>
                               )}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-3 py-1.5">
                               <button
                                 onClick={() => handleViewImages(mapping.product_id)}
-                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1"
+                                className="px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-[#FF6B35]/5 text-[#FF6B35] transition-all flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                                 title="View images"
                               >
-                                <span className="material-symbols-outlined !text-[18px]">image</span>
-                                <span className="text-xs font-medium">View</span>
+                                <span className="material-symbols-outlined !text-[13px]">image</span>
+                                View
                               </button>
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-3 py-1.5">
                               <button
                                 onClick={() => handleDeleteSingleMapping(mapping.product_id)}
-                                className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                className="p-1 text-red-500 hover:text-red-650 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all cursor-pointer"
                                 title="Delete mapping"
                               >
-                                <span className="material-symbols-outlined !text-[18px]">delete</span>
+                                <span className="material-symbols-outlined !text-[14px]">delete</span>
                               </button>
                             </td>
                           </tr>
@@ -469,24 +518,20 @@ const ProductMappingTab: React.FC<ProductMappingTabProps> = ({
                   </div>
                 </div>
               )}
-            </>
-          )}
-        </div>
-      </div>
 
       {/* Image Viewer Modal */}
       {imageViewerOpen && imageViewerData && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-5xl w-full mx-4 overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full mx-4 overflow-hidden max-h-[90vh] flex flex-col border border-slate-100 dark:border-slate-800 animate-scale-up">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800/60">
+              <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 bg-blue-100 text-blue-600 rounded-full">
-                    <span className="material-symbols-outlined">collections</span>
+                  <div className="p-3 bg-[#FF6B35]/10 text-[#FF6B35] rounded-xl">
+                    <span className="material-symbols-outlined !text-[20px]">collections</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">Product Images</h3>
-                    <p className="text-sm text-gray-600">Product ID: {imageViewerData.product_id}</p>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Product Images</h3>
+                    <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Product ID: {imageViewerData.product_id}</p>
                   </div>
                 </div>
                 <button
@@ -495,7 +540,7 @@ const ProductMappingTab: React.FC<ProductMappingTabProps> = ({
                     setImageViewerData(null);
                     setImageViewerTab('all');
                   }}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/80 rounded-xl transition-all cursor-pointer"
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
@@ -503,58 +548,64 @@ const ProductMappingTab: React.FC<ProductMappingTabProps> = ({
               <div className="flex gap-2">
                 <button
                   onClick={() => setImageViewerTab('all')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    imageViewerTab === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                    imageViewerTab === 'all'
+                      ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-sm'
+                      : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   All Images ({(imageViewerData.myntra_images?.length || 0) + (imageViewerData.amazon_images?.length || 0)})
                 </button>
                 <button
                   onClick={() => setImageViewerTab('myntra')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    imageViewerTab === 'myntra' ? 'bg-pink-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                    imageViewerTab === 'myntra'
+                      ? 'bg-pink-600 text-white shadow-sm'
+                      : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   Myntra ({imageViewerData.myntra_images?.length || 0})
                 </button>
                 <button
                   onClick={() => setImageViewerTab('amazon')}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    imageViewerTab === 'amazon' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+                    imageViewerTab === 'amazon'
+                      ? 'bg-[#FF6B35] text-white shadow-sm'
+                      : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   Amazon ({imageViewerData.amazon_images?.length || 0})
                 </button>
               </div>
             </div>
-            <div className="p-6 overflow-y-auto flex-1">
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-50/30 dark:bg-slate-950/20">
               {imageViewerTab === 'all' && (
                 <div>
                   {(imageViewerData.myntra_images?.length || 0) + (imageViewerData.amazon_images?.length || 0) === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-600">
                       <span className="material-symbols-outlined text-6xl mb-4">image_not_supported</span>
-                      <p className="text-sm">No images found for this product</p>
+                      <p className="text-sm font-medium">No images found for this product</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
                       {imageViewerData.myntra_images?.map((url, index) => (
-                        <div key={`myntra-${index}`} className="relative group">
-                          <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                            <img src={url} alt={`Myntra ${index + 1}`} className="w-full h-full object-cover" />
+                        <div key={`myntra-${index}`} className="relative group rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-2 shadow-sm hover:shadow-md transition-all">
+                          <div className="aspect-square rounded-xl overflow-hidden bg-slate-50">
+                            <img src={url} alt={`Myntra ${index + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" />
                           </div>
-                          <div className="absolute top-2 right-2 px-2 py-1 bg-pink-600 text-white text-xs font-medium rounded">Myntra</div>
-                          <a href={url} target="_blank" rel="noopener noreferrer" className="absolute bottom-2 right-2 p-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" title="Open in new tab">
+                          <div className="absolute top-4 right-4 px-2 py-0.5 bg-pink-600 text-white text-[10px] font-bold rounded-md uppercase tracking-wider">Myntra</div>
+                          <a href={url} target="_blank" rel="noopener noreferrer" className="absolute bottom-4 right-4 p-2 bg-white/95 dark:bg-slate-900/95 hover:bg-white text-slate-700 dark:text-slate-200 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-sm flex items-center justify-center" title="Open in new tab">
                             <span className="material-symbols-outlined !text-[16px]">open_in_new</span>
                           </a>
                         </div>
                       ))}
                       {imageViewerData.amazon_images?.map((url, index) => (
-                        <div key={`amazon-${index}`} className="relative group">
-                          <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                            <img src={url} alt={`Amazon ${index + 1}`} className="w-full h-full object-cover" />
+                        <div key={`amazon-${index}`} className="relative group rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-2 shadow-sm hover:shadow-md transition-all">
+                          <div className="aspect-square rounded-xl overflow-hidden bg-slate-50">
+                            <img src={url} alt={`Amazon ${index + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" />
                           </div>
-                          <div className="absolute top-2 right-2 px-2 py-1 bg-orange-600 text-white text-xs font-medium rounded">Amazon</div>
-                          <a href={url} target="_blank" rel="noopener noreferrer" className="absolute bottom-2 right-2 p-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" title="Open in new tab">
+                          <div className="absolute top-4 right-4 px-2 py-0.5 bg-[#FF6B35] text-white text-[10px] font-bold rounded-md uppercase tracking-wider">Amazon</div>
+                          <a href={url} target="_blank" rel="noopener noreferrer" className="absolute bottom-4 right-4 p-2 bg-white/95 dark:bg-slate-900/95 hover:bg-white text-slate-700 dark:text-slate-200 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-sm flex items-center justify-center" title="Open in new tab">
                             <span className="material-symbols-outlined !text-[16px]">open_in_new</span>
                           </a>
                         </div>
@@ -566,18 +617,18 @@ const ProductMappingTab: React.FC<ProductMappingTabProps> = ({
               {imageViewerTab === 'myntra' && (
                 <div>
                   {!imageViewerData.myntra_images?.length ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-600">
                       <span className="material-symbols-outlined text-6xl mb-4">image_not_supported</span>
-                      <p className="text-sm">No Myntra images found for this product</p>
+                      <p className="text-sm font-medium">No Myntra images found for this product</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
                       {imageViewerData.myntra_images.map((url, index) => (
-                        <div key={index} className="relative group">
-                          <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                            <img src={url} alt={`Myntra ${index + 1}`} className="w-full h-full object-cover" />
+                        <div key={index} className="relative group rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-2 shadow-sm hover:shadow-md transition-all">
+                          <div className="aspect-square rounded-xl overflow-hidden bg-slate-50">
+                            <img src={url} alt={`Myntra ${index + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" />
                           </div>
-                          <a href={url} target="_blank" rel="noopener noreferrer" className="absolute bottom-2 right-2 p-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" title="Open in new tab">
+                          <a href={url} target="_blank" rel="noopener noreferrer" className="absolute bottom-4 right-4 p-2 bg-white/95 dark:bg-slate-900/95 hover:bg-white text-slate-700 dark:text-slate-200 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-sm flex items-center justify-center" title="Open in new tab">
                             <span className="material-symbols-outlined !text-[16px]">open_in_new</span>
                           </a>
                         </div>
@@ -589,18 +640,18 @@ const ProductMappingTab: React.FC<ProductMappingTabProps> = ({
               {imageViewerTab === 'amazon' && (
                 <div>
                   {!imageViewerData.amazon_images?.length ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <div className="flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-600">
                       <span className="material-symbols-outlined text-6xl mb-4">image_not_supported</span>
-                      <p className="text-sm">No Amazon images found for this product</p>
+                      <p className="text-sm font-medium">No Amazon images found for this product</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
                       {imageViewerData.amazon_images.map((url, index) => (
-                        <div key={index} className="relative group">
-                          <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                            <img src={url} alt={`Amazon ${index + 1}`} className="w-full h-full object-cover" />
+                        <div key={index} className="relative group rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-2 shadow-sm hover:shadow-md transition-all">
+                          <div className="aspect-square rounded-xl overflow-hidden bg-slate-50">
+                            <img src={url} alt={`Amazon ${index + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" />
                           </div>
-                          <a href={url} target="_blank" rel="noopener noreferrer" className="absolute bottom-2 right-2 p-1.5 bg-white/90 hover:bg-white text-gray-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" title="Open in new tab">
+                          <a href={url} target="_blank" rel="noopener noreferrer" className="absolute bottom-4 right-4 p-2 bg-white/95 dark:bg-slate-900/95 hover:bg-white text-slate-700 dark:text-slate-200 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-sm flex items-center justify-center" title="Open in new tab">
                             <span className="material-symbols-outlined !text-[16px]">open_in_new</span>
                           </a>
                         </div>

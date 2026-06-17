@@ -52,82 +52,109 @@ const ReviewCard: React.FC<{
   togglingKey: string | null;
   toggleKey: string;
   onToggle: () => void;
-}> = ({ review, absoluteIndex, togglingKey, toggleKey, onToggle }) => (
-  <div className="px-6 py-4 hover:bg-gray-50 transition-colors">
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-2 mb-1">
-          <span className="font-medium text-primary-text text-sm">{review.user_name}</span>
+  productId?: string;
+}> = ({ review, absoluteIndex, togglingKey, toggleKey, onToggle, productId }) => (
+  <div className="p-3.5 bg-white border border-slate-100 hover:border-slate-200 rounded-xl hover:shadow-md transition-all duration-200 flex flex-col justify-between h-full group">
+    <div>
+      {/* Product ID tag if company-wise mode */}
+      {productId && (
+        <div className="mb-2">
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-secondary-text bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">
+            <span className="material-symbols-outlined !text-[10px]">inventory_2</span>
+            {productId}
+          </span>
+        </div>
+      )}
+
+      {/* Header row */}
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="font-semibold text-xs text-slate-800">{review.user_name || 'Anonymous'}</span>
           {review.verified_batch && (
-            <span className="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 px-1.5 py-0.5 rounded-full">
-              <span className="material-symbols-outlined !text-[12px]">verified</span>
+            <span className="inline-flex items-center gap-0.5 text-[9px] text-green-700 bg-green-50 px-1.5 py-0.2 rounded-full border border-green-100">
+              <span className="material-symbols-outlined !text-[9px]">verified</span>
               Verified
             </span>
           )}
           {review.published && (
-            <span className="inline-flex items-center gap-1 text-xs text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded-full">
-              <span className="material-symbols-outlined !text-[12px]">publish</span>
+            <span className="inline-flex items-center gap-0.5 text-[9px] text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded-full border border-blue-100">
+              <span className="material-symbols-outlined !text-[9px]">publish</span>
               Published
             </span>
           )}
           {review.source && (
-            <span className="inline-flex items-center gap-1 text-xs text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded-full">
-              <span className="material-symbols-outlined !text-[12px]">edit_note</span>
+            <span className="inline-flex items-center gap-0.5 text-[9px] text-gray-600 bg-gray-100 px-1.5 py-0.2 rounded-full border border-gray-200">
+              <span className="material-symbols-outlined !text-[9px]">edit_note</span>
               {review.source}
             </span>
           )}
         </div>
-        <StarRating rating={parseFloat(review.rating)} />
-        {review.title && <p className="text-sm font-semibold text-primary-text mt-1.5">{review.title}</p>}
-        {review.review_text && <p className="text-sm text-secondary-text mt-1 leading-relaxed">{review.review_text}</p>}
-        {review.images?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {review.images.map((media, mIdx) => {
-              if (typeof media === 'string') return null;
-              const isVideo = media.content_type?.startsWith('video/');
-              return isVideo ? (
-                <video key={mIdx} src={media.s3_url} controls className="h-24 rounded-lg border border-gray-200 bg-black" />
-              ) : (
-                <img
-                  key={mIdx}
-                  src={media.s3_url}
-                  alt={media.filename}
-                  className="h-24 w-24 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => window.open(media.s3_url, '_blank')}
-                />
-              );
-            })}
-          </div>
-        )}
-      </div>
-      <div className="text-right shrink-0 flex flex-col items-end gap-2">
-        <p className="text-xs text-secondary-text">{review.date}</p>
-        {review.location && (
-          <p className="text-xs text-secondary-text flex items-center justify-end gap-0.5">
-            <span className="material-symbols-outlined !text-[12px]">location_on</span>
-            {review.location}
-          </p>
-        )}
+
         <button
           onClick={onToggle}
           disabled={togglingKey === toggleKey}
-          className={`mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${
+          className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold transition-colors disabled:opacity-50 ${
             review.published
-              ? 'bg-green-100 text-green-700 hover:bg-red-100 hover:text-red-700'
-              : 'bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-700'
+              ? 'bg-green-50 text-green-700 hover:bg-red-50 hover:text-red-700 border border-green-100 hover:border-red-100'
+              : 'bg-gray-50 text-gray-600 hover:bg-green-50 hover:text-green-700 border border-gray-200 hover:border-green-100'
           }`}
         >
           {togglingKey === toggleKey ? (
-            <span className="material-symbols-outlined !text-[14px] animate-spin">progress_activity</span>
+            <span className="material-symbols-outlined !text-[10px] animate-spin">progress_activity</span>
           ) : (
-            <span className="material-symbols-outlined !text-[14px]">
+            <span className="material-symbols-outlined !text-[10px]">
               {review.published ? 'visibility' : 'visibility_off'}
             </span>
           )}
           {review.published ? 'Published' : 'Unpublished'}
         </button>
       </div>
+
+      <div className="mb-1">
+        <StarRating rating={parseFloat(review.rating)} />
+      </div>
+
+      {review.title && <h4 className="text-xs font-bold text-slate-900 mt-1 mb-1 tracking-tight">{review.title}</h4>}
+      {review.review_text && <p className="text-xs text-slate-600 leading-relaxed">{review.review_text}</p>}
+
+      {review.images?.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {review.images.map((media, mIdx) => {
+            if (typeof media === 'string') return null;
+            const isVideo = media.content_type?.startsWith('video/');
+            return isVideo ? (
+              <video key={mIdx} src={media.s3_url} controls className="h-10 rounded border border-gray-200 bg-black shrink-0" />
+            ) : (
+              <img
+                key={mIdx}
+                src={media.s3_url}
+                alt={media.filename}
+                className="h-10 w-10 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+                onClick={() => window.open(media.s3_url, '_blank')}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
+
+    {/* Footer metadata */}
+    {(review.date || review.location) && (
+      <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-50 text-[10px] text-slate-400">
+        {review.date && (
+          <span className="flex items-center gap-1">
+            <span className="material-symbols-outlined !text-[12px]">calendar_today</span>
+            {review.date}
+          </span>
+        )}
+        {review.location && (
+          <span className="flex items-center gap-1">
+            <span className="material-symbols-outlined !text-[12px]">location_on</span>
+            {review.location}
+          </span>
+        )}
+      </div>
+    )}
   </div>
 );
 
@@ -161,6 +188,29 @@ const RealReviewsTab: React.FC<ReviewsTabProps> = ({
   const [companyPage, setCompanyPage] = useState(1);
   const reviewsPerPage = 10;
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.to('.gsap-tab-floater-emerald-1', {
+        y: -4,
+        x: 2,
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut'
+      });
+      gsap.to('.gsap-tab-floater-emerald-2', {
+        y: 4,
+        x: -2,
+        duration: 2.5,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut',
+        delay: 0.3
+      });
+    }
+  }, []);
 
   const reset = () => { setFetched(false); setReviews([]); setProductGroups([]); setCompanyPage(1); };
 
@@ -239,101 +289,98 @@ const RealReviewsTab: React.FC<ReviewsTabProps> = ({
   return (
     <div className="flex flex-col gap-6">
       {/* Selector card */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="size-10 rounded-lg bg-green-50 flex items-center justify-center">
-            <span className="material-symbols-outlined text-green-600 !text-[20px]">verified</span>
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 relative z-10">
+        {/* Decorative Floating Elements */}
+        <div className="absolute -right-3 -top-3 w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shadow-md border border-white gsap-tab-floater-emerald-1 pointer-events-none z-50">
+          <span className="material-symbols-outlined text-emerald-600 !text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+        </div>
+        <div className="absolute -left-3 -bottom-3 w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center shadow-md border border-white gsap-tab-floater-emerald-2 pointer-events-none z-50">
+          <span className="material-symbols-outlined text-teal-500 !text-[12px]">shield</span>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-3 pb-3 border-b border-gray-100/50">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-emerald-600 !text-[20px]">verified</span>
+            <h2 className="text-sm font-bold text-primary-text">View Real Reviews</h2>
           </div>
-          <div>
-            <h2 className="text-primary-text font-semibold text-base">View Real Reviews</h2>
+          
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* View mode toggle */}
+            <div className="flex p-0.5 bg-slate-100 rounded-lg border border-slate-200/50 shadow-sm">
+              {(['product', 'company'] as ViewMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => { setViewMode(mode); reset(); }}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1 ${
+                    viewMode === mode
+                      ? 'bg-white text-emerald-600 shadow-sm'
+                      : 'text-slate-600 hover:text-primary-text'
+                  }`}
+                >
+                  <span className="material-symbols-outlined !text-[14px]">
+                    {mode === 'product' ? 'inventory_2' : 'domain'}
+                  </span>
+                  {mode === 'product' ? 'Product Wise' : 'Company Wise'}
+                </button>
+              ))}
+            </div>
+
+            {/* Published filter */}
+            <div className="flex p-0.5 bg-slate-100 rounded-lg border border-slate-200/50 shadow-sm">
+              {(['all', 'published', 'unpublished'] as PublishedFilter[]).map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => { setPublishedFilter(filter); reset(); }}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                    publishedFilter === filter
+                      ? 'bg-white text-emerald-600 shadow-sm'
+                      : 'text-slate-600 hover:text-primary-text'
+                  }`}
+                >
+                  {filter === 'all' ? 'All' : filter === 'published' ? 'Published' : 'Unpublished'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* View mode toggle */}
-        <div className="flex gap-2 mb-4 p-1 bg-gray-100 rounded-lg w-fit">
-          {(['product', 'company'] as ViewMode[]).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => { setViewMode(mode); reset(); }}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                viewMode === mode ? 'bg-white text-primary-text shadow-sm' : 'text-secondary-text hover:text-primary-text'
-              }`}
-            >
-              <span className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined !text-[16px]">
-                  {mode === 'product' ? 'inventory_2' : 'domain'}
-                </span>
-                {mode === 'product' ? 'Product Wise' : 'Company Wise'}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Published filter */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-sm font-medium text-primary-text">Status:</span>
-          <div className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit">
-            {(['all', 'published', 'unpublished'] as PublishedFilter[]).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => { setPublishedFilter(filter); reset(); }}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  publishedFilter === filter ? 'bg-white text-primary-text shadow-sm' : 'text-secondary-text hover:text-primary-text'
-                }`}
-              >
-                {filter === 'all' ? 'All' : filter === 'published' ? 'Published' : 'Unpublished'}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className={`grid gap-4 mb-4 ${
-          isCompanyAutoSelected
-            ? 'grid-cols-1'
-            : viewMode === 'product'
-              ? 'grid-cols-1 md:grid-cols-2'
-              : 'grid-cols-1 md:grid-cols-1 max-w-md'
-        }`}>
+        <div className="flex flex-col md:flex-row md:items-end gap-3.5" style={{ overflow: 'visible' }}>
           {!isCompanyAutoSelected && (
-            <div>
-              <label className="block text-sm font-medium text-primary-text mb-1.5">
-                Select Company <span className="text-red-500">*</span>
-              </label>
+            <div className="flex-1 relative z-30">
+              <label className="block text-xs font-semibold text-primary-text mb-1">Company Name</label>
               {renderSearchableCompanyDropdown(
-                false,
+                loading,
                 (id) => { setSelectedCompany(id); reset(); },
                 'Select company...',
-                'focus:ring-green-500/20 focus:border-green-500'
+                'focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600'
               )}
             </div>
           )}
           {viewMode === 'product' && (
-            <div>
-              <label className="block text-sm font-medium text-primary-text mb-1.5">
-                Select Product <span className="text-red-500">*</span>
-              </label>
+            <div className="flex-1 relative z-20">
+              <label className="block text-xs font-semibold text-primary-text mb-1">Product Name</label>
               {renderSearchableProductDropdown(
-                !selectedCompany,
+                !selectedCompany || loading,
                 (id) => { setSelectedProduct(id); reset(); },
                 'Select product...',
-                'focus:ring-green-500/20 focus:border-green-500'
+                'focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600'
               )}
             </div>
           )}
+          <button
+            onClick={fetchRealReviews}
+            disabled={loading || !selectedCompany || (viewMode === 'product' && !selectedProduct)}
+            className="px-6 md:w-auto h-[46px] bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 shrink-0 whitespace-nowrap"
+          >
+            <span className="material-symbols-outlined !text-[18px]">search</span>
+            {loading ? 'Loading...' : 'View Real Reviews'}
+          </button>
         </div>
 
-        <button
-          onClick={fetchRealReviews}
-          disabled={loading || !selectedCompany || (viewMode === 'product' && !selectedProduct)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white rounded-lg font-medium transition-colors"
-        >
-          <span className="material-symbols-outlined !text-[18px]">search</span>
-          View Real Reviews
-        </button>
-
         {error && (
-          <p className="mt-3 text-sm text-red-600 flex items-center gap-1">
-            <span className="material-symbols-outlined !text-[16px]">error</span>
+          <p className="mt-3 text-xs text-red-600 flex items-center gap-1">
+            <span className="material-symbols-outlined !text-[14px]">error</span>
             {error}
           </p>
         )}
@@ -341,29 +388,29 @@ const RealReviewsTab: React.FC<ReviewsTabProps> = ({
 
       {/* Results — Product Wise */}
       {fetched && viewMode === 'product' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-4">
-              <span className="text-primary-text font-semibold text-sm">
+              <span className="text-primary-text font-bold text-sm">
                 {totalReviews} Real Review{totalReviews !== 1 ? 's' : ''}
               </span>
               {overallRating > 0 && (
-                <span className="flex items-center gap-1.5 text-sm text-secondary-text">
+                <span className="flex items-center gap-1.5 text-xs text-secondary-text">
                   <StarRating rating={Math.round(overallRating)} />
-                  <span className="font-medium text-primary-text">{overallRating}</span>
+                  <span className="font-semibold text-primary-text">{overallRating}</span>
                 </span>
               )}
             </div>
           </div>
 
           {reviews.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-secondary-text">
-              <span className="material-symbols-outlined !text-[48px] mb-3 text-gray-300">rate_review</span>
-              <p className="text-sm font-medium">No real reviews found</p>
+            <div className="flex flex-col items-center justify-center py-12 text-secondary-text">
+              <span className="material-symbols-outlined !text-[40px] mb-2 text-gray-300">rate_review</span>
+              <p className="text-xs font-semibold">No real reviews found</p>
             </div>
           ) : (
             <>
-              <div className="divide-y divide-gray-100">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-slate-50/30 border-b border-gray-100">
                 {paginatedReviews.map((review, idx) => {
                   const absoluteIndex = (currentPage - 1) * reviewsPerPage + idx;
                   const toggleKey = `${selectedProduct}-${absoluteIndex}`;
@@ -379,20 +426,20 @@ const RealReviewsTab: React.FC<ReviewsTabProps> = ({
                   );
                 })}
               </div>
-              <div className="px-6 py-3 border-t border-gray-100 flex items-center justify-between">
-                <span className="text-sm text-secondary-text">
+              <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between">
+                <span className="text-xs text-secondary-text">
                   Showing {Math.min((currentPage - 1) * reviewsPerPage + 1, reviews.length)} to {Math.min(currentPage * reviewsPerPage, reviews.length)} of {reviews.length} reviews
                 </span>
                 {totalPages > 1 && (
                   <div className="flex items-center gap-2">
                     <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}
                       className="p-1 text-secondary-text hover:text-primary-text disabled:opacity-40 disabled:cursor-not-allowed">
-                      <span className="material-symbols-outlined !text-[20px]">chevron_left</span>
+                      <span className="material-symbols-outlined !text-[18px]">chevron_left</span>
                     </button>
-                    <span className="text-sm text-secondary-text">Page {currentPage} of {totalPages}</span>
+                    <span className="text-xs text-secondary-text">Page {currentPage} of {totalPages}</span>
                     <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
                       className="p-1 text-secondary-text hover:text-primary-text disabled:opacity-40 disabled:cursor-not-allowed">
-                      <span className="material-symbols-outlined !text-[20px]">chevron_right</span>
+                      <span className="material-symbols-outlined !text-[18px]">chevron_right</span>
                     </button>
                   </div>
                 )}
@@ -410,56 +457,52 @@ const RealReviewsTab: React.FC<ReviewsTabProps> = ({
         const cTotalPages = Math.ceil(allReviews.length / reviewsPerPage);
         const cPaginated = allReviews.slice((companyPage - 1) * reviewsPerPage, companyPage * reviewsPerPage);
         return (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <span className="text-primary-text font-semibold text-sm">
-                {companyTotal} Real Review{companyTotal !== 1 ? 's' : ''}
-              </span>
-              <span className="text-secondary-text text-sm ml-2">across {productGroups.length} product{productGroups.length !== 1 ? 's' : ''}</span>
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <span className="text-primary-text font-bold text-sm">
+                  {companyTotal} Real Review{companyTotal !== 1 ? 's' : ''}
+                </span>
+                <span className="text-secondary-text text-xs ml-2">across {productGroups.length} product{productGroups.length !== 1 ? 's' : ''}</span>
+              </div>
             </div>
             {allReviews.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-secondary-text">
-                <span className="material-symbols-outlined !text-[48px] mb-3 text-gray-300">rate_review</span>
-                <p className="text-sm font-medium">No real reviews found for this company</p>
+              <div className="flex flex-col items-center justify-center py-12 text-secondary-text">
+                <span className="material-symbols-outlined !text-[40px] mb-2 text-gray-300">rate_review</span>
+                <p className="text-xs font-semibold">No real reviews found for this company</p>
               </div>
             ) : (
               <>
-                <div className="divide-y divide-gray-100">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 bg-slate-50/30 border-b border-gray-100">
                   {cPaginated.map(({ review, productId, productIndex }, idx) => {
                     const toggleKey = `${productId}-${productIndex}`;
                     return (
-                      <div key={idx}>
-                        <div className="px-6 pt-3 pb-0">
-                          <span className="inline-flex items-center gap-1 text-xs text-secondary-text bg-gray-100 px-2 py-0.5 rounded-full">
-                            <span className="material-symbols-outlined !text-[11px]">inventory_2</span>
-                            {productId}
-                          </span>
-                        </div>
-                        <ReviewCard
-                          review={review}
-                          absoluteIndex={productIndex}
-                          togglingKey={togglingKey}
-                          toggleKey={toggleKey}
-                          onToggle={() => togglePublished(productId, productIndex, toggleKey)}
-                        />
-                      </div>
+                      <ReviewCard
+                        key={idx}
+                        review={review}
+                        absoluteIndex={productIndex}
+                        togglingKey={togglingKey}
+                        toggleKey={toggleKey}
+                        onToggle={() => togglePublished(productId, productIndex, toggleKey)}
+                        productId={productId}
+                      />
                     );
                   })}
                 </div>
-                <div className="px-6 py-3 border-t border-gray-100 flex items-center justify-between">
-                  <span className="text-sm text-secondary-text">
+                <div className="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between">
+                  <span className="text-xs text-secondary-text">
                     Showing {Math.min((companyPage - 1) * reviewsPerPage + 1, allReviews.length)} to {Math.min(companyPage * reviewsPerPage, allReviews.length)} of {allReviews.length} reviews
                   </span>
                   {cTotalPages > 1 && (
                     <div className="flex items-center gap-2">
                       <button onClick={() => setCompanyPage((p) => Math.max(1, p - 1))} disabled={companyPage === 1}
                         className="p-1 text-secondary-text hover:text-primary-text disabled:opacity-40 disabled:cursor-not-allowed">
-                        <span className="material-symbols-outlined !text-[20px]">chevron_left</span>
+                        <span className="material-symbols-outlined !text-[18px]">chevron_left</span>
                       </button>
-                      <span className="text-sm text-secondary-text">Page {companyPage} of {cTotalPages}</span>
+                      <span className="text-xs text-secondary-text">Page {companyPage} of {cTotalPages}</span>
                       <button onClick={() => setCompanyPage((p) => Math.min(cTotalPages, p + 1))} disabled={companyPage === cTotalPages}
                         className="p-1 text-secondary-text hover:text-primary-text disabled:opacity-40 disabled:cursor-not-allowed">
-                        <span className="material-symbols-outlined !text-[20px]">chevron_right</span>
+                        <span className="material-symbols-outlined !text-[18px]">chevron_right</span>
                       </button>
                     </div>
                   )}

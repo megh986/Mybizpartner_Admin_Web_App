@@ -24,6 +24,70 @@ interface PreviewRow {
 
 const REQUIRED_COLS = ['phone', 'customer_name', 'product_name', 'order_id', 'location', 'product_handle'];
 
+const CustomCompanyDropdown: React.FC<{
+  value: string;
+  options: string[];
+  onChange: (val: string) => void;
+  disabled: boolean;
+}> = ({ value, options, onChange, disabled }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full text-left rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-2.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all flex justify-between items-center shadow-sm"
+      >
+        <span className="truncate">{value || '-- Select a company --'}</span>
+        <span className="material-symbols-outlined !text-[16px] text-slate-400">
+          {isOpen ? 'expand_less' : 'expand_more'}
+        </span>
+      </button>
+
+      {isOpen && !disabled && (
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+          <button
+            type="button"
+            className="w-full text-left px-3 py-2 text-xs text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800"
+            onClick={() => {
+              onChange('');
+              setIsOpen(false);
+            }}
+          >
+            -- Select a company --
+          </button>
+          {options.map(c => (
+            <button
+              key={c}
+              type="button"
+              className={`w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${value === c ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-700 dark:text-slate-300'}`}
+              onClick={() => {
+                onChange(c);
+                setIsOpen(false);
+              }}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const BulkUploadTab: React.FC = () => {
   const [companies, setCompanies] = useState<string[]>([]);
   const [selectedCompany, setSelectedCompany] = useState('');
@@ -137,85 +201,121 @@ const BulkUploadTab: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {/* Instructions */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-            <span className="material-symbols-outlined">upload_file</span>
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-3 transition-all duration-300">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-2 mb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-md shadow-sm">
+              <span className="material-symbols-outlined !text-[16px]">upload_file</span>
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-none">Bulk Upload Reviews</h2>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Upload an Excel or CSV file to send WhatsApp review requests in bulk</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-primary-text">Bulk Upload Reviews</h2>
-            <p className="text-xs text-secondary-text mt-1">Upload an Excel or CSV file to send WhatsApp review requests in bulk</p>
-          </div>
+          <button
+            onClick={downloadTemplate}
+            className="flex items-center gap-1 text-[11px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold transition-colors bg-indigo-50 dark:bg-indigo-500/10 px-2.5 py-1.5 rounded-md"
+          >
+            <span className="material-symbols-outlined !text-[14px]">download</span>
+            Download Sample (.csv)
+          </button>
         </div>
 
-        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-sm text-blue-800">
-          <p className="font-semibold mb-2">Required columns in your file:</p>
-          <div className="grid grid-cols-2 gap-1 font-mono text-xs">
-            <span>• phone</span>
-            <span>• customer_name</span>
-            <span>• product_name</span>
-            <span>• order_id</span>
-            <span>• location</span>
-            <span>• product_handle</span>
+        <div className="bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-900/30 rounded-lg p-2.5 text-[10px] text-blue-800 dark:text-blue-300">
+          <div className="flex flex-col sm:flex-row gap-4 justify-between">
+            <div>
+              <p className="font-bold mb-1">Required columns:</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-1 font-mono text-[9px] opacity-80">
+                <span>• phone</span>
+                <span>• customer_name</span>
+                <span>• product_name</span>
+                <span>• order_id</span>
+                <span>• location</span>
+                <span>• product_handle</span>
+              </div>
+            </div>
+            <div className="sm:border-l border-blue-200 dark:border-blue-800/30 sm:pl-4">
+              <p className="font-bold mb-1">Optional columns:</p>
+              <div className="font-mono text-[9px] opacity-80 mb-2">
+                <span>• product_id</span>
+              </div>
+              <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 mt-auto">Format: 919876543210 (country code + number, no spaces)</p>
+            </div>
           </div>
-          <p className="mt-2 font-semibold">Optional columns:</p>
-          <div className="grid grid-cols-2 gap-1 font-mono text-xs">
-            <span>• product_id</span>
-          </div>
-          <p className="mt-3 text-xs text-blue-600">Phone number format: 919876543210 (country code + number, no + or spaces)</p>
         </div>
-
-        <button
-          onClick={downloadTemplate}
-          className="mt-4 flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
-        >
-          <span className="material-symbols-outlined !text-[18px]">download</span>
-          Download sample template (.csv)
-        </button>
       </div>
 
       {/* Upload Form */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <div className="flex flex-col gap-5 max-w-2xl">
-          {/* Company Selector */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-primary-text">Select Company *</label>
-            <select
-              value={selectedCompany}
-              onChange={e => { setSelectedCompany(e.target.value); setResult(null); setError(''); }}
-              className="w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 p-3.5 outline-none transition-all"
-            >
-              <option value="">-- Select a company --</option>
-              {companies.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* File Upload */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-primary-text">Upload File (.xlsx or .csv) *</label>
-            <div
-              className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/30 transition-all"
-              onClick={() => fileRef.current?.click()}
-            >
-              <span className="material-symbols-outlined text-gray-400 !text-[40px] mb-2">cloud_upload</span>
-              <p className="text-sm text-secondary-text">
-                {file ? (
-                  <span className="text-indigo-600 font-medium">{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
-                ) : (
-                  <>Click to select file or drag and drop</>
-                )}
-              </p>
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".xlsx,.csv"
-                className="hidden"
-                onChange={handleFileChange}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-3 transition-all duration-300">
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl items-start">
+            {/* Company Selector */}
+            <div className="flex flex-col gap-1 w-full">
+              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-0.5">Select Company <span className="text-red-500">*</span></label>
+              <CustomCompanyDropdown
+                value={selectedCompany}
+                options={companies}
+                onChange={val => { setSelectedCompany(val); setResult(null); setError(''); }}
+                disabled={uploading}
               />
+            </div>
+
+            {/* File Upload */}
+            <div className="flex flex-col gap-1 w-full">
+              <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-0.5">Upload File (.xlsx or .csv) <span className="text-red-500">*</span></label>
+              <div
+                className={`border border-dashed rounded-lg px-3 py-1.5 text-center transition-all h-[38px] flex items-center justify-center ${
+                  file
+                    ? 'border-indigo-300 dark:border-indigo-700 bg-indigo-50/50 dark:bg-indigo-900/20'
+                    : 'border-slate-300 dark:border-slate-700 hover:border-indigo-400 hover:bg-indigo-50/30 dark:hover:bg-indigo-500/10 cursor-pointer bg-slate-50/50 dark:bg-slate-900/50'
+                }`}
+                onClick={(e) => {
+                  if (!file) fileRef.current?.click();
+                }}
+              >
+                <div className={`flex items-center gap-2 w-full ${!file ? 'justify-center' : ''}`}>
+                  <span className={`material-symbols-outlined !text-[18px] ${file ? 'text-indigo-500 dark:text-indigo-400' : 'text-slate-400'}`}>
+                    {file ? 'description' : 'cloud_upload'}
+                  </span>
+                  
+                  {file ? (
+                    <div className="flex items-center justify-between flex-1 min-w-0">
+                      <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold truncate text-left">
+                        {file.name} <span className="font-normal opacity-70">({(file.size / 1024).toFixed(1)} KB)</span>
+                      </p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFile(null);
+                          setPreview([]);
+                          setColumnError([]);
+                          setError('');
+                          setResult(null);
+                          if (fileRef.current) fileRef.current.value = '';
+                        }}
+                        className="p-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-800 rounded-full text-indigo-500 dark:text-indigo-400 transition-colors flex-shrink-0 ml-1"
+                        title="Remove file"
+                      >
+                        <span className="material-symbols-outlined !text-[14px]">close</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      Select file or drag & drop
+                    </p>
+                  )}
+                </div>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".xlsx,.csv"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </div>
             </div>
           </div>
 
@@ -268,24 +368,26 @@ const BulkUploadTab: React.FC = () => {
             </div>
           )}
 
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>}
+          {error && <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-900/30 text-red-700 dark:text-red-400 px-3 py-2 rounded-lg text-xs font-bold max-w-2xl">{error}</div>}
 
           {/* Result */}
           {result && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-              <span className="material-symbols-outlined text-green-600 !text-[22px]">check_circle</span>
-              <p className="text-green-700 font-semibold text-sm">{result.message}</p>
+            <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-900/30 rounded-lg p-3 flex items-center gap-2 max-w-2xl">
+              <span className="material-symbols-outlined text-green-600 dark:text-green-400 !text-[18px]">check_circle</span>
+              <p className="text-green-700 dark:text-green-300 font-bold text-[11px]">{result.message}</p>
             </div>
           )}
 
-          <button
-            onClick={handleSubmit}
-            disabled={uploading || !selectedCompany || !file || columnError.length > 0}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
-          >
-            <span className="material-symbols-outlined !text-[20px]">send</span>
-            {uploading ? 'Uploading & Sending...' : 'Upload & Send Messages'}
-          </button>
+          <div className="flex justify-center max-w-3xl mt-2">
+            <button
+              onClick={handleSubmit}
+              disabled={uploading || !selectedCompany || !file || columnError.length > 0}
+              className="w-full max-w-sm bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm text-xs"
+            >
+              <span className="material-symbols-outlined !text-[16px]">send</span>
+              {uploading ? 'Uploading...' : 'Upload & Send Messages'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -157,6 +157,7 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
     // Admin company search state
     const [adminCompanySearch, setAdminCompanySearch] = useState('');
     const [isAdminCompanyDropdownOpen, setIsAdminCompanyDropdownOpen] = useState(false);
+    const [isBillingDayDropdownOpen, setIsBillingDayDropdownOpen] = useState(false);
 
     // User company search state
     const [userCompanySearch, setUserCompanySearch] = useState('');
@@ -708,24 +709,24 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
         switch (status) {
             case 'pending_first_payment':
             case 'pending':
-                return 'status-badge pending';
+                return 'bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20';
             case 'first_payment_done':
             case 'paid':
             case 'captured':
-                return 'status-badge success';
+                return 'bg-green-50 text-green-700 border border-green-200/60 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20';
             case 'mandate_active':
             case 'active':
             case 'authenticated':
-                return 'status-badge active';
+                return 'bg-blue-50 text-blue-700 border border-blue-200/60 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20';
             case 'paused':
             case 'halted':
-                return 'status-badge warning';
+                return 'bg-orange-50 text-orange-700 border border-orange-200/60 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20';
             case 'cancelled':
             case 'failed':
             case 'expired':
-                return 'status-badge danger';
+                return 'bg-red-50 text-red-700 border border-red-200/60 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20';
             default:
-                return 'status-badge';
+                return 'bg-slate-50 text-slate-700 border border-slate-200/60 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20';
         }
     };
 
@@ -762,224 +763,267 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col h-full overflow-hidden relative bg-background-light dark:bg-background-dark">
                 {/* Top Navigation Bar */}
-                <header className="h-16 lg:h-20 px-4 lg:px-8 flex items-center justify-between shrink-0 bg-background-light dark:bg-background-dark z-10">
+                <header className="h-14 px-4 flex items-center justify-between shrink-0 bg-background-light dark:bg-background-dark z-10 lg:hidden">
                     {/* Breadcrumbs/Title */}
                     <div className="flex items-center gap-2 text-primary dark:text-white">
                         <button
-                            className="lg:hidden size-10 flex items-center justify-center rounded-lg text-gray-500 hover:text-primary hover:bg-gray-100 transition-colors"
+                            className="size-10 flex items-center justify-center rounded-lg text-gray-500 hover:text-primary hover:bg-gray-100 transition-colors"
                             onClick={() => setSidebarOpen(true)}
                         >
                             <span className="material-symbols-outlined">menu</span>
                         </button>
-                        <span className="material-symbols-outlined text-gray-400 hidden lg:inline">home</span>
-                        <span className="text-gray-400 hidden lg:inline">/</span>
-                        <h2 className="text-lg font-bold font-heading tracking-tight">Payment Management</h2>
                     </div>
-
-                    {/* Right Actions */}
-                    {/* <div className="flex items-center gap-3">
-                        <button className="size-10 flex items-center justify-center rounded-full bg-white dark:bg-surface-dark shadow-sm text-gray-500 hover:text-primary transition-colors border border-gray-100 dark:border-gray-700">
-                            <span className="material-symbols-outlined text-[20px]">notifications</span>
-                        </button>
-                        <button className="h-10 px-4 flex items-center justify-center rounded-full bg-white dark:bg-surface-dark shadow-sm text-gray-700 dark:text-gray-200 font-bold text-sm gap-2 hover:bg-gray-50 transition-colors border border-gray-100 dark:border-gray-700">
-                            <span className="material-symbols-outlined text-[20px]">help</span>
-                            <span>Help &amp; Support</span>
-                        </button>
-                    </div> */}
                 </header>
 
                 {/* Scrollable Payment Content */}
-                <div className="flex-1 overflow-y-auto p-4 lg:p-8 pt-4">
+                <div className="flex-1 overflow-y-auto p-3 lg:p-4 pt-2 lg:pt-4">
                     <div className="max-w-7xl mx-auto">
                         {/* Tab Headers - Show both for admin */}
                         {userData?.role === 'admin' && (
-                            <div className="payment-main-tabs">
+                            <div className="bg-slate-100/80 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800/60 mb-4 max-w-fit shadow-xs flex">
                                 <button
-                                    className={activeTab === 'admin' ? 'main-tab active' : 'main-tab'}
+                                    className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                        activeTab === 'admin'
+                                            ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-md'
+                                            : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                    }`}
                                     onClick={() => setActiveTab('admin')}
                                 >
+                                    <span className="material-symbols-outlined !text-[15px]">admin_panel_settings</span>
                                     Admin View
                                 </button>
                                 <button
-                                    className={activeTab === 'user' ? 'main-tab active' : 'main-tab'}
+                                    className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                        activeTab === 'user'
+                                            ? 'bg-indigo-600 dark:bg-indigo-500 text-white shadow-md'
+                                            : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                    }`}
                                     onClick={() => setActiveTab('user')}
                                 >
+                                    <span className="material-symbols-outlined !text-[15px]">person</span>
                                     User View
                                 </button>
                             </div>
                         )}
 
                         {/* Success/Error Messages */}
-                        {success && <div className="payment-success-message">{success}</div>}
-                        {error && <div className="payment-error-message">{error}</div>}
+                        {success && <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-900/30 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl text-sm font-medium mb-4 flex items-center gap-2"><span className="material-symbols-outlined">check_circle</span>{success}</div>}
+                        {error && <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-900/30 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium mb-4 flex items-center gap-2"><span className="material-symbols-outlined">error</span>{error}</div>}
 
                         {/* ADMIN VIEW */}
                         {activeTab === 'admin' && userData?.role === 'admin' && (
-                            <div className="payment-admin-section">
+                            <div className="flex flex-col gap-4">
                                 {/* Summary Cards */}
                                 {summary && (
-                                    <div className="payment-summary-cards">
-                                        <div className="summary-card">
-                                            <div className="summary-value">{summary.total_plans}</div>
-                                            <div className="summary-label">Total Plans</div>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                                        <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-800/50 shadow-sm flex flex-col justify-center transition-all duration-300 hover:shadow-md">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <div className="p-1 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-md">
+                                                    <span className="material-symbols-outlined !text-[16px]">list_alt</span>
+                                                </div>
+                                                <div className="text-[10px] font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wider">Total Plans</div>
+                                            </div>
+                                            <div className="text-xl font-bold text-slate-800 dark:text-slate-100">{summary.total_plans}</div>
                                         </div>
-                                        <div className="summary-card">
-                                            <div className="summary-value">{summary.active_mandates}</div>
-                                            <div className="summary-label">Active Mandates</div>
+                                        <div className="bg-green-50/50 dark:bg-green-900/20 rounded-xl p-3 border border-green-100 dark:border-green-800/50 shadow-sm flex flex-col justify-center transition-all duration-300 hover:shadow-md">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <div className="p-1 bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 rounded-md">
+                                                    <span className="material-symbols-outlined !text-[16px]">verified</span>
+                                                </div>
+                                                <div className="text-[10px] font-bold text-green-800 dark:text-green-300 uppercase tracking-wider">Active Mandates</div>
+                                            </div>
+                                            <div className="text-xl font-bold text-slate-800 dark:text-slate-100">{summary.active_mandates}</div>
                                         </div>
-                                        <div className="summary-card">
-                                            <div className="summary-value">{summary.pending_payments}</div>
-                                            <div className="summary-label">Pending Payments</div>
+                                        <div className="bg-amber-50/50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-100 dark:border-amber-800/50 shadow-sm flex flex-col justify-center transition-all duration-300 hover:shadow-md">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <div className="p-1 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-md">
+                                                    <span className="material-symbols-outlined !text-[16px]">pending_actions</span>
+                                                </div>
+                                                <div className="text-[10px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">Pending Payments</div>
+                                            </div>
+                                            <div className="text-xl font-bold text-slate-800 dark:text-slate-100">{summary.pending_payments}</div>
                                         </div>
-                                        <div className="summary-card">
-                                            <div className="summary-value">{formatCurrency(summary.total_revenue)}</div>
-                                            <div className="summary-label">Total Revenue</div>
+                                        <div className="bg-purple-50/50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-100 dark:border-purple-800/50 shadow-sm flex flex-col justify-center transition-all duration-300 hover:shadow-md">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <div className="p-1 bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-md">
+                                                    <span className="material-symbols-outlined !text-[16px]">account_balance_wallet</span>
+                                                </div>
+                                                <div className="text-[10px] font-bold text-purple-800 dark:text-purple-300 uppercase tracking-wider">Total Revenue</div>
+                                            </div>
+                                            <div className="text-xl font-bold text-slate-800 dark:text-slate-100">{formatCurrency(summary.total_revenue)}</div>
                                         </div>
-                                        <div className="summary-card highlight">
-                                            <div className="summary-value">{formatCurrency(summary.this_month_revenue)}</div>
-                                            <div className="summary-label">This Month</div>
+                                        <div className="bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl p-3 border border-indigo-100 dark:border-indigo-800/50 shadow-sm flex flex-col justify-center transition-all duration-300 hover:shadow-md">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <div className="p-1 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-md">
+                                                    <span className="material-symbols-outlined !text-[16px]">trending_up</span>
+                                                </div>
+                                                <div className="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wider">This Month</div>
+                                            </div>
+                                            <div className="text-xl font-bold text-slate-800 dark:text-slate-100">{formatCurrency(summary.this_month_revenue)}</div>
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Admin Sub Tabs */}
-                                <div className="payment-sub-tabs">
+                                <div className="bg-slate-100/80 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800/60 max-w-fit shadow-xs flex flex-wrap gap-1">
                                     <button
-                                        className={adminSubTab === 'plans' ? 'sub-tab active' : 'sub-tab'}
+                                        className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                            adminSubTab === 'plans'
+                                                ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700/50'
+                                                : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                        }`}
                                         onClick={() => setAdminSubTab('plans')}
                                     >
+                                        <span className="material-symbols-outlined !text-[15px]">view_list</span>
                                         Payment Plans
                                     </button>
                                     <button
-                                        className={adminSubTab === 'create' ? 'sub-tab active' : 'sub-tab'}
+                                        className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                            adminSubTab === 'create'
+                                                ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700/50'
+                                                : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                        }`}
                                         onClick={() => setAdminSubTab('create')}
                                     >
+                                        <span className="material-symbols-outlined !text-[15px]">add_circle</span>
                                         Create Plan
                                     </button>
                                     <button
-                                        className={adminSubTab === 'payments' ? 'sub-tab active' : 'sub-tab'}
+                                        className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                            adminSubTab === 'payments'
+                                                ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700/50'
+                                                : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                        }`}
                                         onClick={() => setAdminSubTab('payments')}
                                     >
+                                        <span className="material-symbols-outlined !text-[15px]">receipt_long</span>
                                         All Payments
                                     </button>
                                 </div>
 
                                 {/* Plans List */}
                                 {adminSubTab === 'plans' && (
-                                    <div className="payment-plans-list">
-                                        <h3>Payment Plans</h3>
+                                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 mt-6">
+                                        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><span className="material-symbols-outlined !text-[18px] text-indigo-500">list</span> Payment Plans</h3>
                                         {loading ? (
-                                            <div className="payment-loading">Loading...</div>
+                                            <div className="text-sm text-slate-500 dark:text-slate-400 py-4 flex items-center gap-2"><span className="material-symbols-outlined animate-spin">refresh</span> Loading...</div>
                                         ) : plans.length === 0 ? (
-                                            <div className="payment-empty">No payment plans found</div>
+                                            <div className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg">No payment plans found</div>
                                         ) : (
-                                            <table className="payment-table">
-                                                <thead>
+                                            <div className="overflow-x-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead className="bg-slate-50 dark:bg-slate-800/50">
                                                     <tr>
-                                                        <th>Company</th>
-                                                        <th>First Payment</th>
-                                                        <th>Recurring</th>
-                                                        <th>Billing Day</th>
-                                                        <th>Status</th>
-                                                        <th>Actions</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 first:rounded-tl-lg">Company</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">First Payment</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Recurring</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Billing Day</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Status</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 text-right last:rounded-tr-lg">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {plans.map(plan => (
-                                                        <tr key={plan.id}>
-                                                            <td>{plan.company_name}</td>
-                                                            <td>{formatCurrency(plan.first_payment_amount)}</td>
-                                                            <td>{formatCurrency(plan.recurring_amount)}/mo</td>
-                                                            <td>{plan.billing_cycle_day}</td>
-                                                            <td>
-                                                                <span className={getStatusBadgeClass(plan.status)}>
+                                                        <tr key={plan.id} className="border-b border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                                                            <td className="px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-200">{plan.company_name}</td>
+                                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 font-mono">{formatCurrency(plan.first_payment_amount)}</td>
+                                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 font-mono">{formatCurrency(plan.recurring_amount)}<span className="text-[10px] text-slate-400">/mo</span></td>
+                                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{plan.billing_cycle_day}</td>
+                                                            <td className="px-4 py-3 text-sm">
+                                                                <span className={`inline-flex items-center px-2 py-1 text-[10px] font-bold rounded-md ${getStatusBadgeClass(plan.status)}`}>
                                                                     {getStatusText(plan.status)}
                                                                 </span>
                                                             </td>
-                                                            <td className="action-buttons">
-                                                                {plan.status === 'pending_first_payment' && (
-                                                                    <button
-                                                                        className="action-btn primary"
-                                                                        onClick={() => handleCreateFirstPaymentRequest(plan.company_id)}
-                                                                        disabled={loading}
-                                                                    >
-                                                                        Send Request
-                                                                    </button>
-                                                                )}
-                                                                {plan.status === 'first_payment_done' && (
-                                                                    <button
-                                                                        className="action-btn success"
-                                                                        onClick={() => handleSetupMandate(plan.company_id)}
-                                                                        disabled={loading}
-                                                                    >
-                                                                        Setup Mandate
-                                                                    </button>
-                                                                )}
-                                                                {plan.status === 'mandate_active' && (
-                                                                    <button
-                                                                        className="action-btn warning"
-                                                                        onClick={() => handleToggleMandate(plan.company_id, 'pause')}
-                                                                        disabled={loading}
-                                                                    >
-                                                                        Pause
-                                                                    </button>
-                                                                )}
-                                                                {plan.status === 'paused' && (
-                                                                    <button
-                                                                        className="action-btn success"
-                                                                        onClick={() => handleToggleMandate(plan.company_id, 'resume')}
-                                                                        disabled={loading}
-                                                                    >
-                                                                        Resume
-                                                                    </button>
-                                                                )}
-                                                                {plan.status === 'mandate_pending' && (
-                                                                    <button
-                                                                        className="action-btn warning"
-                                                                        onClick={() => handleRegenerateMandate(plan.company_id)}
-                                                                        disabled={loading}
-                                                                        title="Regenerate if authentication page expired"
-                                                                    >
-                                                                        Regenerate
-                                                                    </button>
-                                                                )}
-                                                                {['mandate_active', 'paused', 'mandate_pending'].includes(plan.status) && (
-                                                                    <button
-                                                                        className="action-btn danger"
-                                                                        onClick={() => {
-                                                                            setCancelMandateCompanyId(plan.company_id);
-                                                                            setCancelMandateDialogOpen(true);
-                                                                        }}
-                                                                        disabled={loading}
-                                                                    >
-                                                                        Cancel
-                                                                    </button>
-                                                                )}
+                                                            <td className="px-4 py-3 text-right">
+                                                                <div className="flex items-center justify-end gap-2">
+                                                                    {plan.status === 'pending_first_payment' && (
+                                                                        <button
+                                                                            className="px-2.5 py-1 text-[10px] font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20 rounded-md transition-colors disabled:opacity-50"
+                                                                            onClick={() => handleCreateFirstPaymentRequest(plan.company_id)}
+                                                                            disabled={loading}
+                                                                        >
+                                                                            Send Request
+                                                                        </button>
+                                                                    )}
+                                                                    {plan.status === 'first_payment_done' && (
+                                                                        <button
+                                                                            className="px-2.5 py-1 text-[10px] font-bold bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20 rounded-md transition-colors disabled:opacity-50"
+                                                                            onClick={() => handleSetupMandate(plan.company_id)}
+                                                                            disabled={loading}
+                                                                        >
+                                                                            Setup Mandate
+                                                                        </button>
+                                                                    )}
+                                                                    {plan.status === 'mandate_active' && (
+                                                                        <button
+                                                                            className="px-2.5 py-1 text-[10px] font-bold bg-orange-50 text-orange-600 hover:bg-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:hover:bg-orange-500/20 rounded-md transition-colors disabled:opacity-50"
+                                                                            onClick={() => handleToggleMandate(plan.company_id, 'pause')}
+                                                                            disabled={loading}
+                                                                        >
+                                                                            Pause
+                                                                        </button>
+                                                                    )}
+                                                                    {plan.status === 'paused' && (
+                                                                        <button
+                                                                            className="px-2.5 py-1 text-[10px] font-bold bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20 rounded-md transition-colors disabled:opacity-50"
+                                                                            onClick={() => handleToggleMandate(plan.company_id, 'resume')}
+                                                                            disabled={loading}
+                                                                        >
+                                                                            Resume
+                                                                        </button>
+                                                                    )}
+                                                                    {plan.status === 'mandate_pending' && (
+                                                                        <button
+                                                                            className="px-2.5 py-1 text-[10px] font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20 rounded-md transition-colors disabled:opacity-50"
+                                                                            onClick={() => handleRegenerateMandate(plan.company_id)}
+                                                                            disabled={loading}
+                                                                            title="Regenerate if authentication page expired"
+                                                                        >
+                                                                            Regenerate
+                                                                        </button>
+                                                                    )}
+                                                                    {['mandate_active', 'paused', 'mandate_pending'].includes(plan.status) && (
+                                                                        <button
+                                                                            className="px-2.5 py-1 text-[10px] font-bold bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 rounded-md transition-colors disabled:opacity-50"
+                                                                            onClick={() => {
+                                                                                setCancelMandateCompanyId(plan.company_id);
+                                                                                setCancelMandateDialogOpen(true);
+                                                                            }}
+                                                                            disabled={loading}
+                                                                        >
+                                                                            Cancel
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                             </table>
+                                            </div>
                                         )}
                                     </div>
                                 )}
 
                                 {/* Create Plan Form */}
                                 {adminSubTab === 'create' && (
-                                    <div className="payment-create-plan">
-                                        <h3>Create Payment Plan</h3>
-                                        <form onSubmit={handleCreatePlan} className="create-plan-form">
-                                            <div className="form-group" style={{ position: 'relative', zIndex: 30 }}>
-                                                <label>Select Company *</label>
-                                                <div className="relative">
-                                                    <div className="relative">
+                                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 mt-4 w-full">
+                                        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><span className="material-symbols-outlined !text-[18px] text-indigo-500">add_circle</span> Create Payment Plan</h3>
+                                        <form onSubmit={handleCreatePlan} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div className="flex flex-col gap-1.5" style={{ position: 'relative', zIndex: 30 }}>
+                                                <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Select Company <span className="text-red-500">*</span></label>
+                                                <div className="relative z-30">
+                                                    <div className="relative group">
+                                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                                            <span className="material-symbols-outlined !text-[17px]">domain</span>
+                                                        </div>
                                                         <input
                                                             type="text"
-                                                            value={isAdminCompanyDropdownOpen ? adminCompanySearch : (selectedCompanyId || adminCompanySearch)}
+                                                            value={isAdminCompanyDropdownOpen ? adminCompanySearch : (selectedCompanyId || '')}
                                                             onChange={(e) => {
                                                                 setAdminCompanySearch(e.target.value);
                                                                 setIsAdminCompanyDropdownOpen(true);
-                                                                if (selectedCompanyId) {
+                                                                if (selectedCompanyId && e.target.value !== selectedCompanyId) {
                                                                     setSelectedCompanyId('');
                                                                 }
                                                             }}
@@ -999,139 +1043,191 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
                                                                     }
                                                                 }, 200);
                                                             }}
-                                                            placeholder="Search by company ID..."
+                                                            placeholder="-- Select a company --"
                                                             disabled={loading}
-                                                            className="w-full bg-background-light border border-gray-200 text-primary-text text-sm rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary block p-3 pr-10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            className={`w-full bg-white dark:bg-slate-900 border ${isAdminCompanyDropdownOpen ? 'border-indigo-400 ring-2 ring-indigo-500/20' : 'border-slate-200 dark:border-slate-800'} text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-9 py-2.5 outline-none transition-all shadow-sm placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800/50 ${selectedCompanyId ? 'font-medium' : ''}`}
                                                         />
-                                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
-                                                            <span className="material-symbols-outlined !text-[20px]">search</span>
+                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                                            {selectedCompanyId && !loading ? (
+                                                                <button
+                                                                    type="button"
+                                                                    onMouseDown={(e) => { e.preventDefault(); setSelectedCompanyId(''); setAdminCompanySearch(''); }}
+                                                                    className="text-slate-400 hover:text-slate-600 transition-colors"
+                                                                    tabIndex={-1}
+                                                                >
+                                                                    <span className="material-symbols-outlined !text-[16px]">close</span>
+                                                                </button>
+                                                            ) : (
+                                                                <span className="material-symbols-outlined !text-[18px] text-slate-400 pointer-events-none">
+                                                                    {isAdminCompanyDropdownOpen ? 'expand_less' : 'expand_more'}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                    {isAdminCompanyDropdownOpen && !loading && (() => {
-                                                        const filtered = companies.filter(c =>
-                                                            c.company_id.toLowerCase().includes(adminCompanySearch.toLowerCase())
-                                                        );
-                                                        return filtered.length > 0 ? (
-                                                            <div className="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                                                {filtered.map(company => (
+
+                                                    {isAdminCompanyDropdownOpen && !loading && (
+                                                        <div className="absolute z-[100] w-full mt-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl shadow-slate-900/10 overflow-hidden">
+                                                            <div className="max-h-56 overflow-y-auto py-1">
+                                                                {companies.filter(c => c.company_id.toLowerCase().includes(adminCompanySearch.toLowerCase())).length > 0 ? (
+                                                                    companies.filter(c => c.company_id.toLowerCase().includes(adminCompanySearch.toLowerCase())).map(company => (
+                                                                        <div
+                                                                            key={company.company_id}
+                                                                            onMouseDown={(e) => {
+                                                                                e.preventDefault();
+                                                                                setSelectedCompanyId(company.company_id);
+                                                                                setAdminCompanySearch(company.company_id);
+                                                                                setIsAdminCompanyDropdownOpen(false);
+                                                                            }}
+                                                                            className={`flex items-center justify-between mx-1 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                                                                                selectedCompanyId === company.company_id
+                                                                                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold'
+                                                                                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                                                            }`}
+                                                                        >
+                                                                            <span className="flex items-center gap-2">
+                                                                                <span className="material-symbols-outlined !text-[14px] opacity-50">domain</span>
+                                                                                {company.company_id}
+                                                                            </span>
+                                                                        </div>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center justify-center py-4 text-slate-400">
+                                                                        <span className="material-symbols-outlined !text-[24px] mb-1">search_off</span>
+                                                                        <span className="text-xs">No companies found</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">First Payment Amount (INR) <span className="text-red-500">*</span></label>
+                                                <input
+                                                    type="number"
+                                                    value={firstPaymentAmount}
+                                                    onChange={(e) => setFirstPaymentAmount(e.target.value)}
+                                                    placeholder="e.g., 5000"
+                                                    required
+                                                    min="1"
+                                                    disabled={loading}
+                                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl px-4 py-2.5 outline-none transition-all shadow-sm placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                />
+                                            </div>
+                                            
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Recurring Amount (INR/month) <span className="text-red-500">*</span></label>
+                                                <input
+                                                    type="number"
+                                                    value={recurringAmount}
+                                                    onChange={(e) => setRecurringAmount(e.target.value)}
+                                                    placeholder="e.g., 3000"
+                                                    required
+                                                    min="1"
+                                                    disabled={loading}
+                                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl px-4 py-2.5 outline-none transition-all shadow-sm placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Billing Day of Month</label>
+                                                <div className="relative">
+                                                    <div
+                                                        className={`w-full bg-white dark:bg-slate-900 border ${isBillingDayDropdownOpen ? 'border-indigo-400 ring-2 ring-indigo-500/20' : 'border-slate-200 dark:border-slate-800'} text-slate-800 dark:text-slate-100 text-sm rounded-xl px-4 py-2.5 outline-none transition-all shadow-sm cursor-pointer flex items-center justify-between ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        onClick={() => !loading && setIsBillingDayDropdownOpen(!isBillingDayDropdownOpen)}
+                                                    >
+                                                        <span>{billingCycleDay}</span>
+                                                        <span className="material-symbols-outlined !text-[18px] text-slate-500">
+                                                            {isBillingDayDropdownOpen ? 'expand_less' : 'expand_more'}
+                                                        </span>
+                                                    </div>
+                                                    {isBillingDayDropdownOpen && !loading && (
+                                                        <>
+                                                            <div 
+                                                                className="fixed inset-0 z-[90]" 
+                                                                onClick={() => setIsBillingDayDropdownOpen(false)}
+                                                            />
+                                                            <div className="absolute z-[100] w-full mt-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-y-auto max-h-56 py-1">
+                                                                {Array.from({ length: 28 }, (_, i) => String(i + 1)).map(day => (
                                                                     <div
-                                                                        key={company.company_id}
-                                                                        onMouseDown={(e) => {
-                                                                            e.preventDefault();
-                                                                            setSelectedCompanyId(company.company_id);
-                                                                            setAdminCompanySearch(company.company_id);
-                                                                            setIsAdminCompanyDropdownOpen(false);
+                                                                        key={day}
+                                                                        onClick={() => {
+                                                                            setBillingCycleDay(day);
+                                                                            setIsBillingDayDropdownOpen(false);
                                                                         }}
-                                                                        className={`px-4 py-2.5 cursor-pointer hover:bg-gray-100 transition-colors ${selectedCompanyId === company.company_id ? 'bg-blue-50 text-blue-700' : 'text-primary-text'}`}
+                                                                        className={`flex flex-col justify-center mx-1 px-4 py-2 rounded-lg cursor-pointer text-sm transition-all ${billingCycleDay === day ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                                                                     >
-                                                                        <p className="font-medium text-sm">{company.name || company.company_id}</p>
-                                                                        {company.name && <p className="text-xs text-secondary-text">{company.company_id}</p>}
+                                                                        {day}
                                                                     </div>
                                                                 ))}
                                                             </div>
-                                                        ) : adminCompanySearch ? (
-                                                            <div className="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-secondary-text">
-                                                                No companies found matching "{adminCompanySearch}"
-                                                            </div>
-                                                        ) : null;
-                                                    })()}
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <div className="form-row">
-                                                <div className="form-group">
-                                                    <label>First Payment Amount (INR) *</label>
-                                                    <input
-                                                        type="number"
-                                                        value={firstPaymentAmount}
-                                                        onChange={(e) => setFirstPaymentAmount(e.target.value)}
-                                                        placeholder="e.g., 5000"
-                                                        required
-                                                        min="1"
-                                                        disabled={loading}
-                                                    />
-                                                </div>
-                                                <div className="form-group">
-                                                    <label>Recurring Amount (INR/month) *</label>
-                                                    <input
-                                                        type="number"
-                                                        value={recurringAmount}
-                                                        onChange={(e) => setRecurringAmount(e.target.value)}
-                                                        placeholder="e.g., 3000"
-                                                        required
-                                                        min="1"
-                                                        disabled={loading}
-                                                    />
-                                                </div>
+                                            
+                                            <div className="flex flex-col gap-1.5 md:col-span-2">
+                                                <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Description (Optional)</label>
+                                                <input
+                                                    type="text"
+                                                    value={planDescription}
+                                                    onChange={(e) => setPlanDescription(e.target.value)}
+                                                    placeholder="Plan description"
+                                                    disabled={loading}
+                                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl px-4 py-2.5 outline-none transition-all shadow-sm placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                />
                                             </div>
-                                            <div className="form-row">
-                                                <div className="form-group">
-                                                    <label>Billing Day of Month</label>
-                                                    <select
-                                                        value={billingCycleDay}
-                                                        onChange={(e) => setBillingCycleDay(e.target.value)}
-                                                        disabled={loading}
-                                                        title="Billing Day of Month"
-                                                    >
-                                                        {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
-                                                            <option key={day} value={day}>{day}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                                <div className="form-group">
-                                                    <label>Description (Optional)</label>
-                                                    <input
-                                                        type="text"
-                                                        value={planDescription}
-                                                        onChange={(e) => setPlanDescription(e.target.value)}
-                                                        placeholder="Plan description"
-                                                        disabled={loading}
-                                                    />
-                                                </div>
+
+                                            <div className="pt-2 md:col-span-3">
+                                                <button type="submit" disabled={loading} className="w-fit bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                                    <span className="material-symbols-outlined !text-[18px]">save</span>
+                                                    {loading ? 'Creating...' : 'Create Payment Plan'}
+                                                </button>
                                             </div>
-                                            <button type="submit" className="submit-btn" disabled={loading}>
-                                                {loading ? 'Creating...' : 'Create Payment Plan'}
-                                            </button>
                                         </form>
                                     </div>
                                 )}
 
                                 {/* All Payments */}
                                 {adminSubTab === 'payments' && (
-                                    <div className="payment-all-payments">
-                                        <h3>All Payments</h3>
+                                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 mt-4">
+                                        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><span className="material-symbols-outlined !text-[18px] text-indigo-500">receipt_long</span> All Payments</h3>
                                         {loading ? (
-                                            <div className="payment-loading">Loading...</div>
+                                            <div className="text-sm text-slate-500 dark:text-slate-400 py-4 flex items-center gap-2"><span className="material-symbols-outlined animate-spin">refresh</span> Loading...</div>
                                         ) : allPayments.length === 0 ? (
-                                            <div className="payment-empty">No payments found</div>
+                                            <div className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg">No payments found</div>
                                         ) : (
-                                            <table className="payment-table">
-                                                <thead>
+                                            <div className="overflow-x-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead className="bg-slate-50 dark:bg-slate-800/50">
                                                     <tr>
-                                                        <th>Company</th>
-                                                        <th>Amount</th>
-                                                        <th>Type</th>
-                                                        <th>Method</th>
-                                                        <th>Status</th>
-                                                        <th>Date</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 first:rounded-tl-lg">Company</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Amount</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Type</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Method</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Status</th>
+                                                        <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 last:rounded-tr-lg">Date</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {allPayments.map(payment => (
-                                                        <tr key={payment.id}>
-                                                            <td>{(payment as any).company_name || payment.razorpay_payment_id}</td>
-                                                            <td>{formatCurrency(payment.amount)}</td>
-                                                            <td>{getStatusText(payment.type)}</td>
-                                                            <td>{payment.method || '-'}</td>
-                                                            <td>
-                                                                <span className={getStatusBadgeClass(payment.status)}>
+                                                        <tr key={payment.id} className="border-b border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                                                            <td className="px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-200">{(payment as any).company_name || payment.razorpay_payment_id}</td>
+                                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 font-mono">{formatCurrency(payment.amount)}</td>
+                                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{getStatusText(payment.type)}</td>
+                                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{payment.method || '-'}</td>
+                                                            <td className="px-4 py-3 text-sm">
+                                                                <span className={`inline-flex items-center px-2 py-1 text-[10px] font-bold rounded-md ${getStatusBadgeClass(payment.status)}`}>
                                                                     {getStatusText(payment.status)}
                                                                 </span>
                                                             </td>
-                                                            <td>{formatDate(payment.paid_at)}</td>
+                                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(payment.paid_at)}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                             </table>
+                                            </div>
                                         )}
                                     </div>
                                 )}
@@ -1142,17 +1238,20 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
                         {activeTab === 'user' && (
                             <div className="payment-user-section">
                                 {/* Company Selector */}
-                                <div className="company-selector" style={{ position: 'relative', zIndex: 30 }}>
-                                    <label>Select Company:</label>
-                                    <div className="relative" style={{ flex: 1, maxWidth: '500px' }}>
-                                        <div className="relative">
+                                <div className="flex flex-col gap-1.5 mb-4" style={{ position: 'relative', zIndex: 30 }}>
+                                    <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Select Company:</label>
+                                    <div className="relative w-full max-w-lg z-30">
+                                        <div className="relative group">
+                                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                                <span className="material-symbols-outlined !text-[17px]">domain</span>
+                                            </div>
                                             <input
                                                 type="text"
-                                                value={isUserCompanyDropdownOpen ? userCompanySearch : (userCompanyId || userCompanySearch)}
+                                                value={isUserCompanyDropdownOpen ? userCompanySearch : (userCompanyId || '')}
                                                 onChange={(e) => {
                                                     setUserCompanySearch(e.target.value);
                                                     setIsUserCompanyDropdownOpen(true);
-                                                    if (userCompanyId) {
+                                                    if (userCompanyId && e.target.value !== userCompanyId) {
                                                         setUserCompanyId('');
                                                     }
                                                 }}
@@ -1172,110 +1271,149 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
                                                         }
                                                     }, 200);
                                                 }}
-                                                placeholder="Search by company ID..."
+                                                placeholder="-- Select a company --"
                                                 disabled={loading}
-                                                className="w-full bg-background-light border border-gray-200 text-primary-text text-sm rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary block p-3 pr-10 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className={`w-full bg-white dark:bg-slate-900 border ${isUserCompanyDropdownOpen ? 'border-indigo-400 ring-2 ring-indigo-500/20' : 'border-slate-200 dark:border-slate-800'} text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-9 pr-9 py-2.5 outline-none transition-all shadow-sm placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-50 dark:disabled:bg-slate-800/50 ${userCompanyId ? 'font-medium' : ''}`}
                                             />
-                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary-text">
-                                                <span className="material-symbols-outlined !text-[20px]">search</span>
+                                            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                                {userCompanyId && !loading ? (
+                                                    <button
+                                                        type="button"
+                                                        onMouseDown={(e) => { e.preventDefault(); setUserCompanyId(''); setUserCompanySearch(''); }}
+                                                        className="text-slate-400 hover:text-slate-600 transition-colors"
+                                                        tabIndex={-1}
+                                                    >
+                                                        <span className="material-symbols-outlined !text-[16px]">close</span>
+                                                    </button>
+                                                ) : (
+                                                    <span className="material-symbols-outlined !text-[18px] text-slate-400 pointer-events-none">
+                                                        {isUserCompanyDropdownOpen ? 'expand_less' : 'expand_more'}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
-                                        {isUserCompanyDropdownOpen && !loading && (() => {
-                                            const filtered = userCompanies.filter(c =>
-                                                c.company_id.toLowerCase().includes(userCompanySearch.toLowerCase())
-                                            );
-                                            return filtered.length > 0 ? (
-                                                <div className="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                                    {filtered.map(company => (
-                                                        <div
-                                                            key={company.company_id}
-                                                            onMouseDown={(e) => {
-                                                                e.preventDefault();
-                                                                setUserCompanyId(company.company_id);
-                                                                setUserCompanySearch(company.company_id);
-                                                                setIsUserCompanyDropdownOpen(false);
-                                                            }}
-                                                            className={`px-4 py-2.5 cursor-pointer hover:bg-gray-100 transition-colors ${userCompanyId === company.company_id ? 'bg-blue-50 text-blue-700' : 'text-primary-text'}`}
-                                                        >
-                                                            <p className="font-medium text-sm">{company.name || company.company_id}</p>
-                                                            {company.name && <p className="text-xs text-secondary-text">{company.company_id}</p>}
+
+                                        {isUserCompanyDropdownOpen && !loading && (
+                                            <div className="absolute z-[100] w-full mt-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl shadow-slate-900/10 overflow-hidden">
+                                                <div className="max-h-56 overflow-y-auto py-1">
+                                                    {userCompanies.filter(c => c.company_id.toLowerCase().includes(userCompanySearch.toLowerCase())).length > 0 ? (
+                                                        userCompanies.filter(c => c.company_id.toLowerCase().includes(userCompanySearch.toLowerCase())).map(company => (
+                                                            <div
+                                                                key={company.company_id}
+                                                                onMouseDown={(e) => {
+                                                                    e.preventDefault();
+                                                                    setUserCompanyId(company.company_id);
+                                                                    setUserCompanySearch(company.company_id);
+                                                                    setIsUserCompanyDropdownOpen(false);
+                                                                }}
+                                                                className={`flex items-center justify-between mx-1 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all ${
+                                                                    userCompanyId === company.company_id
+                                                                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold'
+                                                                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                                                }`}
+                                                            >
+                                                                <span className="flex items-center gap-2">
+                                                                    <span className="material-symbols-outlined !text-[14px] opacity-50">domain</span>
+                                                                    {company.company_id}
+                                                                </span>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <div className="flex flex-col items-center justify-center py-4 text-slate-400">
+                                                            <span className="material-symbols-outlined !text-[24px] mb-1">search_off</span>
+                                                            <span className="text-xs">No companies found</span>
                                                         </div>
-                                                    ))}
+                                                    )}
                                                 </div>
-                                            ) : userCompanySearch ? (
-                                                <div className="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-secondary-text">
-                                                    No companies found matching "{userCompanySearch}"
-                                                </div>
-                                            ) : null;
-                                        })()}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
-                                {userCompanyId && (
-                                    <>
-                                        {/* User Sub Tabs */}
-                                        <div className="payment-sub-tabs">
+                                {/* User Sub Tabs */}
+                                        <div className="bg-slate-100/80 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800/60 max-w-fit shadow-xs flex flex-wrap gap-1 mb-4">
                                             <button
-                                                className={userSubTab === 'pending' ? 'sub-tab active' : 'sub-tab'}
+                                                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                                    userSubTab === 'pending'
+                                                        ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700/50'
+                                                        : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                                }`}
                                                 onClick={() => setUserSubTab('pending')}
                                             >
+                                                <span className="material-symbols-outlined !text-[15px]">pending_actions</span>
                                                 Pending Payments
                                                 {pendingPayments.length > 0 && (
-                                                    <span className="badge">{pendingPayments.length}</span>
+                                                    <span className="ml-1 px-1.5 py-0.5 bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400 rounded-full text-[9px] font-black">{pendingPayments.length}</span>
                                                 )}
                                             </button>
                                             <button
-                                                className={userSubTab === 'history' ? 'sub-tab active' : 'sub-tab'}
+                                                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                                    userSubTab === 'history'
+                                                        ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700/50'
+                                                        : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                                }`}
                                                 onClick={() => setUserSubTab('history')}
                                             >
+                                                <span className="material-symbols-outlined !text-[15px]">history</span>
                                                 Payment History
                                             </button>
                                             <button
-                                                className={userSubTab === 'invoices' ? 'sub-tab active' : 'sub-tab'}
+                                                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                                    userSubTab === 'invoices'
+                                                        ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700/50'
+                                                        : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                                }`}
                                                 onClick={() => setUserSubTab('invoices')}
                                             >
+                                                <span className="material-symbols-outlined !text-[15px]">receipt</span>
                                                 Invoices
                                             </button>
                                             <button
-                                                className={userSubTab === 'mandate' ? 'sub-tab active' : 'sub-tab'}
+                                                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all duration-300 flex items-center gap-1.5 ${
+                                                    userSubTab === 'mandate'
+                                                        ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700/50'
+                                                        : 'text-slate-600 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-800/30'
+                                                }`}
                                                 onClick={() => setUserSubTab('mandate')}
                                             >
+                                                <span className="material-symbols-outlined !text-[15px]">verified_user</span>
                                                 Mandate Status
                                             </button>
                                         </div>
 
                                         {/* Pending Payments */}
                                         {userSubTab === 'pending' && (
-                                            <div className="payment-pending">
-                                                <div className="section-header">
-                                                    <h3>Pending Payments</h3>
+                                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 mt-4">
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2"><span className="material-symbols-outlined !text-[18px] text-indigo-500">pending_actions</span> Pending Payments</h3>
                                                     <button
-                                                        className="refresh-btn"
+                                                        className="px-3 py-1.5 text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 rounded-lg transition-all flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                                                         onClick={() => fetchPendingPayments()}
                                                         disabled={loading}
                                                         title="Refresh after completing payment"
                                                     >
+                                                        <span className={`material-symbols-outlined !text-[14px] ${loading ? 'animate-spin' : ''}`}>refresh</span>
                                                         {loading ? 'Refreshing...' : 'Refresh'}
                                                     </button>
                                                 </div>
                                                 {loading ? (
-                                                    <div className="payment-loading">Loading...</div>
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400 py-4 flex items-center gap-2"><span className="material-symbols-outlined animate-spin">refresh</span> Loading...</div>
                                                 ) : pendingPayments.length === 0 && !pendingMandate ? (
-                                                    <div className="payment-empty">No pending payments</div>
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg">No pending payments</div>
                                                 ) : (
-                                                    <div className="pending-list">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                         {pendingPayments.map(payment => (
-                                                            <div key={payment.id} className="pending-card">
-                                                                <div className="pending-info">
-                                                                    <h4>{payment.description}</h4>
-                                                                    <p className="pending-amount">{formatCurrency(payment.amount)}</p>
+                                                            <div key={payment.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4">
+                                                                <div className="flex flex-col gap-1">
+                                                                    <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{payment.description}</h4>
+                                                                    <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 my-1">{formatCurrency(payment.amount)}</p>
                                                                     {payment.due_date && (
-                                                                        <p className="pending-due">Due: {formatDate(payment.due_date)}</p>
+                                                                        <p className="text-[11px] text-slate-500 flex items-center gap-1"><span className="material-symbols-outlined !text-[12px]">calendar_today</span> Due: {formatDate(payment.due_date)}</p>
                                                                     )}
                                                                 </div>
-                                                                <div className="pending-actions">
+                                                                <div className="mt-2">
                                                                     <button
-                                                                        className="pay-now-btn"
+                                                                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                                                         onClick={() => handlePayNow(payment)}
                                                                         disabled={loading}
                                                                     >
@@ -1285,15 +1423,15 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
                                                             </div>
                                                         ))}
                                                         {pendingMandate && (
-                                                            <div className="pending-card mandate-card">
-                                                                <div className="pending-info">
-                                                                    <h4>Mandate Authentication Required</h4>
-                                                                    <p>{pendingMandate.message}</p>
-                                                                    <p className="pending-amount">{formatCurrency(pendingMandate.recurring_amount)}/month</p>
+                                                            <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4">
+                                                                <div className="flex flex-col gap-1">
+                                                                    <h4 className="text-sm font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1.5"><span className="material-symbols-outlined !text-[16px]">warning</span> Mandate Authentication Required</h4>
+                                                                    <p className="text-[12px] text-amber-700 dark:text-amber-300/80 my-1 leading-snug">{pendingMandate.message}</p>
+                                                                    <p className="text-xl font-bold text-amber-700 dark:text-amber-400 mt-2">{formatCurrency(pendingMandate.recurring_amount)}<span className="text-[10px] opacity-70 font-normal">/month</span></p>
                                                                 </div>
                                                                 <button
                                                                     onClick={handleAuthenticateMandate}
-                                                                    className="pay-now-btn"
+                                                                    className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                                                                     disabled={loading}
                                                                 >
                                                                     {loading ? 'Loading...' : 'Authenticate Mandate'}
@@ -1307,146 +1445,151 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
 
                                         {/* Payment History */}
                                         {userSubTab === 'history' && (
-                                            <div className="payment-history">
-                                                <h3>Payment History</h3>
+                                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 mt-4">
+                                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><span className="material-symbols-outlined !text-[18px] text-indigo-500">history</span> Payment History</h3>
                                                 {loading ? (
-                                                    <div className="payment-loading">Loading...</div>
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400 py-4 flex items-center gap-2"><span className="material-symbols-outlined animate-spin">refresh</span> Loading...</div>
                                                 ) : paymentHistory.length === 0 ? (
-                                                    <div className="payment-empty">No payment history</div>
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg">No payment history</div>
                                                 ) : (
-                                                    <table className="payment-table">
-                                                        <thead>
+                                                    <div className="overflow-x-auto">
+                                                    <table className="w-full text-left border-collapse">
+                                                        <thead className="bg-slate-50 dark:bg-slate-800/50">
                                                             <tr>
-                                                                <th>Date</th>
-                                                                <th>Amount</th>
-                                                                <th>Type</th>
-                                                                <th>Method</th>
-                                                                <th>Status</th>
-                                                                <th>Invoice</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 first:rounded-tl-lg">Date</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Amount</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Type</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Method</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Status</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 last:rounded-tr-lg">Invoice</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             {paymentHistory.map(payment => (
-                                                                <tr key={payment.id}>
-                                                                    <td>{formatDate(payment.paid_at)}</td>
-                                                                    <td>{formatCurrency(payment.amount)}</td>
-                                                                    <td>{getStatusText(payment.type)}</td>
-                                                                    <td>{payment.method || '-'}</td>
-                                                                    <td>
-                                                                        <span className={getStatusBadgeClass(payment.status)}>
+                                                                <tr key={payment.id} className="border-b border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                                                                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(payment.paid_at)}</td>
+                                                                    <td className="px-4 py-3 text-sm text-slate-800 dark:text-slate-200 font-mono font-medium">{formatCurrency(payment.amount)}</td>
+                                                                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{getStatusText(payment.type)}</td>
+                                                                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{payment.method || '-'}</td>
+                                                                    <td className="px-4 py-3 text-sm">
+                                                                        <span className={`inline-flex items-center px-2 py-1 text-[10px] font-bold rounded-md ${getStatusBadgeClass(payment.status)}`}>
                                                                             {getStatusText(payment.status)}
                                                                         </span>
                                                                     </td>
-                                                                    <td>
+                                                                    <td className="px-4 py-3 text-sm">
                                                                         {payment.invoice ? (
                                                                             <button
                                                                                 onClick={() => handleDownloadInvoice(payment.invoice!.id, payment.invoice!.invoice_number)}
-                                                                                className="download-btn"
-                                                                                style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                                                                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium hover:underline flex items-center gap-1 text-xs"
                                                                             >
+                                                                                <span className="material-symbols-outlined !text-[14px]">download</span>
                                                                                 {payment.invoice.invoice_number}
                                                                             </button>
-                                                                        ) : '-'}
+                                                                        ) : <span className="text-slate-400">-</span>}
                                                                     </td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>
                                                     </table>
+                                                    </div>
                                                 )}
                                             </div>
                                         )}
 
                                         {/* Invoices */}
                                         {userSubTab === 'invoices' && (
-                                            <div className="payment-invoices">
-                                                <h3>Invoices</h3>
+                                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 mt-4">
+                                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><span className="material-symbols-outlined !text-[18px] text-indigo-500">receipt</span> Invoices</h3>
                                                 {loading ? (
-                                                    <div className="payment-loading">Loading...</div>
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400 py-4 flex items-center gap-2"><span className="material-symbols-outlined animate-spin">refresh</span> Loading...</div>
                                                 ) : invoices.length === 0 ? (
-                                                    <div className="payment-empty">No invoices found</div>
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg">No invoices found</div>
                                                 ) : (
-                                                    <table className="payment-table">
-                                                        <thead>
+                                                    <div className="overflow-x-auto">
+                                                    <table className="w-full text-left border-collapse">
+                                                        <thead className="bg-slate-50 dark:bg-slate-800/50">
                                                             <tr>
-                                                                <th>Invoice #</th>
-                                                                <th>Date</th>
-                                                                <th>Amount</th>
-                                                                <th>Tax</th>
-                                                                <th>Total</th>
-                                                                <th>Status</th>
-                                                                <th>Download</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 first:rounded-tl-lg">Invoice #</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Date</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Amount</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Tax</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Total</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">Status</th>
+                                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800 text-right last:rounded-tr-lg">Download</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             {invoices.map(invoice => (
-                                                                <tr key={invoice.id}>
-                                                                    <td>{invoice.invoice_number}</td>
-                                                                    <td>{formatDate(invoice.issued_at)}</td>
-                                                                    <td>{formatCurrency(invoice.amount)}</td>
-                                                                    <td>{formatCurrency(invoice.tax_amount)}</td>
-                                                                    <td>{formatCurrency(invoice.total_amount)}</td>
-                                                                    <td>
-                                                                        <span className={getStatusBadgeClass(invoice.status)}>
+                                                                <tr key={invoice.id} className="border-b border-slate-100 dark:border-slate-800/60 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                                                                    <td className="px-4 py-3 text-sm text-slate-800 dark:text-slate-200 font-medium">{invoice.invoice_number}</td>
+                                                                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{formatDate(invoice.issued_at)}</td>
+                                                                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 font-mono">{formatCurrency(invoice.amount)}</td>
+                                                                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 font-mono">{formatCurrency(invoice.tax_amount)}</td>
+                                                                    <td className="px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 font-mono">{formatCurrency(invoice.total_amount)}</td>
+                                                                    <td className="px-4 py-3 text-sm">
+                                                                        <span className={`inline-flex items-center px-2 py-1 text-[10px] font-bold rounded-md ${getStatusBadgeClass(invoice.status)}`}>
                                                                             {getStatusText(invoice.status)}
                                                                         </span>
                                                                     </td>
-                                                                    <td>
+                                                                    <td className="px-4 py-3 text-right">
                                                                         <button
                                                                             onClick={() => handleDownloadInvoice(invoice.id, invoice.invoice_number)}
-                                                                            className="download-btn"
+                                                                            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20 rounded-md transition-colors"
                                                                         >
-                                                                            View Invoice
+                                                                            <span className="material-symbols-outlined !text-[14px]">download</span>
+                                                                            View
                                                                         </button>
                                                                     </td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>
                                                     </table>
+                                                    </div>
                                                 )}
                                             </div>
                                         )}
 
                                         {/* Mandate Status */}
                                         {userSubTab === 'mandate' && (
-                                            <div className="payment-mandate">
-                                                <h3>Mandate Status</h3>
+                                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 mt-4 w-full">
+                                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><span className="material-symbols-outlined !text-[18px] text-indigo-500">verified_user</span> Mandate Status</h3>
                                                 {loading ? (
-                                                    <div className="payment-loading">Loading...</div>
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400 py-4 flex items-center gap-2"><span className="material-symbols-outlined animate-spin">refresh</span> Loading...</div>
                                                 ) : !mandateStatus ? (
-                                                    <div className="payment-empty">No mandate set up</div>
+                                                    <div className="text-sm text-slate-500 dark:text-slate-400 py-8 text-center bg-slate-50 dark:bg-slate-800/50 rounded-lg">No mandate set up</div>
                                                 ) : (
-                                                    <div className="mandate-details">
-                                                        <div className="mandate-card">
-                                                            <div className="mandate-status-header">
-                                                                <h4>Auto-Pay Mandate</h4>
-                                                                <span className={getStatusBadgeClass(mandateStatus.status)}>
+                                                    <div className="flex flex-col gap-4">
+                                                        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl p-5">
+                                                            <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-200 dark:border-slate-700/50">
+                                                                <h4 className="font-bold text-slate-800 dark:text-slate-100">Auto-Pay Mandate</h4>
+                                                                <span className={`inline-flex items-center px-2 py-1 text-[10px] font-bold rounded-md ${getStatusBadgeClass(mandateStatus.status)}`}>
                                                                     {getStatusText(mandateStatus.status)}
                                                                 </span>
                                                             </div>
-                                                            <div className="mandate-info-grid">
-                                                                <div className="mandate-info-item">
-                                                                    <span className="label">Monthly Amount</span>
-                                                                    <span className="value">{formatCurrency(mandateStatus.recurring_amount)}</span>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                <div className="flex flex-col gap-1">
+                                                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Monthly Amount</span>
+                                                                    <span className="text-lg font-bold text-slate-800 dark:text-slate-200">{formatCurrency(mandateStatus.recurring_amount)}</span>
                                                                 </div>
                                                                 {mandateStatus.start_date && (
-                                                                    <div className="mandate-info-item">
-                                                                        <span className="label">
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                                             {mandateStatus.status === 'active' ? 'Started On' : 'Starts On'}
                                                                         </span>
-                                                                        <span className="value">{formatDate(mandateStatus.start_date)}</span>
+                                                                        <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{formatDate(mandateStatus.start_date)}</span>
                                                                     </div>
                                                                 )}
                                                                 {mandateStatus.status === 'active' && mandateStatus.next_charge_date && (
-                                                                    <div className="mandate-info-item">
-                                                                        <span className="label">Next Charge Date</span>
-                                                                        <span className="value">{formatDate(mandateStatus.next_charge_date)}</span>
+                                                                    <div className="flex flex-col gap-1">
+                                                                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Next Charge Date</span>
+                                                                        <span className="text-sm font-medium text-slate-800 dark:text-slate-200">{formatDate(mandateStatus.next_charge_date)}</span>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                             {mandateStatus.status === 'created' && (
                                                                 <button
                                                                     onClick={handleAuthenticateMandate}
-                                                                    className="authenticate-btn"
+                                                                    className="mt-6 w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg transition-colors"
                                                                     disabled={loading}
                                                                 >
                                                                     {loading ? 'Loading...' : 'Authenticate Mandate'}
@@ -1457,8 +1600,6 @@ const Payment: React.FC<PaymentProps> = ({ userData, onBack, onNavigateToReviews
                                                 )}
                                             </div>
                                         )}
-                                    </>
-                                )}
                             </div>
                         )}
 

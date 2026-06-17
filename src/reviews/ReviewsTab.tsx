@@ -64,6 +64,46 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [filterRating, setFilterRating] = useState<string>('all');
   const [filterWithImages, setFilterWithImages] = useState(false);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const [isRatingDropdownOpen, setIsRatingDropdownOpen] = useState(false);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.custom-sort-dropdown')) {
+        setIsSortDropdownOpen(false);
+      }
+      if (!target.closest('.custom-rating-dropdown')) {
+        setIsRatingDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const gsap = (window as any).gsap;
+    if (gsap) {
+      gsap.to('.gsap-tab-floater-orange-1', {
+        y: -4,
+        x: 2,
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut'
+      });
+      gsap.to('.gsap-tab-floater-orange-2', {
+        y: 4,
+        x: -2,
+        duration: 2.5,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut',
+        delay: 0.3
+      });
+    }
+  }, []);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
@@ -564,130 +604,161 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
           {success}
         </div>
       )}
-
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 relative z-10">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-            <span className="material-symbols-outlined">rate_review</span>
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 relative z-10">
+        {/* Decorative Floating Elements */}
+        <div className="absolute -right-3 -top-3 w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center shadow-md border border-white gsap-tab-floater-orange-1 pointer-events-none z-50">
+          <span className="material-symbols-outlined text-[#FF6B35] !text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+        </div>
+        <div className="absolute -left-3 -bottom-3 w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center shadow-md border border-white gsap-tab-floater-orange-2 pointer-events-none z-50">
+          <span className="material-symbols-outlined text-[#FF9770] !text-[12px]">rate_review</span>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-3 pb-3 border-b border-gray-100/50">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#FF6B35] !text-[20px]">rate_review</span>
+            <h2 className="text-sm font-bold text-primary-text">View Reviews</h2>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-primary-text">View Reviews</h2>
-            <p className="text-xs text-secondary-text mt-1">
-              {isCompanyAutoSelected
-                ? 'Select a product to view and manage reviews'
-                : 'Select a company and product to view and manage reviews'}
-            </p>
-          </div>
+          <p className="text-[11px] text-secondary-text">
+            {isCompanyAutoSelected
+              ? 'Select a product to view and manage reviews'
+              : 'Select a company and product to view and manage reviews'}
+          </p>
         </div>
 
-        <div className="flex flex-col gap-5">
-          <div className={`grid gap-4 ${isCompanyAutoSelected ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`} style={{ overflow: 'visible' }}>
-            {!isCompanyAutoSelected && (
-              <div className="flex flex-col w-full" style={{ position: 'relative', zIndex: 30 }}>
-                <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Select Company *</p>
-                {renderSearchableCompanyDropdown(
-                  loading,
-                  handleCompanyChange,
-                  'Select company...',
-                  'focus:ring-2 focus:ring-primary/20 focus:border-primary'
-                )}
-              </div>
-            )}
-            <div className="flex flex-col w-full" style={{ position: 'relative', zIndex: 20 }}>
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Select Product *</p>
-              {renderSearchableProductDropdown(
-                !selectedCompany || loading,
-                handleProductChange,
-                'Select product...',
-                'focus:ring-2 focus:ring-primary/20 focus:border-primary'
+        <div className="flex flex-col md:flex-row md:items-end gap-3.5" style={{ overflow: 'visible' }}>
+          {!isCompanyAutoSelected && (
+            <div className="flex-1 relative z-30">
+              <label className="block text-xs font-semibold text-primary-text mb-1">Company Name</label>
+              {renderSearchableCompanyDropdown(
+                loading,
+                handleCompanyChange,
+                'Select company...',
+                'focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]'
               )}
             </div>
+          )}
+          <div className="flex-1 relative z-20">
+            <label className="block text-xs font-semibold text-primary-text mb-1">Product Name</label>
+            {renderSearchableProductDropdown(
+              !selectedCompany || loading,
+              handleProductChange,
+              'Select product...',
+              'focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]'
+            )}
           </div>
-
           <button
             onClick={fetchReviews}
             disabled={loading || !selectedCompany || !selectedProduct}
-            className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+            className="px-6 md:w-auto h-[46px] bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-orange-glow shrink-0 whitespace-nowrap"
           >
-            <span className="material-symbols-outlined !text-[20px]">search</span>
+            <span className="material-symbols-outlined !text-[18px]">search</span>
             {loading ? 'Loading...' : 'View Reviews'}
           </button>
         </div>
       </div>
 
       {reviewResult && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 relative z-0">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-primary-text">Reviews</h2>
+        <div className="flex flex-col gap-6 relative z-0">
+          
+          {/* Stats Card */}
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="flex items-center gap-3.5">
+                 <div className="size-12 rounded-xl bg-gradient-to-br from-[#FF6B35] to-[#E5521C] text-white flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(255,107,53,0.3)]">
+                    <span className="material-symbols-outlined !text-[24px]">insights</span>
+                 </div>
+                 <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 leading-tight">Review Analytics</h2>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">Overview of product performance</p>
+                 </div>
+              </div>
 
-            {!isEditingStats ? (
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-yellow-500">star</span>
-                  <span className="text-lg font-bold text-primary-text">
-                    {reviewResult.overall_rating?.toFixed(1) || '0.0'}
-                  </span>
-                  <span className="text-sm text-secondary-text">Rating</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-blue-500">reviews</span>
-                  <span className="text-lg font-bold text-primary-text">
-                    {reviewResult.total_reviews || 0}
-                  </span>
-                  <span className="text-sm text-secondary-text whitespace-nowrap">Total Reviews</span>
-                </div>
-                <button
-                  onClick={startEditingStats}
-                  disabled={loading}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                >
-                  <span className="material-symbols-outlined !text-[20px]">edit</span>
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-primary-text whitespace-nowrap">Rating (0-5)</label>
-                  <input
-                    type="number"
-                    value={editRating}
-                    onChange={(e) => handleRatingChange(e.target.value)}
-                    min={0}
-                    max={5}
-                    step={0.1}
-                    className="w-20 px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-primary-text whitespace-nowrap">Total Reviews</label>
-                  <input
-                    type="number"
-                    value={editTotalReviews}
-                    onChange={(e) => handleReviewCountChange(e.target.value)}
-                    min={0}
-                    className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm"
-                    disabled={loading}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
+              {!isEditingStats ? (
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-5 px-6 py-3 bg-slate-50 border border-slate-100/80 rounded-2xl shadow-inner shadow-slate-100/50">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-yellow-500 !text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                          <span className="text-2xl font-black text-slate-900 tracking-tight">
+                            {reviewResult.overall_rating?.toFixed(1) || '0.0'}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Avg Rating</span>
+                      </div>
+                      <div className="w-px h-10 bg-slate-200"></div>
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-blue-500 !text-[22px]">reviews</span>
+                          <span className="text-2xl font-black text-slate-900 tracking-tight">
+                            {reviewResult.total_reviews || 0}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Total Reviews</span>
+                      </div>
+                  </div>
                   <button
-                    onClick={updateRatingAndCount}
+                    onClick={startEditingStats}
                     disabled={loading}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                    className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-100 rounded-xl transition-all shadow-sm"
+                    title="Edit stats"
                   >
-                    {loading ? 'Saving...' : 'Save'}
-                  </button>
-                  <button
-                    onClick={cancelEditingStats}
-                    disabled={loading}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
-                  >
-                    Cancel
+                    <span className="material-symbols-outlined !text-[20px]">edit_square</span>
                   </button>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wide">Rating (0-5)</label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <span className="material-symbols-outlined text-yellow-500 !text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                      </span>
+                      <input
+                        type="number"
+                        value={editRating}
+                        onChange={(e) => handleRatingChange(e.target.value)}
+                        min={0}
+                        max={5}
+                        step={0.1}
+                        className="w-24 px-3 py-2 pl-8 border border-slate-300 rounded-lg text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wide">Total Reviews</label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <span className="material-symbols-outlined text-blue-500 !text-[16px]">reviews</span>
+                      </span>
+                      <input
+                        type="number"
+                        value={editTotalReviews}
+                        onChange={(e) => handleReviewCountChange(e.target.value)}
+                        min={0}
+                        className="w-32 px-3 py-2 pl-8 border border-slate-300 rounded-lg text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-end gap-2 h-full pt-[22px]">
+                    <button
+                      onClick={updateRatingAndCount}
+                      disabled={loading}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors shadow-sm"
+                    >
+                      {loading ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={cancelEditingStats}
+                      disabled={loading}
+                      className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Highlights Section */}
@@ -696,74 +767,82 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
             documentFields.customer_mentions.length > 0 ||
             documentFields.social_proof_keywords.length > 0 ||
             isEditingHighlights) && (
-            <div className="mb-6 pb-6 border-b border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-primary-text">Highlights</h3>
+            <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-purple-500 !text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+                  <h3 className="text-lg font-extrabold text-slate-900">AI Highlights</h3>
+                </div>
                 {!isEditingHighlights && (
                   <button
                     onClick={startEditingHighlights}
                     disabled={loading}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-100 rounded-xl transition-all shadow-sm"
+                    title="Edit highlights"
                   >
-                    <span className="material-symbols-outlined !text-[20px]">edit</span>
+                    <span className="material-symbols-outlined !text-[20px]">edit_square</span>
                   </button>
                 )}
               </div>
-
               {!isEditingHighlights ? (
-                <>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Left Column: Summary */}
                   {documentFields.highlights.summary && (
-                    <div className="mb-6">
-                      <p className="text-sm font-semibold text-secondary-text mb-2">Summary</p>
-                      <p className="text-sm text-primary-text leading-relaxed">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                      <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">AI Summary</p>
+                      <p className="text-sm text-primary-text leading-relaxed font-medium">
                         {documentFields.highlights.summary}
                       </p>
                     </div>
                   )}
-                  {documentFields.highlights.keywords.length > 0 && (
-                    <div className="mb-6">
-                      <p className="text-sm font-semibold text-secondary-text mb-3">Keywords</p>
-                      <div className="flex flex-wrap gap-2">
-                        {documentFields.highlights.keywords.map((keyword, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1.5 bg-blue-50 text-blue-700 text-sm font-medium rounded-full border border-blue-100"
-                          >
-                            {keyword}
-                          </span>
-                        ))}
+
+                  {/* Right Column: Badges & Mentions */}
+                  <div className="space-y-4">
+                    {documentFields.highlights.keywords.length > 0 && (
+                      <div>
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Keywords</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {documentFields.highlights.keywords.map((keyword, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-100/50"
+                            >
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {documentFields.customer_mentions.length > 0 && (
-                    <div className="mb-6">
-                      <p className="text-sm font-semibold text-secondary-text mb-3">Customer Mentions</p>
-                      <div className="space-y-2">
-                        {documentFields.customer_mentions.map((mention, idx) => (
-                          <div key={idx} className="flex items-start gap-2 text-sm text-primary-text">
-                            <span className="text-green-600 mt-0.5">✓</span>
-                            <span>{mention}</span>
-                          </div>
-                        ))}
+                    )}
+                    {documentFields.customer_mentions.length > 0 && (
+                      <div>
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Customer Mentions</p>
+                        <div className="space-y-1.5">
+                          {documentFields.customer_mentions.map((mention, idx) => (
+                            <div key={idx} className="flex items-start gap-1.5 text-xs text-primary-text font-medium">
+                              <span className="text-green-600 font-bold">✓</span>
+                              <span>{mention}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {documentFields.social_proof_keywords.length > 0 && (
-                    <div>
-                      <p className="text-sm font-semibold text-secondary-text mb-3">Social Proof Keywords</p>
-                      <div className="flex flex-wrap gap-2">
-                        {documentFields.social_proof_keywords.map((keyword, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1.5 bg-purple-50 text-purple-700 text-sm font-medium rounded-full border border-purple-100"
-                          >
-                            {keyword}
-                          </span>
-                        ))}
+                    )}
+                    {documentFields.social_proof_keywords.length > 0 && (
+                      <div>
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Social Proof Keywords</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {documentFields.social_proof_keywords.map((keyword, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full border border-purple-100/50"
+                            >
+                              {keyword}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </>
+                    )}
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-6">
                   <div>
@@ -896,73 +975,140 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
             </div>
           )}
 
-          {/* Filter Bar */}
-          {reviewResult.reviews && reviewResult.reviews.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 mr-1">
-                  <span className="material-symbols-outlined !text-[18px] text-primary">filter_list</span>
-                  <span className="text-sm font-semibold text-primary-text">Filters</span>
-                </div>
-                <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
-                  <span className="material-symbols-outlined !text-[16px] text-secondary-text">sort</span>
-                  <select
-                    value={sortOrder}
-                    onChange={(e) => {
-                      setSortOrder(e.target.value as 'newest' | 'oldest');
-                      setCurrentPage(1);
-                    }}
-                    className="text-sm bg-transparent border-none focus:ring-0 outline-none cursor-pointer text-primary-text font-medium"
-                  >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
-                </div>
-                <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
-                  <span className="material-symbols-outlined !text-[16px] text-yellow-500">star</span>
-                  <select
-                    value={filterRating}
-                    onChange={(e) => {
-                      setFilterRating(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    className="text-sm bg-transparent border-none focus:ring-0 outline-none cursor-pointer text-primary-text font-medium"
-                  >
-                    <option value="all">All Ratings</option>
-                    <option value="5">5 Stars</option>
-                    <option value="4">4 Stars</option>
-                    <option value="3">3 Stars</option>
-                    <option value="2">2 Stars</option>
-                    <option value="1">1 Star</option>
-                  </select>
-                </div>
+          {/* Reviews List Section */}
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5 sm:p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-blue-500 !text-[22px]">format_list_bulleted</span>
+                <h3 className="text-lg font-extrabold text-slate-900">All Reviews</h3>
+              </div>
+            </div>
+
+            {/* Filter Bar */}
+            {reviewResult.reviews && reviewResult.reviews.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {/* Sort Order */}
+              <div className="relative inline-flex items-center custom-sort-dropdown">
                 <button
-                  onClick={() => {
-                    setFilterWithImages(!filterWithImages);
-                    setCurrentPage(1);
-                  }}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    filterWithImages ? 'bg-primary text-white' : 'bg-gray-50 text-primary-text hover:bg-gray-100'
-                  }`}
+                  type="button"
+                  onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                  className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg pl-3 pr-2 py-2 outline-none shadow-sm cursor-pointer hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 transition-all w-36"
                 >
-                  <span className="material-symbols-outlined !text-[16px]">image</span>
-                  With Images
+                  <span className="material-symbols-outlined !text-[15px] text-slate-400">sort</span>
+                  <span className="flex-1 text-left">{sortOrder === 'newest' ? 'Newest First' : 'Oldest First'}</span>
+                  <span className="material-symbols-outlined !text-[15px] text-slate-400">
+                    {isSortDropdownOpen ? 'expand_less' : 'expand_more'}
+                  </span>
                 </button>
-                {(sortOrder !== 'newest' || filterRating !== 'all' || filterWithImages) && (
-                  <button
-                    onClick={() => {
-                      setSortOrder('newest');
-                      setFilterRating('all');
-                      setFilterWithImages(false);
-                      setCurrentPage(1);
-                    }}
-                    className="text-xs text-red-500 hover:text-red-600 font-medium flex items-center gap-1 px-2 py-2 rounded-lg hover:bg-red-50 transition-colors"
-                  >
-                    <span className="material-symbols-outlined !text-[14px]">close</span>
-                    Clear
-                  </button>
+
+                {isSortDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg z-50 overflow-hidden py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSortOrder('newest');
+                        setCurrentPage(1);
+                        setIsSortDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors ${
+                        sortOrder === 'newest' ? 'bg-slate-50 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
+                    >
+                      Newest First
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSortOrder('oldest');
+                        setCurrentPage(1);
+                        setIsSortDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors ${
+                        sortOrder === 'oldest' ? 'bg-slate-50 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
+                    >
+                      Oldest First
+                    </button>
+                  </div>
                 )}
               </div>
+
+              {/* Rating Filter */}
+              <div className="relative inline-flex items-center custom-rating-dropdown">
+                <button
+                  type="button"
+                  onClick={() => setIsRatingDropdownOpen(!isRatingDropdownOpen)}
+                  className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg pl-3 pr-2 py-2 outline-none shadow-sm cursor-pointer hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 transition-all w-32"
+                >
+                  <span className="material-symbols-outlined !text-[15px] text-yellow-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                  <span className="flex-1 text-left">
+                    {filterRating === 'all' ? 'All Ratings' : `${filterRating} Stars`}
+                  </span>
+                  <span className="material-symbols-outlined !text-[15px] text-slate-400">
+                    {isRatingDropdownOpen ? 'expand_less' : 'expand_more'}
+                  </span>
+                </button>
+
+                {isRatingDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg z-50 overflow-hidden py-1">
+                    {[
+                      { value: 'all', label: 'All Ratings' },
+                      { value: '5', label: '5 Stars' },
+                      { value: '4', label: '4 Stars' },
+                      { value: '3', label: '3 Stars' },
+                      { value: '2', label: '2 Stars' },
+                      { value: '1', label: '1 Star' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setFilterRating(option.value);
+                          setCurrentPage(1);
+                          setIsRatingDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors ${
+                          filterRating === option.value ? 'bg-slate-50 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* With Images toggle */}
+              <button
+                onClick={() => {
+                  setFilterWithImages(!filterWithImages);
+                  setCurrentPage(1);
+                }}
+                className={`inline-flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-2 border shadow-sm transition-all ${
+                  filterWithImages
+                    ? 'bg-slate-900 text-white border-slate-900'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <span className="material-symbols-outlined !text-[14px]">image</span>
+                With Images
+              </button>
+
+              {/* Clear */}
+              {(sortOrder !== 'newest' || filterRating !== 'all' || filterWithImages) && (
+                <button
+                  onClick={() => {
+                    setSortOrder('newest');
+                    setFilterRating('all');
+                    setFilterWithImages(false);
+                    setCurrentPage(1);
+                  }}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-600 border border-red-100 hover:border-red-200 bg-red-50 hover:bg-red-100 rounded-lg px-2.5 py-2 transition-all"
+                >
+                  <span className="material-symbols-outlined !text-[13px]">close</span>
+                  Clear
+                </button>
+              )}
             </div>
           )}
 
@@ -993,114 +1139,124 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
 
               return (
                 <>
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {filteredReviews.length === 0 ? (
-                      <div className="text-center py-8">
+                      <div className="text-center py-8 col-span-full">
                         <span className="material-symbols-outlined text-4xl text-gray-300 mb-2">filter_list_off</span>
                         <p className="text-secondary-text">No reviews match the selected filters</p>
                       </div>
                     ) : (
-                    currentReviews.map((review, index) => (
-                      <div
-                        key={review._id || index}
-                        className="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-start justify-between mb-3">
+                      currentReviews.map((review, index) => (
+                        <div
+                          key={review._id || index}
+                          className="p-3.5 bg-white border border-slate-100 hover:border-slate-200 rounded-xl hover:shadow-md transition-all duration-200 flex flex-col justify-between h-full group"
+                        >
                           <div>
-                            {review.review_index && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 mb-2">
-                                Review #{review.review_index}
-                              </span>
-                            )}
-                            {review.title && (
-                              <h4 className="text-base font-semibold text-primary-text">{review.title}</h4>
-                            )}
-                            {review.user_name && (
-                              <p className="text-sm text-secondary-text">by {review.user_name}</p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {review.rating && (
-                              <span className="flex items-center gap-1 text-sm font-medium text-yellow-600">
-                                <span className="material-symbols-outlined !text-[16px]">star</span>
-                                {review.rating}
-                              </span>
-                            )}
-                            <button
-                              onClick={() => openEditDialog(review)}
-                              disabled={loading}
-                              className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                              title="Edit review"
-                            >
-                              <span className="material-symbols-outlined !text-[18px]">edit</span>
-                            </button>
-                            <button
-                              onClick={() => openDeleteDialog(review)}
-                              disabled={loading}
-                              className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Delete review"
-                            >
-                              <span className="material-symbols-outlined !text-[18px]">delete</span>
-                            </button>
-                          </div>
-                        </div>
-
-                        <p className="text-sm text-primary-text mb-3">
-                          {review.review_text || 'No review text available'}
-                        </p>
-
-                        {review.images && review.images.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {review.images.map((image: ReviewImage | string, imgIndex: number) => {
-                              const imageUrl =
-                                typeof image === 'object' && image && 's3_url' in image
-                                  ? (image as ReviewImage).s3_url
-                                  : typeof image === 'string'
-                                    ? image
-                                    : null;
-                              if (!imageUrl) return null;
-                              return (
-                                <div
-                                  key={imgIndex}
-                                  className="w-16 h-16 rounded-lg overflow-hidden cursor-pointer border border-gray-200 hover:border-primary transition-colors"
-                                  onClick={() => setSelectedImage(imageUrl)}
+                            {/* Header row */}
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {review.user_name ? (
+                                  <span className="font-semibold text-xs text-slate-800">{review.user_name}</span>
+                                ) : (
+                                  <span className="text-xs italic text-slate-400">Anonymous</span>
+                                )}
+                                {review.review_index && (
+                                  <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-medium bg-blue-50 text-blue-600 border border-blue-100">
+                                    #{review.review_index}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {review.rating && (
+                                  <span className="flex items-center gap-0.5 px-1.5 py-0.5 bg-yellow-50 border border-yellow-100 rounded text-[11px] font-semibold text-yellow-700">
+                                    <span className="material-symbols-outlined !text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                    {review.rating}
+                                  </span>
+                                )}
+                                <button
+                                  onClick={() => openEditDialog(review)}
+                                  disabled={loading}
+                                  className="p-1 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded transition-colors"
+                                  title="Edit review"
                                 >
-                                  <img
-                                    src={imageUrl}
-                                    alt={
-                                      typeof image === 'object' && image && 'filename' in image
-                                        ? (image as ReviewImage).filename || 'Review content'
-                                        : 'Review content'
-                                    }
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).style.display = 'none';
-                                    }}
-                                  />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                                  <span className="material-symbols-outlined !text-[16px]">edit</span>
+                                </button>
+                                <button
+                                  onClick={() => openDeleteDialog(review)}
+                                  disabled={loading}
+                                  className="p-1 text-slate-400 hover:text-red-600 hover:bg-slate-50 rounded transition-colors"
+                                  title="Delete review"
+                                >
+                                  <span className="material-symbols-outlined !text-[16px]">delete</span>
+                                </button>
+                              </div>
+                            </div>
 
-                        {(review.date || review.location) && (
-                          <div className="flex items-center gap-4 mt-3 text-xs text-secondary-text">
-                            {review.date && (
-                              <span className="flex items-center gap-1">
-                                <span className="material-symbols-outlined !text-[14px]">calendar_today</span>
-                                {review.date}
-                              </span>
+                            {/* Title (if any) */}
+                            {review.title && (
+                              <h4 className="text-xs font-bold text-slate-900 mt-1 mb-1 tracking-tight">{review.title}</h4>
                             )}
-                            {review.location && (
-                              <span className="flex items-center gap-1">
-                                <span className="material-symbols-outlined !text-[14px]">location_on</span>
-                                {review.location}
-                              </span>
+
+                            {/* Review Text */}
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                              {review.review_text || 'No review text available'}
+                            </p>
+
+                            {/* Images */}
+                            {review.images && review.images.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {review.images.map((image: ReviewImage | string, imgIndex: number) => {
+                                  const imageUrl =
+                                    typeof image === 'object' && image && 's3_url' in image
+                                      ? (image as ReviewImage).s3_url
+                                      : typeof image === 'string'
+                                        ? image
+                                        : null;
+                                  if (!imageUrl) return null;
+                                  return (
+                                    <div
+                                      key={imgIndex}
+                                      className="w-10 h-10 rounded overflow-hidden cursor-pointer border border-slate-100 hover:border-orange-500 transition-colors shrink-0"
+                                      onClick={() => setSelectedImage(imageUrl)}
+                                    >
+                                      <img
+                                        src={imageUrl}
+                                        alt={
+                                          typeof image === 'object' && image && 'filename' in image
+                                            ? (image as ReviewImage).filename || 'Review content'
+                                            : 'Review content'
+                                        }
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          (e.target as HTMLImageElement).style.display = 'none';
+                                        }}
+                                      />
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                    ))
+
+                          {/* Footer details */}
+                          {(review.date || review.location) && (
+                            <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-50 text-[10px] text-slate-400">
+                              {review.date && (
+                                <span className="flex items-center gap-1">
+                                  <span className="material-symbols-outlined !text-[12px]">calendar_today</span>
+                                  {review.date}
+                                </span>
+                              )}
+                              {review.location && (
+                                <span className="flex items-center gap-1">
+                                  <span className="material-symbols-outlined !text-[12px]">location_on</span>
+                                  {review.location}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))
                     )}
                   </div>
 
@@ -1147,6 +1303,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
               <p className="text-secondary-text">No reviews found for this product</p>
             </div>
           )}
+          </div>
         </div>
       )}
 
@@ -1239,17 +1396,25 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <label className="flex flex-col">
                   <p className="text-sm font-medium text-primary-text mb-1">Rating</p>
-                  <select
-                    value={editFormData.rating}
-                    onChange={(e) => handleEditFormChange('rating', e.target.value)}
-                    className="w-full bg-background-light border border-gray-200 text-primary-text text-sm rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary p-3 outline-none"
-                  >
-                    {[1, 2, 3, 4, 5].map((num) => (
-                      <option key={num} value={num}>
-                        {num} Star{num > 1 ? 's' : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 inset-y-0 flex items-center">
+                      <span className="material-symbols-outlined !text-[15px] text-yellow-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                    </span>
+                    <select
+                      value={editFormData.rating}
+                      onChange={(e) => handleEditFormChange('rating', e.target.value)}
+                      className="appearance-none w-full bg-white border border-slate-200 text-slate-800 text-sm font-semibold rounded-xl pl-9 pr-8 py-2.5 outline-none shadow-sm cursor-pointer hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 transition-all"
+                    >
+                      {[1, 2, 3, 4, 5].map((num) => (
+                        <option key={num} value={num}>
+                          {num} Star{num > 1 ? 's' : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-2.5 inset-y-0 flex items-center text-slate-400">
+                      <span className="material-symbols-outlined !text-[16px]">expand_more</span>
+                    </span>
+                  </div>
                 </label>
                 <label className="flex flex-col">
                   <p className="text-sm font-medium text-primary-text mb-1">User Name</p>

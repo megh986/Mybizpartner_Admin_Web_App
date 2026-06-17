@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type {
   HomepageApiResponse,
   HomepageSummary,
@@ -32,6 +32,22 @@ const heatColour = (count: number, max: number): string => {
   return 'bg-gray-50 text-gray-400';
 };
 
+const DEFAULT_SUMMARY: HomepageSummary = {
+  total_unique_visitors: 0,
+  total_hits: 0,
+  total_wom_widget_hits: 0,
+  avg_scroll_depth: 0,
+  avg_session_duration: 0,
+};
+
+const COLOR_MAP: Record<string, string> = {
+  blue: 'bg-blue-50 text-blue-600',
+  indigo: 'bg-indigo-50 text-indigo-600',
+  orange: 'bg-orange-50 text-orange-600',
+  green: 'bg-green-50 text-green-600',
+  purple: 'bg-purple-50 text-purple-600',
+};
+
 const HomePageTab: React.FC<HomePageTabProps> = ({ selectedCompany, companyName }) => {
   const [data, setData] = useState<HomepageApiResponse | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
@@ -59,35 +75,21 @@ const HomePageTab: React.FC<HomePageTabProps> = ({ selectedCompany, companyName 
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const summary: HomepageSummary = data?.summary ?? {
-    total_unique_visitors: 0,
-    total_hits: 0,
-    total_wom_widget_hits: 0,
-    avg_scroll_depth: 0,
-    avg_session_duration: 0,
-  };
+  const summary: HomepageSummary = data?.summary ?? DEFAULT_SUMMARY;
 
-  const widgetBreakdown: HomepageWidgetHit[] = data?.widget_breakdown ?? [];
-  const maxCount = Math.max(...widgetBreakdown.map((w) => w.count), 1);
+  const widgetBreakdown: HomepageWidgetHit[] = useMemo(() => data?.widget_breakdown ?? [], [data]);
+  const maxCount = useMemo(() => Math.max(...widgetBreakdown.map((w) => w.count), 1), [widgetBreakdown]);
 
-  const passiveWidgets = widgetBreakdown.filter((w) => w.widget_type === 'passive');
-  const activeWidgets = widgetBreakdown.filter((w) => w.widget_type === 'active');
+  const passiveWidgets = useMemo(() => widgetBreakdown.filter((w) => w.widget_type === 'passive'), [widgetBreakdown]);
+  const activeWidgets = useMemo(() => widgetBreakdown.filter((w) => w.widget_type === 'active'), [widgetBreakdown]);
 
-  const summaryCards = [
+  const summaryCards = useMemo(() => [
     { label: 'Unique Visitors', value: formatNumber(summary.total_unique_visitors), color: 'blue', icon: 'person' },
     { label: 'Total Hits', value: formatNumber(summary.total_hits), color: 'indigo', icon: 'visibility' },
     { label: 'WOM Widget Hits', value: formatNumber(summary.total_wom_widget_hits), color: 'orange', icon: 'touch_app' },
     { label: 'Avg Scroll Depth', value: `${summary.avg_scroll_depth.toFixed(1)}%`, color: 'green', icon: 'vertical_align_bottom' },
     { label: 'Avg Session', value: `${summary.avg_session_duration.toFixed(1)}s`, color: 'purple', icon: 'timer' },
-  ];
-
-  const colorMap: Record<string, string> = {
-    blue: 'bg-blue-50 text-blue-600',
-    indigo: 'bg-indigo-50 text-indigo-600',
-    orange: 'bg-orange-50 text-orange-600',
-    green: 'bg-green-50 text-green-600',
-    purple: 'bg-purple-50 text-purple-600',
-  };
+  ], [summary]);
 
   return (
     <div className="space-y-6">
@@ -131,7 +133,7 @@ const HomePageTab: React.FC<HomePageTabProps> = ({ selectedCompany, companyName 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {summaryCards.map((card) => (
           <div key={card.label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-            <div className={`inline-flex p-2 rounded-lg mb-3 ${colorMap[card.color]}`}>
+            <div className={`inline-flex p-2 rounded-lg mb-3 ${COLOR_MAP[card.color]}`}>
               <span className="material-symbols-outlined !text-[18px]">{card.icon}</span>
             </div>
             <p className="text-xs text-secondary-text font-medium">{card.label}</p>

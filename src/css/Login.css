@@ -1,34 +1,231 @@
-/* Word of Mouth Login Styles */
+/* MyBizPartner Premium Admin Login Styles */
 
-/* Container for the login page with flexbox layout */
+/* Base Layout & Wrapper */
 .wom-login-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
+  background-color: #F8FAFC;
+  overflow-x: hidden;
 }
 
-/* Remove any default input autofill styling */
+/* Autofill styling light/dark overrides */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #f6f7f8 inset !important;
-  -webkit-text-fill-color: #081326 !important;
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: #0A0F1D !important;
 }
 
-/* Dark mode autofill */
 .dark input:-webkit-autofill,
 .dark input:-webkit-autofill:hover,
 .dark input:-webkit-autofill:focus,
 .dark input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px rgba(30, 41, 59, 0.5) inset !important;
-  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 30px #0F172A inset !important;
+  -webkit-text-fill-color: #F8FAFC !important;
 }
 
-/* Code input specific styling */
+/* Code verification character input styling */
 .code-input::placeholder {
   font-size: 14px !important;
   letter-spacing: normal !important;
   font-weight: normal !important;
+  color: #94A3B8 !important;
 }
+
+/* Primary Button Styling */
+.mbp-btn-primary {
+  background: linear-gradient(135deg, #FF6B35 0%, #E5521C 100%);
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+}
+
+.mbp-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #FF7B4B 0%, #F15D26 100%);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+  transform: translateY(-1.5px);
+}
+
+.mbp-btn-primary:active:not(:disabled) {
+  transform: scale(0.985);
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.2);
+}
+
+/* Left panel brand background styles */
+.mbp-brand-panel {
+  background: linear-gradient(155deg, #070D1E 0%, #0D1B36 40%, #050811 100%);
+}
+
+/* 3D Perspective and Tilt Environment */
+.perspective-container {
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.perspective-tilt {
+  transform: rotateX(12deg) rotateY(-18deg) rotateZ(5deg);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Glassmorphic Cards inside 3D space */
+.glass-widget {
+  background: rgba(13, 22, 47, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.glass-widget:hover {
+  border-color: rgba(255, 107, 53, 0.3);
+  box-shadow: 
+    0 20px 45px rgba(255, 107, 53, 0.12),
+    0 15px 35px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateZ(12px);
+}
+
+/* Glowing Neon Borders */
+.glow-widget-orange {
+  border-color: rgba(255, 107, 53, 0.18);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.45),
+    0 0 15px rgba(255, 107, 53, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.glow-widget-violet {
+  border-color: rgba(139, 92, 246, 0.18);
+  box-shadow: 
+    0 15px 35px rgba(0, 0, 0, 0.45),
+    0 0 15px rgba(139, 92, 246, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Independent Floating Keyframe Animations (Bobbing) */
+.floating-card-bob-1 { animation: cardBob1 7s ease-in-out infinite; }
+.floating-card-bob-2 { animation: cardBob2 6.2s ease-in-out infinite; }
+.floating-card-bob-3 { animation: cardBob3 8s ease-in-out infinite; }
+.floating-card-bob-4 { animation: cardBob4 5.5s ease-in-out infinite; }
+.floating-card-bob-5 { animation: cardBob5 7.5s ease-in-out infinite; }
+.floating-card-bob-6 { animation: cardBob6 6.7s ease-in-out infinite; }
+
+@keyframes cardBob1 {
+  0%, 100% { transform: translateY(0px) translateZ(0px); }
+  50% { transform: translateY(-7px) translateZ(4px); }
+}
+
+@keyframes cardBob2 {
+  0%, 100% { transform: translateY(0px) translateZ(0px); }
+  50% { transform: translateY(6px) translateZ(-3px); }
+}
+
+@keyframes cardBob3 {
+  0%, 100% { transform: translateY(0px) translateZ(0px); }
+  50% { transform: translateY(-9px) translateZ(8px); }
+}
+
+@keyframes cardBob4 {
+  0%, 100% { transform: translateY(0px) translateZ(0px); }
+  50% { transform: translateY(5px) translateZ(2px); }
+}
+
+@keyframes cardBob5 {
+  0%, 100% { transform: translateY(0px) translateZ(0px); }
+  50% { transform: translateY(-6px) translateZ(6px); }
+}
+
+@keyframes cardBob6 {
+  0%, 100% { transform: translateY(0px) translateZ(0px); }
+  50% { transform: translateY(8px) translateZ(-5px); }
+}
+
+/* Dot Mesh Grid Background */
+.mesh-dot-grid {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.12) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+/* Input Fields */
+.mbp-input {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mbp-input:focus {
+  border-color: #FF6B35 !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12) !important;
+}
+
+/* Pulsing neon dots inside charts */
+.pulse-neon-orange {
+  animation: neonPulseOrange 2s infinite alternate;
+}
+
+.pulse-neon-purple {
+  animation: neonPulsePurple 2s infinite alternate;
+}
+
+@keyframes neonPulseOrange {
+  0% { filter: drop-shadow(0 0 1px #FF6B35); }
+  100% { filter: drop-shadow(0 0 6px #FF6B35); }
+}
+
+@keyframes neonPulsePurple {
+  0% { filter: drop-shadow(0 0 1px #8B5CF6); }
+  100% { filter: drop-shadow(0 0 6px #8B5CF6); }
+}
+
+/* Faint Floating Background Icons */
+.bg-float-icon-1 { animation: bgIconFloat1 18s ease-in-out infinite alternate; }
+.bg-float-icon-2 { animation: bgIconFloat2 22s ease-in-out infinite alternate; }
+.bg-float-icon-3 { animation: bgIconFloat3 25s ease-in-out infinite alternate; }
+.bg-float-icon-4 { animation: bgIconFloat4 20s ease-in-out infinite alternate; }
+
+@keyframes bgIconFloat1 {
+  0% { transform: translateY(0px) rotate(0deg) scale(0.95); }
+  100% { transform: translateY(-16px) rotate(12deg) scale(1.05); }
+}
+
+@keyframes bgIconFloat2 {
+  0% { transform: translateY(0px) rotate(0deg) scale(1.05); }
+  100% { transform: translateY(20px) rotate(-8deg) scale(0.95); }
+}
+
+@keyframes bgIconFloat3 {
+  0% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+  100% { transform: translateX(15px) translateY(-15px) rotate(10deg); }
+}
+
+@keyframes bgIconFloat4 {
+  0% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+  100% { transform: translateX(-18px) translateY(18px) rotate(-12deg); }
+}
+
+/* Background Orb Animations */
+.bg-orb-float-1 { animation: bgOrbFloat1 32s ease-in-out infinite alternate; }
+.bg-orb-float-2 { animation: bgOrbFloat2 38s ease-in-out infinite alternate; }
+
+@keyframes bgOrbFloat1 {
+  0% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.1); }
+  100% { transform: translate(-20px, 25px) scale(0.95); }
+}
+
+@keyframes bgOrbFloat2 {
+  0% { transform: translate(0px, 0px) scale(1.05); }
+  50% { transform: translate(-35px, 25px) scale(0.9); }
+  100% { transform: translate(25px, -30px) scale(1.15); }
+}
+

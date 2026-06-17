@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ConfigForm, EMPTY_FORM, FormFields, validateForm } from './CompanyConfigTab';
 
 const WA_API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://staging.thewordofmouth.in/api';
@@ -212,53 +212,97 @@ const ViewConfigTab: React.FC = () => {
     status.meta_webhook_configured &&
     status.template_created;
 
+  const CustomCompanyDropdown: React.FC<{
+    value: string;
+    options: string[];
+    onChange: (val: string) => void;
+    disabled: boolean;
+  }> = ({ value, options, onChange, disabled }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+          setIsOpen(false);
+        }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+      <div className="relative w-full max-w-xl" ref={dropdownRef}>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full text-left rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-2.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all flex justify-between items-center shadow-sm"
+        >
+          <span className="truncate">{value || '-- Select a company --'}</span>
+          <span className="material-symbols-outlined !text-[16px] text-slate-400">
+            {isOpen ? 'expand_less' : 'expand_more'}
+          </span>
+        </button>
+
+        {isOpen && !disabled && (
+          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            <button
+              type="button"
+              className="w-full text-left px-3 py-2 text-xs text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800"
+              onClick={() => {
+                onChange('');
+                setIsOpen(false);
+              }}
+            >
+              -- Select a company --
+            </button>
+            {options.map(c => (
+              <button
+                key={c}
+                type="button"
+                className={`w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${value === c ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-700 dark:text-slate-300'}`}
+                onClick={() => {
+                  onChange(c);
+                  setIsOpen(false);
+                }}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Setup Documentation */}
-      <a
-        href="https://www.notion.so/Meta-app-for-whatapp-get-steps-316902d09c9480b6bcd0c458edd3d375"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center gap-4 hover:bg-indigo-100 transition-colors group"
-      >
-        <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg shrink-0">
-          <span className="material-symbols-outlined">menu_book</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-indigo-800">Setup Guide: Meta App for WhatsApp</p>
-          <p className="text-xs text-indigo-600 mt-0.5 truncate">Step-by-step instructions to get your WhatsApp Business API credentials</p>
-        </div>
-        <span className="material-symbols-outlined text-indigo-400 group-hover:text-indigo-600 transition-colors shrink-0 !text-[20px]">open_in_new</span>
-      </a>
-
       {/* Company selector */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-            <span className="material-symbols-outlined">business</span>
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-3 transition-all duration-300">
+        <div className="flex items-center gap-2 mb-3 border-b border-slate-100 dark:border-slate-800/60 pb-2">
+          <div className="p-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-md shadow-sm">
+            <span className="material-symbols-outlined !text-[16px]">business</span>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-primary-text">View Company Config</h2>
-            <p className="text-xs text-secondary-text mt-1">Select a company to view its configuration</p>
+            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-none">View Company Config</h2>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Select a company to view its configuration</p>
           </div>
         </div>
         <div className="max-w-xl">
-          <select
+          <p className="text-slate-700 dark:text-slate-300 text-[10px] font-bold leading-normal pb-1">
+            Company ID <span className="text-red-500">*</span>
+          </p>
+          <CustomCompanyDropdown
             value={lookupId}
-            onChange={e => {
-              const id = e.target.value;
-              setLookupId(id);
-              if (id) handleFetch(id);
+            options={companies}
+            onChange={(val) => {
+              setLookupId(val);
+              if (val) handleFetch(val);
               else { setForm(null); setEditForm(null); setFetchError(''); setIsEditing(false); setSaveSuccess(''); setSaveError(''); setTwoSideResult(null); setRetryResult(null); setStatus(DEFAULT_STATUS); }
             }}
             disabled={fetchLoading}
-            className="w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 p-3.5 outline-none transition-all"
-          >
-            <option value="">-- Select a company --</option>
-            {companies.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          />
           {fetchLoading && (
             <p className="text-sm text-indigo-600 flex items-center gap-1.5 mt-3">
               <span className="material-symbols-outlined !text-[16px] animate-spin">progress_activity</span>
@@ -276,18 +320,18 @@ const ViewConfigTab: React.FC = () => {
 
       {/* Config Display */}
       {form && editForm && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-3 transition-all duration-300">
           {/* Header row */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${isEditing ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}>
-                <span className="material-symbols-outlined">{isEditing ? 'edit' : 'visibility'}</span>
+          <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800/60 pb-2">
+            <div className="flex items-center gap-2">
+              <div className={`p-1.5 rounded-md shadow-sm ${isEditing ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400' : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'}`}>
+                <span className="material-symbols-outlined !text-[16px]">{isEditing ? 'edit' : 'visibility'}</span>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-primary-text">
-                  {isEditing ? 'Editing' : 'Viewing'}: <span className="text-indigo-600">{form.company_id}</span>
+                <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-none">
+                  {isEditing ? 'Editing' : 'Viewing'}: <span className="text-indigo-600 dark:text-indigo-400">{form.company_id}</span>
                 </h2>
-                <p className="text-xs text-secondary-text mt-0.5">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
                   {isEditing ? 'Make changes and click Save to update' : 'All fields are read-only. Click Edit to make changes.'}
                 </p>
               </div>
@@ -296,10 +340,10 @@ const ViewConfigTab: React.FC = () => {
               <button
                 type="button"
                 onClick={() => { setIsEditing(true); setSaveSuccess(''); setSaveError(''); setTwoSideResult(null); }}
-                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
+                className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-md transition-all shadow-sm"
               >
-                <span className="material-symbols-outlined !text-[18px]">edit</span>
-                Edit
+                <span className="material-symbols-outlined !text-[14px]">edit</span>
+                Edit Config
               </button>
             )}
           </div>
@@ -525,22 +569,22 @@ const ViewConfigTab: React.FC = () => {
             />
 
             {isEditing && (
-              <div className="flex gap-3 mt-6">
+              <div className="flex gap-2.5 mt-4">
                 <button
                   type="submit"
                   disabled={saveLoading}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 text-xs"
                 >
-                  <span className="material-symbols-outlined !text-[20px]">save</span>
+                  <span className="material-symbols-outlined !text-[16px]">save</span>
                   {saveLoading ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   type="button"
                   onClick={handleCancelEdit}
                   disabled={saveLoading}
-                  className="bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 font-medium py-3.5 px-6 rounded-lg transition-colors flex items-center gap-2"
+                  className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50 font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs"
                 >
-                  <span className="material-symbols-outlined !text-[20px]">close</span>
+                  <span className="material-symbols-outlined !text-[16px]">close</span>
                   Cancel
                 </button>
               </div>

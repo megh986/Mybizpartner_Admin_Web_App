@@ -179,179 +179,196 @@ const Profile: React.FC<ProfileProps> = ({
 
             <main className="flex-1 overflow-y-auto">
                 <div className="settings-container">
-                    {/* Header */}
-                    <div className="settings-header">
-                        <div className="flex items-center gap-3">
-                            <button
-                                className="lg:hidden size-10 flex items-center justify-center rounded-lg text-gray-500 hover:text-primary hover:bg-gray-100 transition-colors"
-                                onClick={() => setSidebarOpen(true)}
-                            >
-                                <span className="material-symbols-outlined">menu</span>
-                            </button>
-                            <div>
-                                <h1 className="settings-title">Profile</h1>
-                                <p className="settings-subtitle">Manage your account profile and preferences</p>
-                            </div>
-                        </div>
+                    {/* Mobile Menu Button (Header text removed as requested) */}
+                    <div className="lg:hidden p-4 md:p-8 pb-0">
+                        <button
+                            className="size-10 flex items-center justify-center rounded-lg text-gray-500 hover:text-primary hover:bg-gray-100 transition-colors"
+                            onClick={() => setSidebarOpen(true)}
+                        >
+                            <span className="material-symbols-outlined">menu</span>
+                        </button>
                     </div>
 
                     {/* Content */}
                     <div className="settings-content">
-                        {/* Profile Information Section */}
-                        <div className="settings-card">
-                            <div className="settings-card-header">
-                                <h2 className="settings-card-title">Profile Information</h2>
-                                <p className="settings-card-description">Update your personal information</p>
-                            </div>
-
-                            <form onSubmit={handleProfileUpdate} className="settings-form">
-                                <div className="form-group">
-                                    <label className="form-label">Email Address</label>
-                                    <input
-                                        type="email"
-                                        value={userData?.email || ''}
-                                        disabled
-                                        className="form-input form-input-disabled"
-                                        placeholder="Email"
-                                    />
-                                    <p className="form-helper-text">Email cannot be changed</p>
+                        <div className="max-w-3xl mx-auto">
+                            {/* Profile Information Section */}
+                            <div className="settings-card !mb-0">
+                                <div className="settings-card-header flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                                    <div className="flex items-center gap-4">
+                                        <div className="size-14 rounded-full bg-indigo-50 border-2 border-indigo-100 dark:border-indigo-900/50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl font-bold shadow-sm shrink-0">
+                                            {name ? name.charAt(0).toUpperCase() : (userData?.email ? userData.email.charAt(0).toUpperCase() : 'U')}
+                                        </div>
+                                        <div>
+                                            <h2 className="settings-card-title !mb-0">Profile Information</h2>
+                                            <p className="settings-card-description mt-0.5">Update your personal information</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowPasswordSection(!showPasswordSection)}
+                                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-colors border ${showPasswordSection ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700' : 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100'} shrink-0`}
+                                    >
+                                        {showPasswordSection ? 'Cancel Password Change' : 'Change Password'}
+                                    </button>
                                 </div>
 
-                                <div className="form-group">
-                                    <label className="form-label">Full Name</label>
-                                    <input
-                                        type="text"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        className="form-input"
-                                        placeholder="Enter your full name"
-                                        required
-                                    />
-                                </div>
+                                <form onSubmit={handleProfileUpdate} className="grid grid-cols-1 gap-4 mt-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Email Address</label>
+                                            <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">mail</span>
+                                                <input
+                                                    type="email"
+                                                    value={userData?.email || ''}
+                                                    disabled
+                                                    className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm rounded-xl pl-10 pr-4 py-2.5 cursor-not-allowed opacity-70"
+                                                    placeholder="Email"
+                                                />
+                                            </div>
+                                            <p className="text-[10px] text-slate-500">Email cannot be changed</p>
+                                        </div>
 
-                                <div className="form-group">
-                                    <label className="form-label">Phone Number</label>
-                                    <input
-                                        type="tel"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        className="form-input"
-                                        placeholder="Enter your phone number"
-                                    />
-                                </div>
-
-                                {profileMessage && (
-                                    <div className={`message message-${profileMessage.type}`}>
-                                        {profileMessage.text}
-                                    </div>
-                                )}
-
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary"
-                                    disabled={profileLoading}
-                                >
-                                    {profileLoading ? 'Saving...' : 'Save Changes'}
-                                </button>
-                            </form>
-                        </div>
-
-                        {/* Change Password Section */}
-                        <div className="settings-card">
-                            <div
-                                className="settings-card-header cursor-pointer hover:bg-gray-50 transition-colors rounded-lg p-4 -m-4 mb-0"
-                                onClick={() => setShowPasswordSection(!showPasswordSection)}
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h2 className="settings-card-title">Change Password</h2>
-                                        <p className="settings-card-description">Update your password to keep your account secure</p>
-                                    </div>
-                                    <span className="material-symbols-outlined text-gray-400 transition-transform" style={{ transform: showPasswordSection ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                                        expand_more
-                                    </span>
-                                </div>
-                            </div>
-
-                            {showPasswordSection && (
-                                <form onSubmit={handlePasswordChange} className="settings-form">
-                                    <div className="form-group">
-                                        <label className="form-label">Current Password</label>
-                                        <input
-                                            type="password"
-                                            value={oldPassword}
-                                            onChange={(e) => setOldPassword(e.target.value)}
-                                            className="form-input"
-                                            placeholder="Enter current password"
-                                            required
-                                        />
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Full Name <span className="text-red-500">*</span></label>
+                                            <div className="relative">
+                                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">person</span>
+                                                <input
+                                                    type="text"
+                                                    value={name}
+                                                    onChange={(e) => setName(e.target.value)}
+                                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none transition-all shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20"
+                                                    placeholder="Enter your full name"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div className="form-group">
-                                        <label className="form-label">New Password</label>
-                                        <input
-                                            type="password"
-                                            value={newPassword}
-                                            onChange={(e) => setNewPassword(e.target.value)}
-                                            className="form-input"
-                                            placeholder="Enter new password (min 6 characters)"
-                                            required
-                                            minLength={6}
-                                        />
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Phone Number</label>
+                                        <div className="relative">
+                                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">phone</span>
+                                            <input
+                                                type="tel"
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value)}
+                                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none transition-all shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20"
+                                                placeholder="Enter your phone number"
+                                            />
+                                        </div>
                                     </div>
 
-                                    <div className="form-group">
-                                        <label className="form-label">Confirm New Password</label>
-                                        <input
-                                            type="password"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            className="form-input"
-                                            placeholder="Confirm new password"
-                                            required
-                                        />
-                                    </div>
-
-                                    {passwordMessage && (
-                                        <div className={`message message-${passwordMessage.type}`}>
-                                            {passwordMessage.text}
+                                    {profileMessage && (
+                                        <div className={`text-xs p-2 rounded-lg ${profileMessage.type === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
+                                            {profileMessage.text}
                                         </div>
                                     )}
 
-                                    <button
-                                        type="submit"
-                                        className="btn btn-danger"
-                                        disabled={passwordLoading}
-                                    >
-                                        {passwordLoading ? 'Changing...' : 'Change Password'}
-                                    </button>
+                                    <div className="mt-2 flex items-center gap-3">
+                                        <button
+                                            type="submit"
+                                            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                                            disabled={profileLoading}
+                                        >
+                                            <span className="material-symbols-outlined !text-[18px]">save</span>
+                                            {profileLoading ? 'Saving...' : 'Save Changes'}
+                                        </button>
+                                    </div>
                                 </form>
-                            )}
+
+                                {/* Inline Change Password Section */}
+                                {showPasswordSection && (
+                                    <>
+                                        <hr className="my-8 border-slate-200 dark:border-slate-800" />
+                                        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><span className="material-symbols-outlined !text-[20px] text-red-500">lock_reset</span> Change Password</h3>
+                                        <form onSubmit={handlePasswordChange} className="grid grid-cols-1 gap-4">
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Current Password <span className="text-red-500">*</span></label>
+                                                <div className="relative">
+                                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">key</span>
+                                                    <input
+                                                        type="password"
+                                                        value={oldPassword}
+                                                        onChange={(e) => setOldPassword(e.target.value)}
+                                                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none transition-all shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20"
+                                                        placeholder="Enter current password"
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="flex flex-col gap-1.5">
+                                                    <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">New Password <span className="text-red-500">*</span></label>
+                                                    <div className="relative">
+                                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">lock</span>
+                                                        <input
+                                                            type="password"
+                                                            value={newPassword}
+                                                            onChange={(e) => setNewPassword(e.target.value)}
+                                                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none transition-all shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20"
+                                                            placeholder="Min 6 chars"
+                                                            required
+                                                            minLength={6}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-col gap-1.5">
+                                                    <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Confirm Password <span className="text-red-500">*</span></label>
+                                                    <div className="relative">
+                                                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">lock</span>
+                                                        <input
+                                                            type="password"
+                                                            value={confirmPassword}
+                                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 text-sm rounded-xl pl-10 pr-4 py-2.5 outline-none transition-all shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20"
+                                                            placeholder="Confirm password"
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {passwordMessage && (
+                                                <div className={`text-xs p-2 rounded-lg ${passwordMessage.type === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
+                                                    {passwordMessage.text}
+                                                </div>
+                                            )}
+
+                                            <div className="mt-2 flex items-center gap-3">
+                                                <button
+                                                    type="submit"
+                                                    className="px-6 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-sm font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+                                                    disabled={passwordLoading}
+                                                >
+                                                    <span className="material-symbols-outlined !text-[18px]">password</span>
+                                                    {passwordLoading ? 'Changing...' : 'Change Password'}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </>
+                                )}
+                            </div>
                         </div>
 
                         {/* Legal Links Section */}
-                        <div className="settings-card">
-                            <div className="settings-card-header">
-                                <h2 className="settings-card-title">Legal</h2>
-                                <p className="settings-card-description">View our policies and terms</p>
-                            </div>
-
-                            <div className="flex gap-4 mt-4">
-                                <button
-                                    onClick={onNavigateToPrivacy}
-                                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
-                                >
-                                    <span className="material-symbols-outlined">policy</span>
-                                    <span>Privacy Policy</span>
-                                </button>
-                                <button
-                                    onClick={onNavigateToTerms}
-                                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-green-500 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium"
-                                >
-                                    <span className="material-symbols-outlined">description</span>
-                                    <span>Terms & Conditions</span>
-                                </button>
-                            </div>
+                        <div className="flex justify-center gap-4 mt-6 mb-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+                            <button
+                                onClick={onNavigateToPrivacy}
+                                className="flex items-center gap-1.5 px-4 py-2 bg-blue-50 border border-blue-200 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors text-xs font-bold shadow-sm"
+                            >
+                                <span className="material-symbols-outlined !text-[16px]">policy</span>
+                                <span>Privacy Policy</span>
+                            </button>
+                            <button
+                                onClick={onNavigateToTerms}
+                                className="flex items-center gap-1.5 px-4 py-2 bg-green-50 border border-green-200 text-green-600 rounded-xl hover:bg-green-100 transition-colors text-xs font-bold shadow-sm"
+                            >
+                                <span className="material-symbols-outlined !text-[16px]">description</span>
+                                <span>Terms & Conditions</span>
+                            </button>
                         </div>
                     </div>
                 </div>

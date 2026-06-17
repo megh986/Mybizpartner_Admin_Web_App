@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const WA_API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://staging.thewordofmouth.in/api';
 const IMAGE_API_BASE_URL = `${WA_API_BASE_URL}/image`;
@@ -67,10 +67,10 @@ interface FieldProps {
 export const Field: React.FC<FieldProps> = ({ label, fieldKey, placeholder, hint, secret, readOnly, form, loading, onChange }) => {
   const [show, setShow] = useState(false);
   return (
-    <label className="flex flex-col">
-      <p className="text-primary-text text-sm font-semibold leading-normal pb-2">
+    <label className="flex flex-col w-full">
+      <span className="text-slate-700 dark:text-slate-300 text-[10px] font-bold leading-normal pb-1">
         {label} <span className="text-red-500">*</span>
-      </p>
+      </span>
       <div className="relative">
         <input
           type={secret && !show ? 'password' : 'text'}
@@ -78,21 +78,85 @@ export const Field: React.FC<FieldProps> = ({ label, fieldKey, placeholder, hint
           onChange={e => onChange(fieldKey, e.target.value)}
           placeholder={placeholder || ''}
           disabled={loading || readOnly}
-          className={`w-full border text-primary-text text-base rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 p-3.5 outline-none transition-all font-mono text-sm pr-10 ${readOnly ? 'bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed' : 'bg-background-light border-gray-200'}`}
+          className={`w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-2.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all font-mono pr-10 ${readOnly ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-80' : ''}`}
         />
         {secret && !readOnly && (
           <button
             type="button"
             onClick={() => setShow(s => !s)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
             tabIndex={-1}
           >
-            <span className="material-symbols-outlined !text-[20px]">{show ? 'visibility_off' : 'visibility'}</span>
+            <span className="material-symbols-outlined !text-[16px]">{show ? 'visibility_off' : 'visibility'}</span>
           </button>
         )}
       </div>
-      {hint && <p className="text-xs text-secondary-text mt-1">{hint}</p>}
+      {hint && <p className="text-[10px] text-slate-500 mt-1">{hint}</p>}
     </label>
+  );
+};
+
+const CustomCompanyDropdown: React.FC<{
+  value: string;
+  options: string[];
+  onChange: (val: string) => void;
+  disabled: boolean;
+}> = ({ value, options, onChange, disabled }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full text-left rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-2.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all flex justify-between items-center"
+      >
+        <span className="truncate">{value || '-- Select a company --'}</span>
+        <span className="material-symbols-outlined !text-[16px] text-slate-400">
+          {isOpen ? 'expand_less' : 'expand_more'}
+        </span>
+      </button>
+
+      {isOpen && !disabled && (
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+          <button
+            type="button"
+            className="w-full text-left px-3 py-2 text-xs text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800"
+            onClick={() => {
+              onChange('');
+              setIsOpen(false);
+            }}
+          >
+            -- Select a company --
+          </button>
+          {options.map(c => (
+            <button
+              key={c}
+              type="button"
+              className={`w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${value === c ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-700 dark:text-slate-300'}`}
+              onClick={() => {
+                onChange(c);
+                setIsOpen(false);
+              }}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -102,52 +166,49 @@ export const FormFields: React.FC<{ form: ConfigForm; loading: boolean; onChange
   const f = { form, loading, onChange };
   const companyIsReadOnly = readOnly || companyIdReadOnly;
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Company</p>
-        <div className="grid grid-cols-2 gap-4">
+    <div className="flex flex-col gap-4">
+      {/* Group 1: Company & Message Template (3 cols) */}
+      <div className="bg-slate-50/50 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800/60 rounded-xl p-3.5">
+        <h3 className="text-[11px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-2.5 flex items-center gap-1.5"><span className="material-symbols-outlined !text-[14px] text-indigo-500">business</span> Core Details</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {companies && !companyIsReadOnly ? (
-            <label className="flex flex-col">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">
+            <label className="flex flex-col w-full">
+              <span className="text-slate-700 dark:text-slate-300 text-[10px] font-bold leading-normal pb-1">
                 Company ID <span className="text-red-500">*</span>
-              </p>
-              <select
+              </span>
+              <CustomCompanyDropdown
                 value={form.company_id}
-                onChange={e => onChange('company_id', e.target.value)}
+                options={companies}
+                onChange={(val) => onChange('company_id', val)}
                 disabled={loading}
-                className="w-full bg-background-light border border-gray-200 text-primary-text text-base rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 p-3.5 outline-none transition-all"
-              >
-                <option value="">-- Select a company --</option>
-                {companies.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <p className="text-xs text-secondary-text mt-1">Unique slug for this company</p>
+              />
             </label>
           ) : (
-            <Field {...f} label="Company ID" fieldKey="company_id" placeholder="e.g. arezou1" hint="Unique slug for this company" readOnly={companyIsReadOnly} />
+            <Field {...f} label="Company ID" fieldKey="company_id" placeholder="e.g. arezou1" readOnly={companyIsReadOnly} />
           )}
-        </div>
-      </div>
-      <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">WhatsApp Business API</p>
-        <div className="grid grid-cols-2 gap-4">
-          <Field {...f} label="WA Token" fieldKey="wa_token" placeholder="EAAThvX..." secret readOnly={readOnly} />
-          <Field {...f} label="Phone Number ID" fieldKey="wa_phone_number_id" placeholder="396503210206909" readOnly={readOnly} />
-          <Field {...f} label="WABA ID" fieldKey="wa_waba_id" placeholder="358707160666406" readOnly={readOnly} />
-          <Field {...f} label="App Secret" fieldKey="wa_app_secret" placeholder="2f9716a6..." secret readOnly={readOnly} />
-          <Field {...f} label="Verify Token" fieldKey="wa_verify_token" placeholder="wom_whatsapp_verify_2025" readOnly={readOnly} />
-          <Field {...f} label="API Version" fieldKey="wa_api_version" placeholder="v20.0" readOnly={readOnly} />
-        </div>
-      </div>
-      <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Message Template</p>
-        <div className="grid grid-cols-2 gap-4">
           <Field {...f} label="Template Name" fieldKey="wa_template_name" placeholder="wom_review_simple_v1" readOnly={readOnly} />
           <Field {...f} label="Template Language Code" fieldKey="wa_template_language_code" placeholder="en" readOnly={readOnly} />
         </div>
       </div>
-      <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Shopify</p>
-        <div className="grid grid-cols-2 gap-4">
+
+      {/* Group 2: WhatsApp API (3 cols) */}
+      <div className="bg-slate-50/50 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800/60 rounded-xl p-3.5">
+        <h3 className="text-[11px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-2.5 flex items-center gap-1.5"><span className="material-symbols-outlined !text-[14px] text-indigo-500">api</span> WhatsApp API Credentials</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Field {...f} label="Phone Number ID" fieldKey="wa_phone_number_id" placeholder="396503210206909" readOnly={readOnly} />
+          <Field {...f} label="WABA ID" fieldKey="wa_waba_id" placeholder="358707160666406" readOnly={readOnly} />
+          <Field {...f} label="API Version" fieldKey="wa_api_version" placeholder="v20.0" readOnly={readOnly} />
+          
+          <Field {...f} label="WA Token" fieldKey="wa_token" placeholder="EAAThvX..." secret readOnly={readOnly} />
+          <Field {...f} label="App Secret" fieldKey="wa_app_secret" placeholder="2f9716a6..." secret readOnly={readOnly} />
+          <Field {...f} label="Verify Token" fieldKey="wa_verify_token" placeholder="wom_whatsapp_verify_2025" readOnly={readOnly} />
+        </div>
+      </div>
+
+      {/* Group 3: Shopify (2 cols) */}
+      <div className="bg-slate-50/50 dark:bg-slate-900/20 border border-slate-100 dark:border-slate-800/60 rounded-xl p-3.5">
+        <h3 className="text-[11px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-2.5 flex items-center gap-1.5"><span className="material-symbols-outlined !text-[14px] text-indigo-500">storefront</span> Shopify Integration</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <Field {...f} label="Store Domain" fieldKey="shopify_store_domain" placeholder="wordofmoutth.myshopify.com" readOnly={readOnly} />
           <Field {...f} label="Access Token" fieldKey="shopify_access_token" placeholder="b875a53..." secret readOnly={readOnly} />
         </div>
@@ -218,31 +279,14 @@ const CompanyConfigTab: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Setup Documentation */}
-      <a
-        href="https://www.notion.so/Meta-app-for-whatapp-get-steps-316902d09c9480b6bcd0c458edd3d375"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center gap-4 hover:bg-indigo-100 transition-colors group"
-      >
-        <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg shrink-0">
-          <span className="material-symbols-outlined">menu_book</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-indigo-800">Setup Guide: Meta App for WhatsApp</p>
-          <p className="text-xs text-indigo-600 mt-0.5 truncate">Step-by-step instructions to get your WhatsApp Business API credentials</p>
-        </div>
-        <span className="material-symbols-outlined text-indigo-400 group-hover:text-indigo-600 transition-colors shrink-0 !text-[20px]">open_in_new</span>
-      </a>
-
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-green-50 text-green-600 rounded-lg">
-            <span className="material-symbols-outlined">add_circle</span>
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-3 transition-all duration-300">
+        <div className="flex items-center gap-2 mb-3 border-b border-slate-100 dark:border-slate-800/60 pb-2">
+          <div className="p-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-md shadow-sm">
+            <span className="material-symbols-outlined !text-[16px]">add_circle</span>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-primary-text">Create Company Config</h2>
-            <p className="text-xs text-secondary-text mt-1">Register a new company's WhatsApp + Shopify configuration</p>
+            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-none">Create Company Config</h2>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">Register a new company's WhatsApp + Shopify configuration</p>
           </div>
         </div>
 
@@ -315,9 +359,9 @@ const CompanyConfigTab: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
+            className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm text-xs"
           >
-            <span className="material-symbols-outlined !text-[20px]">save</span>
+            <span className="material-symbols-outlined !text-[16px]">save</span>
             {loading ? 'Creating...' : 'Create Configuration'}
           </button>
         </form>

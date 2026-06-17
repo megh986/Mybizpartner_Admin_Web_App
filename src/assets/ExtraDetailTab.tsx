@@ -107,35 +107,46 @@ function NestedRowBlock({
   onAddSubfield,
 }: NestedRowBlockProps) {
   const hasChildren = row.children.length > 0;
-  const indent = depth * 20;
+  const indent = depth * 24;
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5 relative">
+      {depth > 0 && (
+        <div 
+          className="absolute left-[-16px] top-0 bottom-1/2 w-4 border-l-2 border-b-2 border-slate-200 dark:border-slate-800 rounded-bl-xl pointer-events-none" 
+          style={{ height: '24px' }}
+        />
+      )}
       <div
-        className="grid grid-cols-12 gap-2 items-center"
+        className="grid grid-cols-12 gap-3 items-center relative"
         style={{ marginLeft: indent }}
       >
-        <input
-          type="text"
-          value={row.key}
-          onChange={(e) => onUpdateRow(row.id, 'key', e.target.value)}
-          readOnly={isViewMode}
-          placeholder={depth === 0 ? 'e.g. homepage_banner_text' : 'e.g. season'}
-          className="col-span-4 rounded-lg border border-gray-200 bg-gray-50 text-primary-text text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-gray-100 disabled:cursor-default"
-        />
-        {hasChildren ? (
-          <div className="col-span-5 text-xs text-secondary-text flex items-center gap-1">
-            <span className="italic">(nested, {row.children.length} subfield{row.children.length !== 1 ? 's' : ''})</span>
-          </div>
-        ) : (
+        <div className="col-span-4 relative">
           <input
             type="text"
-            value={row.value}
-            onChange={(e) => onUpdateRow(row.id, 'value', e.target.value)}
+            value={row.key}
+            onChange={(e) => onUpdateRow(row.id, 'key', e.target.value)}
             readOnly={isViewMode}
-            placeholder="e.g. Glow like never before"
-            className="col-span-5 rounded-lg border border-gray-200 bg-gray-50 text-primary-text text-sm px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:bg-gray-100 disabled:cursor-default"
+            placeholder={depth === 0 ? 'e.g. homepage_banner_text' : 'e.g. season'}
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 outline-none focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all disabled:opacity-60 disabled:cursor-default"
           />
+        </div>
+        {hasChildren ? (
+          <div className="col-span-5 text-xs text-slate-400 dark:text-slate-500 font-semibold italic flex items-center gap-1.5 pl-2">
+            <span className="material-symbols-outlined !text-[16px] text-slate-350 dark:text-slate-700">folder_open</span>
+            (nested, {row.children.length} subfield{row.children.length !== 1 ? 's' : ''})
+          </div>
+        ) : (
+          <div className="col-span-5">
+            <input
+              type="text"
+              value={row.value}
+              onChange={(e) => onUpdateRow(row.id, 'value', e.target.value)}
+              readOnly={isViewMode}
+              placeholder="e.g. Glow like never before"
+              className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-100 text-sm px-3.5 py-2.5 outline-none focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] transition-all disabled:opacity-60 disabled:cursor-default"
+            />
+          </div>
         )}
         <div className="col-span-3 flex items-center gap-1 justify-end">
           {canEdit && (
@@ -143,7 +154,7 @@ function NestedRowBlock({
               <button
                 type="button"
                 onClick={() => onAddSubfield(row.id)}
-                className="p-2 rounded-lg text-primary hover:bg-primary/10 transition-colors"
+                className="p-2 rounded-xl text-[#FF6B35] hover:bg-[#FF6B35]/10 dark:hover:bg-[#FF6B35]/20 transition-all cursor-pointer"
                 title="Add subfield"
               >
                 <span className="material-symbols-outlined !text-[18px]">subdirectory_arrow_right</span>
@@ -151,10 +162,10 @@ function NestedRowBlock({
               <button
                 type="button"
                 onClick={() => onRemoveRow(row.id)}
-                className="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                className="p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-955/20 transition-all cursor-pointer"
                 title="Remove row"
               >
-                <span className="material-symbols-outlined !text-[20px]">delete</span>
+                <span className="material-symbols-outlined !text-[18px]">delete</span>
               </button>
             </>
           )}
@@ -392,217 +403,296 @@ const ExtraDetailTab: React.FC<ExtraDetailTabProps> = ({
   const isViewMode = action === 'view' && !isEditing;
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-primary-text mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined">tune</span>
-          Extra Details
-        </h2>
-        <p className="text-secondary-text text-sm mb-6">
-          Store flexible key-value data per company (e.g. homepage banner text, theme, feature flags). Different companies can have different keys.
-        </p>
-
-        {/* Action: View vs Create */}
-        <div className="mb-6">
-          <h3 className="text-sm font-bold text-primary-text mb-3">Action</h3>
-          <div className="flex gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="extraDetailAction"
-                checked={action === 'view'}
-                onChange={() => {
-                  setAction('view');
-                  setIsEditing(false);
-                  setError('');
-                  setSuccess('');
-                }}
-                className="w-4 h-4 text-primary"
-              />
-              <span className="text-primary-text">View / Edit</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="extraDetailAction"
-                checked={action === 'create'}
-                onChange={() => {
-                  setAction('create');
-                  setIsEditing(true);
-                  setDetails({});
-                  setDetailsJson('{}');
-                  setKeyValueRows([{ id: generateRowId(), key: '', value: '', children: [] }]);
-                  setInputMode('keyvalue');
-                  setError('');
-                  setSuccess('');
-                }}
-                className="w-4 h-4 text-primary"
-              />
-              <span className="text-primary-text">Create</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Company: auto-selected for single-company users, else show dropdown */}
-        {!isCompanyAutoSelected && (
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-primary-text mb-2">Company *</label>
-            {renderSearchableCompanyDropdown(
-              loading,
-              (id) => {
-                setSelectedCompany(id);
-                setError('');
-                setSuccess('');
-                if (action === 'view') {
-                  setDetails({});
-                  setDetailsJson('{}');
-                  setIsEditing(false);
-                }
-              },
-              'Search by company ID...',
-              'focus:ring-2 focus:ring-primary/20 focus:border-primary',
-              false
-            )}
-          </div>
-        )}
-
-        {action === 'view' && !selectedCompany && (
-          <div className="mb-6">
-            <p className="text-sm text-secondary-text">
-              {isCompanyAutoSelected ? 'Loading company…' : 'Select a company to view or edit extra details.'}
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm overflow-hidden mt-2 transition-all duration-300">
+      <div className="flex flex-col md:flex-row min-h-[450px]">
+        
+        {/* ── Left sidebar: Settings & Context ── */}
+        <div className="w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 flex flex-col">
+          
+          <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <div className="p-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-lg shadow-sm">
+                <span className="material-symbols-outlined !text-[16px]">tune</span>
+              </div>
+              <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100">Extra Details</h2>
+            </div>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-snug">
+              Store flexible key-value configurations per company (e.g. homepage text, active flags).
             </p>
           </div>
-        )}
 
-        {action === 'view' && selectedCompany && (
-          <div className="mb-6 space-y-3">
-            {fetchLoading && (
-              <p className="text-sm text-secondary-text">Loading extra details…</p>
-            )}
-            {!fetchLoading && Object.keys(details).length === 0 && !isEditing && (
-              <p className="text-sm text-secondary-text">
-                No extra details found for this company yet.
-              </p>
-            )}
-            {!fetchLoading && (Object.keys(details).length > 0 || isEditing) && (
-              <button
-                type="button"
-                onClick={handleFetch}
-                disabled={fetchLoading}
-                className="text-sm text-primary hover:underline"
-              >
-                Refresh
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Details display / edit */}
-        {(action === 'create' || (action === 'view' && (Object.keys(details).length > 0 || isEditing || fetchLoading))) && (
-          <div className="mb-6">
-            <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
-              <h3 className="text-sm font-bold text-primary-text">
-                {inputMode === 'keyvalue' ? 'Details (Key–Value)' : 'Details (JSON)'}
-              </h3>
-              <div className="flex items-center gap-3">
-                {action === 'view' && isViewMode && Object.keys(details).length > 0 && (
-                  <button
-                    type="button"
-                    onClick={startEdit}
-                    className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
-                  >
-                    <span className="material-symbols-outlined !text-[16px]">edit</span>
-                    Edit
-                  </button>
-                )}
-                {(action === 'create' || isEditing) && (
-                  <button
-                    type="button"
-                    onClick={inputMode === 'keyvalue' ? switchToJson : switchToKeyValue}
-                    className="text-sm text-secondary-text hover:text-primary hover:underline"
-                  >
-                    {inputMode === 'keyvalue' ? 'Use JSON instead' : 'Use Key–Value instead'}
-                  </button>
-                )}
+          <div className="p-4 flex-1 flex flex-col gap-5">
+            {/* Action Toggle */}
+            <div>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Mode</span>
+              <div className="flex flex-col gap-1.5">
+                {(['view', 'create'] as const).map((act) => {
+                  const isActive = action === act;
+                  return (
+                    <button
+                      key={act}
+                      onClick={() => {
+                        setAction(act);
+                        if (act === 'view') {
+                          setIsEditing(false);
+                          setError('');
+                          setSuccess('');
+                        } else {
+                          setIsEditing(true);
+                          setDetails({});
+                          setDetailsJson('{}');
+                          setKeyValueRows([{ id: generateRowId(), key: '', value: '', children: [] }]);
+                          setInputMode('keyvalue');
+                          setError('');
+                          setSuccess('');
+                        }
+                      }}
+                      className={`w-full text-left px-3 py-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+                        isActive
+                          ? 'border-indigo-400 bg-indigo-50/80 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 shadow-sm'
+                          : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:shadow-sm'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className={`material-symbols-outlined !text-[18px] shrink-0 ${isActive ? '' : 'text-slate-400 dark:text-slate-500'}`}>
+                          {act === 'view' ? 'visibility' : 'add_circle'}
+                        </span>
+                        <span className="text-xs font-bold leading-tight">{act === 'view' ? 'View / Edit' : 'Create New'}</span>
+                        {isActive && <span className="material-symbols-outlined !text-[14px] ml-auto shrink-0">check_circle</span>}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {inputMode === 'keyvalue' ? (
-              <div className="space-y-3">
-                {action === 'view' && fetchLoading ? (
-                  <p className="text-sm text-secondary-text py-4">Loading extra details…</p>
-                ) : (
-                  <>
-                    <p className="text-xs text-secondary-text mb-1">
-                      Use <strong>Add subfield</strong> on a row to nest keys under it (e.g. <code className="bg-gray-100 px-1 rounded">extra_notes</code> with subfields <code className="bg-gray-100 px-1 rounded">season</code>, <code className="bg-gray-100 px-1 rounded">campaign</code>). For arrays, enter JSON in Value (e.g. <code className="bg-gray-100 px-1 rounded">["id1", "id2"]</code>).
-                    </p>
-                    <div className="grid grid-cols-12 gap-2 text-xs font-medium text-secondary-text px-1">
-                      <div className="col-span-4">Key</div>
-                      <div className="col-span-5">Value</div>
-                      <div className="col-span-3" />
-                    </div>
-                    {(action === 'view' && isViewMode ? objectToRows(details) : keyValueRows).map((row) => (
-                  <NestedRowBlock
-                    key={row.id}
-                    row={row}
-                    depth={0}
-                    isViewMode={action === 'view' && isViewMode}
-                    canEdit={action === 'create' || isEditing}
-                    onUpdateRow={updateRow}
-                    onRemoveRow={removeRow}
-                    onAddSubfield={addSubfield}
-                  />
-                ))}
-                    {(action === 'create' || isEditing) && (
-                      <button
-                        type="button"
-                        onClick={addRow}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline mt-2"
-                      >
-                        <span className="material-symbols-outlined !text-[18px]">add_circle</span>
-                        Add row
-                      </button>
-                    )}
-                  </>
+            {/* Company Selection */}
+            {!isCompanyAutoSelected && (
+              <div>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Company</span>
+                {renderSearchableCompanyDropdown(
+                  loading,
+                  (id) => {
+                    setSelectedCompany(id);
+                    setError('');
+                    setSuccess('');
+                    if (action === 'view') {
+                      setDetails({});
+                      setDetailsJson('{}');
+                      setIsEditing(false);
+                    }
+                  },
+                  'Search by company ID...',
+                  'focus:ring-indigo-500/20 focus:border-indigo-500',
+                  false
                 )}
               </div>
-            ) : (
-              <textarea
-                value={detailsJson}
-                onChange={(e) => setDetailsJson(e.target.value)}
-                readOnly={action === 'view' && isViewMode}
-                placeholder='{"key1": "value1", "key2": 123, "nested": {"a": true}}'
-                rows={14}
-                className={`w-full rounded-lg border border-gray-200 bg-gray-50 text-primary-text font-mono text-sm p-4 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${isViewMode ? 'cursor-default' : ''}`}
-                spellCheck={false}
-              />
             )}
 
-            {(action === 'create' || isEditing) && (
-              <div className="flex gap-3 mt-4">
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={saveLoading}
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary text-white font-medium px-4 py-2.5 hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <span className="material-symbols-outlined !text-[18px]">save</span>
-                  {saveLoading ? 'Saving...' : action === 'create' ? 'Create' : 'Save'}
-                </button>
-                {action === 'view' && (
+            {/* View Context Messages */}
+            {action === 'view' && !selectedCompany && (
+              <div className="mt-auto py-4 text-center bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-xl text-slate-400 dark:text-slate-500">
+                <span className="material-symbols-outlined text-2xl mb-1 text-slate-300 dark:text-slate-600 block">info</span>
+                <span className="text-[10px] font-semibold px-2 block">{isCompanyAutoSelected ? 'Loading company…' : 'Select a company to load'}</span>
+              </div>
+            )}
+
+            {action === 'view' && selectedCompany && (
+              <div className="mt-auto">
+                {fetchLoading ? (
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 justify-center py-2">
+                    <svg className="animate-spin h-3.5 w-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Loading details…
+                  </div>
+                ) : (
                   <button
                     type="button"
-                    onClick={cancelEdit}
-                    disabled={saveLoading}
-                    className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white text-primary-text font-medium px-4 py-2.5 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                    onClick={handleFetch}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl text-[11px] font-bold text-slate-600 dark:text-slate-300 transition-all cursor-pointer shadow-sm"
                   >
-                    Cancel
+                    <span className="material-symbols-outlined !text-[14px]">refresh</span>
+                    Refresh Details
                   </button>
                 )}
               </div>
             )}
           </div>
-        )}
+        </div>
+
+        {/* ── Right panel: Configuration workspace ── */}
+        <div className="flex-1 min-w-0 p-4 md:p-6 flex flex-col bg-white dark:bg-slate-900">
+          
+          {error && (
+            <div className="mb-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/60 text-red-750 dark:text-red-400 px-4 py-3 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2 animate-fade-in">
+              <span className="material-symbols-outlined !text-[18px]">error</span>
+              <span className="flex-1">{error}</span>
+              <button onClick={() => setError('')} className="text-red-500 hover:text-red-700 cursor-pointer"><span className="material-symbols-outlined !text-[16px]">close</span></button>
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-400 px-4 py-3 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2 animate-fade-in">
+              <span className="material-symbols-outlined !text-[18px]">check_circle</span>
+              <span className="flex-1">{success}</span>
+              <button onClick={() => setSuccess('')} className="text-emerald-500 hover:text-emerald-700 cursor-pointer"><span className="material-symbols-outlined !text-[16px]">close</span></button>
+            </div>
+          )}
+
+          {(!selectedCompany && action === 'create') || (action === 'view' && !selectedCompany) ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center max-w-sm mx-auto opacity-60">
+              <span className="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-700 mb-3 block">domain</span>
+              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Company Required</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-500">Please select a company from the sidebar to {action === 'create' ? 'create' : 'view'} extra details.</p>
+            </div>
+          ) : (
+            <>
+              {/* Workspace Header */}
+              <div className="flex items-center justify-between flex-wrap gap-4 mb-5 pb-3 border-b border-slate-100 dark:border-slate-800/60">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-indigo-500 !text-[18px]">
+                    {inputMode === 'keyvalue' ? 'list_alt' : 'data_object'}
+                  </span>
+                  {inputMode === 'keyvalue' ? 'Configuration Fields' : 'JSON Raw Editor'}
+                </h3>
+                <div className="flex items-center gap-3">
+                  {action === 'view' && isViewMode && Object.keys(details).length > 0 && (
+                    <button
+                      type="button"
+                      onClick={startEdit}
+                      className="text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+                    >
+                      <span className="material-symbols-outlined !text-[14px]">edit</span>
+                      Edit Fields
+                    </button>
+                  )}
+                  {(action === 'create' || isEditing) && (
+                    <div className="flex gap-1 bg-slate-100/70 dark:bg-slate-800/50 p-1 rounded-lg border border-slate-200/40 dark:border-slate-700/40">
+                      <button
+                        type="button"
+                        onClick={switchToKeyValue}
+                        className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all cursor-pointer flex items-center gap-1 ${
+                          inputMode === 'keyvalue'
+                            ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined !text-[14px]">table_rows</span>
+                        Key-Value
+                      </button>
+                      <button
+                        type="button"
+                        onClick={switchToJson}
+                        className={`px-3 py-1.5 text-[10px] font-bold rounded-md transition-all cursor-pointer flex items-center gap-1 ${
+                          inputMode === 'json'
+                            ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined !text-[14px]">data_object</span>
+                        JSON
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Workspace Content */}
+              {inputMode === 'keyvalue' ? (
+                <div className="flex-1 overflow-visible">
+                  {action === 'view' && fetchLoading ? (
+                    <div className="py-12 text-center text-slate-400 dark:text-slate-550 font-semibold text-sm">
+                      <span className="material-symbols-outlined text-4xl mb-2 animate-pulse">hourglass_empty</span>
+                      <p>Loading fields…</p>
+                    </div>
+                  ) : action === 'view' && Object.keys(details).length === 0 && !isEditing ? (
+                    <div className="py-12 flex flex-col items-center text-center text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-800/80 rounded-2xl">
+                      <span className="material-symbols-outlined text-4xl mb-2 text-slate-300 dark:text-slate-600">inbox</span>
+                      <p className="font-semibold text-xs">No configuration fields saved yet.</p>
+                      <p className="text-[10px] mt-1">Switch to Create New mode to add fields.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30 p-3 rounded-xl mb-4 flex items-start gap-2">
+                        <span className="material-symbols-outlined text-indigo-500 !text-[16px] mt-0.5 shrink-0">info</span>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                          Use <strong>Add subfield</strong> on a row to nest keys under it (e.g. <code className="bg-white dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-indigo-600">extra_notes</code> with subfields <code className="bg-white dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-indigo-600">season</code>). For arrays, enter valid JSON in Value field (e.g. <code className="bg-white dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-200 dark:border-slate-700 font-mono text-[10px] text-indigo-600">["id1"]</code>).
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-12 gap-3 text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 px-1 pb-2 border-b border-slate-100 dark:border-slate-800/60 mb-2">
+                        <div className="col-span-4 pl-1">Key</div>
+                        <div className="col-span-5">Value</div>
+                        <div className="col-span-3 text-right pr-2">Actions</div>
+                      </div>
+                      <div className="space-y-2">
+                        {(action === 'view' && isViewMode ? objectToRows(details) : keyValueRows).map((row) => (
+                          <NestedRowBlock
+                            key={row.id}
+                            row={row}
+                            depth={0}
+                            isViewMode={action === 'view' && isViewMode}
+                            canEdit={action === 'create' || isEditing}
+                            onUpdateRow={updateRow}
+                            onRemoveRow={removeRow}
+                            onAddSubfield={addSubfield}
+                          />
+                        ))}
+                      </div>
+                      {(action === 'create' || isEditing) && (
+                        <button
+                          type="button"
+                          onClick={addRow}
+                          className="inline-flex items-center justify-center w-full gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-dashed border-indigo-200 dark:border-indigo-800/60 rounded-xl py-3 mt-4 cursor-pointer transition-all"
+                        >
+                          <span className="material-symbols-outlined !text-[16px]">add</span>
+                          Add Root Field
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex-1 relative flex flex-col">
+                  <textarea
+                    value={detailsJson}
+                    onChange={(e) => setDetailsJson(e.target.value)}
+                    readOnly={action === 'view' && isViewMode}
+                    placeholder='{"key1": "value1", "key2": 123, "nested": {"a": true}}'
+                    className={`flex-1 min-h-[300px] w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-950 text-emerald-400 font-mono text-sm p-4 outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent ${isViewMode ? 'cursor-default opacity-90' : ''}`}
+                    spellCheck={false}
+                  />
+                </div>
+              )}
+
+              {/* Save/Cancel Action Footer */}
+              {(action === 'create' || isEditing) && (
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-end gap-3">
+                  {action === 'view' && (
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      disabled={saveLoading}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold px-4 py-2.5 disabled:opacity-50 transition-colors text-xs cursor-pointer border border-slate-200 dark:border-slate-700"
+                    >
+                      <span className="material-symbols-outlined !text-[16px]">close</span>
+                      Cancel
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={saveLoading}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 shadow-md shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined !text-[16px]">save</span>
+                    {saveLoading ? 'Saving...' : action === 'create' ? 'Create Settings' : 'Save Changes'}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

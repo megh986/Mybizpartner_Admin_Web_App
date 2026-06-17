@@ -281,44 +281,38 @@ const Analytics: React.FC<AnalyticsProps> = ({
       />
 
       <main className="flex-1 flex flex-col h-screen overflow-y-auto overflow-x-hidden relative w-full min-w-0 bg-background-light dark:bg-background-dark">
-        {/* Header */}
-        <header className="px-4 py-4 md:px-10 lg:px-12 pb-0 max-w-7xl mx-auto w-full">
-          {/* Breadcrumb */}
-          <div className="flex flex-wrap gap-2 items-center mb-6">
-            <button
-              className="lg:hidden size-10 flex items-center justify-center rounded-lg text-gray-500 hover:text-primary hover:bg-gray-100 transition-colors"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <span className="material-symbols-outlined">menu</span>
-            </button>
-            <button
-              onClick={onBack}
-              className="text-secondary-text text-sm font-medium hover:text-primary transition-colors"
-            >
-              Home
-            </button>
-            <span className="text-secondary-text text-sm font-medium">/</span>
-            <span className="text-primary-text text-sm font-semibold bg-gray-200/50 px-2 py-0.5 rounded text-primary">
-              Analytics
-            </span>
+        {/* Page Hero Header */}
+        <header className="relative overflow-hidden bg-white border-b border-slate-100">
+          <div className="absolute inset-0 pointer-events-none select-none">
+            <div className="absolute -top-12 -right-8 w-72 h-72 rounded-full bg-blue-500/6 blur-3xl" />
+            <div className="absolute top-2 right-56 w-44 h-44 rounded-full bg-indigo-400/5 blur-2xl" />
           </div>
-
-          {/* Title Section */}
-          <div className="flex flex-wrap justify-between items-end gap-6 mb-8">
-            <div className="flex flex-col gap-2 max-w-2xl">
-              <h1 className="text-primary-text text-3xl md:text-4xl font-extrabold leading-tight tracking-tight">
-                Analytics Dashboard
-              </h1>
-              <p className="text-secondary-text text-base font-normal leading-relaxed">
-                Track visitor engagement, review interactions, and product performance metrics.
-              </p>
+          <div className="relative flex items-center justify-between px-4 md:px-10 lg:px-12 py-6 max-w-7xl mx-auto w-full">
+            <div className="flex items-center gap-4">
+              <button
+                className="lg:hidden size-9 flex items-center justify-center rounded-lg text-gray-500 hover:text-[#FF6B35] hover:bg-orange-50 transition-colors shrink-0"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <span className="material-symbols-outlined">menu</span>
+              </button>
+              <div>
+                <h1 className="text-primary-text text-2xl md:text-3xl font-extrabold leading-tight tracking-tight">
+                  Analytics Dashboard
+                </h1>
+                <p className="text-secondary-text text-sm font-normal mt-0.5">
+                  Track visitor engagement, review interactions, and product performance metrics.
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-green-700">Live Data</span>
+            <div className="hidden md:flex items-center gap-4 shrink-0 ml-6">
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium text-green-700">Live Data</span>
+              </div>
             </div>
           </div>
         </header>
+
 
         {/* Company Selection Card */}
         <div className="px-6 md:px-10 lg:px-12 max-w-7xl mx-auto w-full mb-6">
@@ -487,49 +481,51 @@ const Analytics: React.FC<AnalyticsProps> = ({
               </div>
             </div>
 
-            {/* Tab Content — all tabs stay mounted; only the active one is visible */}
+            {/* Tab Content — only the active tab is mounted and rendered */}
             <div className="flex-1 px-6 md:px-10 lg:px-12 py-6 max-w-7xl mx-auto w-full pb-20">
-              <div className={activeTab === 'overview' ? 'flex flex-col gap-8' : 'hidden'}>
-                <OverviewTab
-                  selectedCompany={selectedCompany}
-                  companyName={selectedCompanyData?.name || selectedCompany}
-                  products={products}
-                />
-              </div>
-              {enabledFormulas.includes('wom_effectiveness') && (
-                <div className={activeTab === 'wom-effectiveness' ? 'flex flex-col gap-8' : 'hidden'}>
+              {activeTab === 'overview' && (
+                <div className="flex flex-col gap-8">
+                  <OverviewTab
+                    selectedCompany={selectedCompany}
+                    companyName={selectedCompanyData?.name || selectedCompany}
+                    products={products}
+                  />
+                </div>
+              )}
+              {activeTab === 'wom-effectiveness' && enabledFormulas.includes('wom_effectiveness') && (
+                <div className="flex flex-col gap-8">
                   <WomEffectivenessTab
                     selectedCompany={selectedCompany}
                     companyName={selectedCompanyData?.name || selectedCompany}
                   />
                 </div>
               )}
-              {enabledFormulas.includes('user_patterns') && (
-                <div className={activeTab === 'user-patterns' ? 'flex flex-col gap-8' : 'hidden'}>
+              {activeTab === 'user-patterns' && enabledFormulas.includes('user_patterns') && (
+                <div className="flex flex-col gap-8">
                   <UserPatternsTab
                     selectedCompany={selectedCompany}
                     companyName={selectedCompanyData?.name || selectedCompany}
                   />
                 </div>
               )}
-              {enabledFormulas.includes('product_comparison') && (
-                <div className={activeTab === 'product-comparison' ? 'flex flex-col gap-8' : 'hidden'}>
+              {activeTab === 'product-comparison' && enabledFormulas.includes('product_comparison') && (
+                <div className="flex flex-col gap-8">
                   <ProductComparisonTab
                     selectedCompany={selectedCompany}
                     companyName={selectedCompanyData?.name || selectedCompany}
                   />
                 </div>
               )}
-              {enabledFormulas.includes('homepage') && (
-                <div className={activeTab === 'homepage' ? 'flex flex-col gap-8' : 'hidden'}>
+              {activeTab === 'homepage' && enabledFormulas.includes('homepage') && (
+                <div className="flex flex-col gap-8">
                   <HomePageTab
                     selectedCompany={selectedCompany}
                     companyName={selectedCompanyData?.name || selectedCompany}
                   />
                 </div>
               )}
-              {hasTabAccess('analytics_product_reviews') && (
-                <div className={activeTab === 'product-review-metrics' ? 'flex flex-col gap-8' : 'hidden'}>
+              {activeTab === 'product-review-metrics' && hasTabAccess('analytics_product_reviews') && (
+                <div className="flex flex-col gap-8">
                   <ProductReviewMetricsTab
                     selectedCompany={selectedCompany}
                     companyName={selectedCompanyData?.name || selectedCompany}

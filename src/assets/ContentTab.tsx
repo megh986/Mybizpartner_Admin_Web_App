@@ -44,26 +44,29 @@ function SortableCompanyVideoCard({ video, onDelete, disabled }: SortableCompany
     <div
       ref={setNodeRef}
       style={style}
-      className={`border border-gray-200 rounded-lg overflow-hidden bg-gray-900 ${isDragging ? 'opacity-60 shadow-lg z-10' : ''}`}
+      className={`border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-slate-950 shadow-sm transition-all hover:shadow-md ${isDragging ? 'opacity-60 shadow-lg z-50 scale-[1.02]' : ''}`}
     >
-      <div className="relative w-full cursor-grab active:cursor-grabbing" style={{ paddingBottom: '56.25%' }} {...attributes} {...listeners}>
+      <div className="relative w-full cursor-grab active:cursor-grabbing group" style={{ paddingBottom: '56.25%' }} {...attributes} {...listeners}>
         <video src={video.url} className="absolute top-0 left-0 w-full h-full object-contain pointer-events-none" controls controlsList="nodownload" playsInline preload="metadata" />
-        <div className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/50 text-white">
+        <div className="absolute top-3 left-3 p-1.5 rounded-xl bg-slate-900/60 text-white backdrop-blur-md hover:bg-slate-900/80 transition-colors pointer-events-auto">
           <span className="material-symbols-outlined !text-[20px]">drag_indicator</span>
         </div>
       </div>
-      <div className="p-3 bg-white">
-        <p className="text-sm font-medium text-primary-text truncate" title={video.filename}>{video.filename}</p>
-        <p className="text-xs text-secondary-text mt-1">{video.uploaded_at ? new Date(video.uploaded_at).toLocaleDateString() : 'N/A'}</p>
+      <div className="p-4 bg-white dark:bg-slate-900">
+        <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate" title={video.filename}>{video.filename}</p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
+          <span className="material-symbols-outlined !text-[14px]">calendar_today</span>
+          {video.uploaded_at ? new Date(video.uploaded_at).toLocaleDateString() : 'N/A'}
+        </p>
         {video.display_locations && video.display_locations.length > 0 && (
-          <div className="flex gap-1 mt-2 flex-wrap">
+          <div className="flex gap-1.5 mt-3 flex-wrap">
             {video.display_locations.map((loc, i) => (
-              <span key={i} className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{loc.replace(/_/g, ' ')}</span>
+              <span key={i} className="text-[10px] uppercase tracking-wider font-bold bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 px-2 py-0.5 rounded-md">{loc.replace(/_/g, ' ')}</span>
             ))}
           </div>
         )}
-        <div className="flex gap-2 mt-3">
-          <button onClick={() => onDelete(video.id, video.filename)} disabled={disabled} className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1" title="Delete video">
+        <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+          <button onClick={() => onDelete(video.id, video.filename)} disabled={disabled} className="w-full bg-red-50 dark:bg-red-950/20 hover:bg-red-600 hover:text-white dark:hover:bg-red-900 text-red-650 dark:text-red-400 font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 border border-red-100 dark:border-red-900/40 text-sm cursor-pointer" title="Delete video">
             <span className="material-symbols-outlined !text-[18px]">delete</span> Delete
           </button>
         </div>
@@ -104,48 +107,56 @@ function SortableProductVideoCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`border border-gray-200 rounded-lg overflow-hidden bg-gray-900 ${isDragging ? 'opacity-60 shadow-lg z-10' : ''}`}
+      className={`border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-slate-950 shadow-sm transition-all hover:shadow-md ${isDragging ? 'opacity-60 shadow-lg z-50 scale-[1.02]' : ''}`}
     >
-      <div className="relative w-full cursor-grab active:cursor-grabbing" style={{ paddingBottom: '56.25%' }} {...attributes} {...listeners}>
+      <div className="relative w-full cursor-grab active:cursor-grabbing group" style={{ paddingBottom: '56.25%' }} {...attributes} {...listeners}>
         <video src={video.url} className="absolute top-0 left-0 w-full h-full object-contain pointer-events-none" controls controlsList="nodownload" playsInline preload="metadata" />
-        <div className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/50 text-white">
+        <div className="absolute top-3 left-3 p-1.5 rounded-xl bg-slate-900/60 text-white backdrop-blur-md hover:bg-slate-900/80 transition-colors pointer-events-auto">
           <span className="material-symbols-outlined !text-[20px]">drag_indicator</span>
         </div>
       </div>
-      <div className="p-3 bg-white">
-        <p className="text-sm font-medium text-primary-text truncate" title={video.filename}>{video.filename}</p>
-        <p className="text-xs text-secondary-text mt-1">Product: {productId}</p>
-        <p className="text-xs text-secondary-text mt-1">{video.uploaded_at ? new Date(video.uploaded_at).toLocaleDateString() : 'N/A'}</p>
+      <div className="p-4 bg-white dark:bg-slate-900">
+        <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate" title={video.filename}>{video.filename}</p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
+          <span className="material-symbols-outlined !text-[14px]">inventory_2</span>
+          Product: {productId}
+        </p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-1">
+          <span className="material-symbols-outlined !text-[14px]">calendar_today</span>
+          {video.uploaded_at ? new Date(video.uploaded_at).toLocaleDateString() : 'N/A'}
+        </p>
         {editingDisplayVideo?.videoId === video.id && editingDisplayVideo?.productId === productId ? (
-          <div className="mt-2 space-y-2">
-            <p className="text-xs font-medium text-primary-text">Where to show this video</p>
-            {DISPLAY_LOCATION_OPTIONS.map((opt) => (
-              <label key={opt.value} className="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="checkbox" checked={editingDisplayLocations.includes(opt.value)} onChange={(e) => { if (e.target.checked) setEditingDisplayLocations((prev) => [...prev, opt.value]); else setEditingDisplayLocations((prev) => prev.filter((l) => l !== opt.value)); }} className="rounded border-gray-300" />
-                {opt.label}
-              </label>
-            ))}
-            <div className="flex gap-2 mt-2">
-              <button onClick={onSaveDisplayLocations} disabled={displayLocationsSaving || editingDisplayLocations.length === 0} className="flex-1 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-medium py-1.5 px-3 rounded text-sm">{displayLocationsSaving ? 'Saving...' : 'Save'}</button>
-              <button onClick={onCancelEditDisplayLocations} disabled={displayLocationsSaving} className="flex-1 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 text-gray-700 font-medium py-1.5 px-3 rounded text-sm">Cancel</button>
+          <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-150 dark:border-slate-800 space-y-3">
+            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Where to show this video</p>
+            <div className="space-y-2">
+              {DISPLAY_LOCATION_OPTIONS.map((opt) => (
+                <label key={opt.value} className="flex items-center gap-2.5 text-xs font-semibold text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                  <input type="checkbox" checked={editingDisplayLocations.includes(opt.value)} onChange={(e) => { if (e.target.checked) setEditingDisplayLocations((prev) => [...prev, opt.value]); else setEditingDisplayLocations((prev) => prev.filter((l) => l !== opt.value)); }} className="rounded border-slate-350 dark:border-slate-700 text-[#FF6B35] focus:ring-[#FF6B35]/20" />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={onSaveDisplayLocations} disabled={displayLocationsSaving || editingDisplayLocations.length === 0} className="flex-1 bg-[#FF6B35] hover:bg-[#E5521C] disabled:opacity-50 text-white font-bold py-2 px-3 rounded-lg text-xs transition-colors cursor-pointer">{displayLocationsSaving ? 'Saving...' : 'Save'}</button>
+              <button onClick={onCancelEditDisplayLocations} disabled={displayLocationsSaving} className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-750 dark:text-slate-300 font-bold py-2 px-3 rounded-lg text-xs transition-colors cursor-pointer">Cancel</button>
             </div>
           </div>
         ) : (
           <>
             {video.display_locations && video.display_locations.length > 0 && (
-              <div className="flex gap-1 mt-2 flex-wrap">
+              <div className="flex gap-1.5 mt-3 flex-wrap">
                 {video.display_locations.map((loc, i) => (
-                  <span key={i} className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{loc.replace(/_/g, ' ')}</span>
+                  <span key={i} className="text-[10px] uppercase tracking-wider font-bold bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30 px-2 py-0.5 rounded-md">{loc.replace(/_/g, ' ')}</span>
                 ))}
               </div>
             )}
-            <button onClick={() => onEditDisplayLocations(video, productId)} disabled={disabled} className="mt-2 w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm" title="Edit where this video is shown">
-              <span className="material-symbols-outlined !text-[18px]">edit</span> Edit display
+            <button onClick={() => onEditDisplayLocations(video, productId)} disabled={disabled} className="mt-3 w-full bg-slate-50 dark:bg-slate-850 hover:bg-[#FF6B35]/10 hover:text-[#FF6B35] dark:hover:bg-[#FF6B35]/20 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-800 font-bold py-2 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer" title="Edit where this video is shown">
+              <span className="material-symbols-outlined !text-[16px]">edit</span> Edit display
             </button>
           </>
         )}
-        <div className="flex gap-2 mt-3">
-          <button onClick={() => onDelete(video.id, video.filename, productId)} disabled={disabled} className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1" title="Delete video">
+        <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+          <button onClick={() => onDelete(video.id, video.filename, productId)} disabled={disabled} className="w-full bg-red-50 dark:bg-red-950/20 hover:bg-red-600 hover:text-white dark:hover:bg-red-900 text-red-650 dark:text-red-400 font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 border border-red-100 dark:border-red-900/40 text-sm cursor-pointer" title="Delete video">
             <span className="material-symbols-outlined !text-[18px]">delete</span> Delete
           </button>
         </div>
@@ -424,7 +435,6 @@ const ContentTab: React.FC<ContentTabProps> = ({
             product_id: ct === 'product-video' ? product : null,
             category: ct === 'company-video' ? companyVideoCategory : null,
           };
-          // Append new files to existing ones (accumulate across batches)
           setVideoFiles(prev => [...prev, ...files]);
           setVideoUploadContext(ctx);
           const batchOffset = videoUploadProgress.length;
@@ -461,14 +471,12 @@ const ContentTab: React.FC<ContentTabProps> = ({
             return lastChunkData;
           };
 
-          // Upload all in parallel; failures marked per-item, don't block others
           await Promise.allSettled(files.map((f: File, i: number) =>
             uploadOneVideo(f, batchOffset + i, setVideoUploadProgress).catch((err: any) => {
               setVideoUploadProgress(prev => prev.map((p, idx) => idx === batchOffset + i ? { ...p, error: err?.message || 'Upload failed', percent: 0 } : p));
             })
           ));
 
-          // Merge succeeded into pending (accumulate across batches)
           setVideoUploadProgress(prev => {
             const succeeded = prev.filter(p => p.done && p.meta).map(p => p.meta!);
             if (succeeded.length > 0) {
@@ -572,7 +580,6 @@ const ContentTab: React.FC<ContentTabProps> = ({
       }
       if (!lastChunkData) throw new Error('No S3 URL returned');
 
-      // Merge into pending finalize
       setPendingVideoFinalize(prev => {
         const base = prev ?? { videos: [], company_id, product_id, category };
         const already = base.videos.some(v => v.filename === lastChunkData!.filename && v.s3_key === lastChunkData!.s3_key);
@@ -1036,114 +1043,216 @@ const ContentTab: React.FC<ContentTabProps> = ({
     }
   };
 
-  const renderUploadForm = () => (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className={`p-2 rounded-lg ${contentType === 'whatsapp' ? 'bg-green-50 text-green-600' : contentType === 'company-video' || contentType === 'product-video' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>
-          <span className="material-symbols-outlined">
-            {contentType === 'whatsapp' ? 'chat' : contentType === 'company-video' || contentType === 'product-video' ? 'movie' : 'image'}
-          </span>
+  const getThemeConfig = () => {
+    switch (contentType) {
+      case 'review':
+        return {
+          icon: 'photo_library',
+          colorClass: 'text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/30',
+          borderClass: 'border-sky-200 dark:border-sky-850/60',
+          ringColor: 'focus:ring-sky-200/50 focus:border-sky-400',
+        };
+      case 'whatsapp':
+        return {
+          icon: 'chat',
+          colorClass: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30',
+          borderClass: 'border-emerald-200 dark:border-emerald-850/60',
+          ringColor: 'focus:ring-emerald-200/50 focus:border-emerald-400',
+        };
+      case 'company-video':
+        return {
+          icon: 'movie',
+          colorClass: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/30',
+          borderClass: 'border-purple-200 dark:border-purple-850/60',
+          ringColor: 'focus:ring-purple-200/50 focus:border-purple-400',
+        };
+      case 'product-video':
+        return {
+          icon: 'movie',
+          colorClass: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30',
+          borderClass: 'border-indigo-200 dark:border-indigo-850/60',
+          ringColor: 'focus:ring-indigo-200/50 focus:border-indigo-400',
+        };
+      default:
+        return {
+          icon: 'folder',
+          colorClass: 'text-primary bg-primary/10',
+          borderClass: 'border-slate-200 dark:border-slate-800',
+          ringColor: 'focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]',
+        };
+    }
+  };
+
+  const theme = getThemeConfig();
+
+  const renderContentLayoutWrapper = (headerIcon: string, headerColor: string, headerTitle: string, headerDesc: string, rightPanelContent: React.ReactNode) => {
+    const typeConfig = {
+      review: { label: 'Review Content', desc: 'Customer photo reviews', icon: 'rate_review', activeStyle: 'border-sky-400 bg-sky-50/80 text-sky-700', iconColor: 'text-sky-500' },
+      whatsapp: { label: 'WhatsApp Images', desc: 'Conversation screenshots', icon: 'chat_bubble', activeStyle: 'border-emerald-400 bg-emerald-50/80 text-emerald-700', iconColor: 'text-emerald-500' },
+      'company-video': { label: 'Company Video', desc: 'Brand testimonials', icon: 'videocam', activeStyle: 'border-purple-400 bg-purple-50/80 text-purple-700', iconColor: 'text-purple-500' },
+      'product-video': { label: 'Product Video', desc: 'Demo & reviews', icon: 'video_library', activeStyle: 'border-indigo-400 bg-indigo-50/80 text-indigo-700', iconColor: 'text-indigo-500' },
+    } as const;
+
+    return (
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm overflow-hidden mt-2 transition-all duration-300">
+        <div className="flex flex-col md:flex-row min-h-[380px]">
+          {/* ── Left sidebar: content type tabs ── */}
+          <div className="w-full md:w-48 shrink-0 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 flex flex-col">
+            <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-800">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Content Type</p>
+            </div>
+            <div className="flex flex-col gap-1 p-2 flex-1">
+              {(['review', 'whatsapp', 'company-video', 'product-video'] as const).map((type) => {
+                const cfg = typeConfig[type];
+                const isSelected = contentType === type;
+                return (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setContentType(type);
+                      if (type !== 'whatsapp') setWhatsappImageScope('product');
+                      setError(''); setSuccess('');
+                      if (contentAction !== 'upload') {
+                        setExistingContent(null);
+                        if (contentAction === 'delete') setDeleteResult(null);
+                      }
+                    }}
+                    className={`w-full text-left px-2.5 py-2 rounded-xl border transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? cfg.activeStyle + ' shadow-sm'
+                        : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700 hover:shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2">
+                      <span className={`material-symbols-outlined !text-[18px] mt-0.5 shrink-0 ${
+                        isSelected ? '' : 'text-slate-400 dark:text-slate-500'
+                      }`}>{cfg.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-bold leading-tight truncate">{cfg.label}</p>
+                        <p className={`text-[9px] mt-0.5 leading-normal ${
+                          isSelected ? 'opacity-60' : 'text-slate-400'
+                        }`}>{cfg.desc}</p>
+                      </div>
+                      {isSelected && (
+                        <span className="material-symbols-outlined !text-[13px] mt-0.5 shrink-0">check_circle</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+
+              {/* WhatsApp scope toggle */}
+              {contentType === 'whatsapp' && (
+                <div className="mt-1 mx-0.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl flex gap-1 border border-slate-200/40">
+                  {(['company', 'product'] as const).map((scope) => (
+                    <button
+                      key={scope}
+                      onClick={() => { setWhatsappImageScope(scope); setExistingContent(null); }}
+                      className={`flex-1 text-center py-1 px-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
+                        whatsappImageScope === scope
+                          ? 'bg-white dark:bg-slate-700 text-[#FF6B35] shadow-sm'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-800'
+                      }`}
+                    >
+                      {scope === 'company' ? 'Company' : 'Product'}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Right panel: form fields ── */}
+          <div className="flex-1 min-w-0 p-4 md:p-5">
+            {/* Mini header */}
+            <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800/60 pb-3 mb-4">
+              <div className={`p-2 rounded-lg ${headerColor}`}>
+                <span className="material-symbols-outlined !text-[17px]">{headerIcon}</span>
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100">{headerTitle}</h2>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{headerDesc}</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col gap-4">
+              {rightPanelContent}
+            </div>
+          </div>
         </div>
-        <h2 className="text-lg font-bold text-primary-text">
-          {contentType === 'review' && 'Upload Review Images'}
-          {contentType === 'whatsapp' && 'Upload WhatsApp Images'}
-          {contentType === 'company-video' && 'Upload Company Videos'}
-          {contentType === 'product-video' && 'Upload Product Videos'}
-        </h2>
       </div>
-      <div className="flex flex-col gap-5">
-        <div className={`grid gap-4 ${isCompanyAutoSelected ? (contentType === 'company-video' ? 'grid-cols-1' : 'grid-cols-1') : (contentType === 'company-video' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2')}`}>
+    );
+  };
+
+  const renderUploadLayout = () => {
+    let title = 'Upload Images/Videos';
+    if (contentType === 'review') title = 'Upload Review Images';
+    if (contentType === 'whatsapp') title = 'Upload WhatsApp Images';
+    if (contentType === 'company-video') title = 'Upload Company Videos';
+    if (contentType === 'product-video') title = 'Upload Product Videos';
+
+    const rightPanelContent = (
+      <>
+        {/* Company / Product / Category row */}
+        <div className={`grid gap-3.5 ${isCompanyAutoSelected ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
           {!isCompanyAutoSelected && (
             <label className="flex flex-col w-full">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Company *</p>
-              {renderSearchableCompanyDropdown(loading, (companyId) => { setSelectedCompany(companyId); setError(''); setSuccess(''); }, 'Search by company ID...', 'focus:ring-2 focus:ring-primary/20 focus:border-primary', false)}
+              <span className="text-slate-700 dark:text-slate-300 text-xs font-bold leading-normal pb-1.5">Company *</span>
+              {renderSearchableCompanyDropdown(
+                loading,
+                (companyId) => { setSelectedCompany(companyId); setError(''); setSuccess(''); },
+                'Search by company ID...',
+                'focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]',
+                false
+              )}
             </label>
           )}
           {contentType !== 'company-video' && !(contentType === 'whatsapp' && whatsappImageScope === 'company') && (
             <label className="flex flex-col w-full">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Product *</p>
-              {renderSearchableProductDropdown(!selectedCompany || loading, (productId) => { setSelectedProduct(productId); setError(''); setSuccess(''); }, 'Select product...', 'focus:ring-2 focus:ring-primary/20 focus:border-primary')}
+              <span className="text-slate-700 dark:text-slate-300 text-xs font-bold leading-normal pb-1.5">Product *</span>
+              {renderSearchableProductDropdown(
+                !selectedCompany || loading,
+                (productId) => { setSelectedProduct(productId); setError(''); setSuccess(''); },
+                'Select product...',
+                'focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]'
+              )}
             </label>
           )}
           {contentType === 'company-video' && (
             <label className="flex flex-col w-full">
-              <div className="flex items-center justify-between pb-2">
-                <p className="text-primary-text text-sm font-semibold leading-normal">Category</p>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => selectedCompany && setAddCategoryOpen(true)}
-                    disabled={!selectedCompany}
-                    className="text-xs text-primary hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
-                  >
-                    + Add Category
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!selectedCompany || !companyVideoCategory) return;
-                      const current = videoCategories.find((c) => c.slug === companyVideoCategory);
-                      setEditCategoryName(current?.label || '');
-                      setEditCategoryOpen(true);
-                    }}
-                    disabled={!selectedCompany || !companyVideoCategory}
-                    className="text-xs text-secondary-text hover:text-primary hover:underline font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:no-underline"
-                  >
-                    Rename
-                  </button>
+              <div className="flex items-center justify-between pb-1.5">
+                <span className="text-slate-700 dark:text-slate-300 text-xs font-bold leading-normal">Category</span>
+                <div className="flex items-center gap-2.5">
+                  <button type="button" onClick={() => selectedCompany && setAddCategoryOpen(true)} disabled={!selectedCompany} className="text-[10px] text-[#FF6B35] hover:underline font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">+ Add Category</button>
+                  <button type="button" onClick={() => { if (!selectedCompany || !companyVideoCategory) return; const current = videoCategories.find((c) => c.slug === companyVideoCategory); setEditCategoryName(current?.label || ''); setEditCategoryOpen(true); }} disabled={!selectedCompany || !companyVideoCategory} className="text-[10px] text-slate-400 hover:text-[#FF6B35] hover:underline font-bold disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">Rename</button>
                 </div>
               </div>
-              <select
-                value={!selectedCompany ? "" : companyVideoCategory}
-                onChange={(e) => setCompanyVideoCategory(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-primary-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                disabled={videoCategoriesLoading || !selectedCompany}
-              >
-                {!selectedCompany ? (
-                  <option value="">Select company first</option>
-                ) : (
-                  videoCategories.map((opt) => (
-                    <option key={opt.slug} value={opt.slug}>{opt.label}</option>
-                  ))
-                )}
+              <select value={!selectedCompany ? '' : companyVideoCategory} onChange={(e) => setCompanyVideoCategory(e.target.value)} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] outline-none transition-all" disabled={videoCategoriesLoading || !selectedCompany}>
+                {!selectedCompany ? <option value="">Select company first</option> : videoCategories.map((opt) => <option key={opt.slug} value={opt.slug}>{opt.label}</option>)}
               </select>
             </label>
           )}
         </div>
-        {(!uploadInProgress) && (
-          <div className="flex-1 border-2 border-dashed border-gray-200 rounded-xl bg-background-light hover:bg-gray-50 hover:border-primary/40 transition-all cursor-pointer group relative flex flex-col items-center justify-center p-4 sm:p-8 text-center min-h-[200px] sm:min-h-[280px]">
-            <input
-              id="file-upload"
-              type="file"
-              multiple
-              accept={contentType === 'company-video' || contentType === 'product-video' ? 'video/*' : 'image/*'}
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              disabled={loading}
-            />
-            <div className="mb-4 p-4 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform duration-300 pointer-events-none">
-              <span className="material-symbols-outlined text-4xl text-primary/60">
-                {contentType === 'company-video' || contentType === 'product-video' ? 'movie' : 'image'}
-              </span>
+
+        {/* Drop zone */}
+        {!uploadInProgress && (
+          <div className="relative border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 hover:border-[#FF6B35]/40 hover:bg-[#FF6B35]/5 dark:hover:bg-[#FF6B35]/5 transition-all duration-300 cursor-pointer group flex flex-col items-center justify-center p-4 text-center min-h-[130px]">
+            <input id="file-upload" type="file" multiple accept={contentType === 'company-video' || contentType === 'product-video' ? 'video/*' : 'image/*'} onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" disabled={loading} />
+            <div className="mb-2 p-2.5 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-150 dark:border-slate-800 group-hover:scale-105 transition-all duration-300 pointer-events-none">
+              <span className="material-symbols-outlined text-2xl text-[#FF6B35]">{contentType === 'company-video' || contentType === 'product-video' ? 'movie' : 'image'}</span>
             </div>
-            <h3 className="text-primary-text font-semibold text-lg mb-1 pointer-events-none">
+            <h3 className="text-slate-800 dark:text-slate-100 font-bold text-xs mb-0.5 pointer-events-none">
               {videoUploadProgress.length > 0 ? `Add more ${contentType === 'company-video' || contentType === 'product-video' ? 'videos' : 'images'}` : `Drag & drop ${contentType === 'company-video' || contentType === 'product-video' ? 'videos' : 'images'} here`}
             </h3>
-            <p className="text-secondary-text text-sm mb-6 max-w-[300px] pointer-events-none">
-              {contentType === 'company-video' || contentType === 'product-video' ? 'Support for MP4, MOV, AVI up to 100MB' : 'Support for PNG, JPG, JPEG up to 50MB per file'}
-            </p>
-            <div className="px-5 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium text-primary-text shadow-sm pointer-events-none">Browse Files</div>
-            {selectedFiles.length > 0 && <p className="text-xs text-primary-text mt-4 font-semibold pointer-events-none">{selectedFiles.length} file(s) selected</p>}
-            <p className="text-xs text-secondary-text mt-2 pointer-events-none">
-              {contentType === 'review' && 'Upload customer review images and product photos'}
-              {contentType === 'whatsapp' && 'Upload screenshots from WhatsApp customer conversations'}
-              {contentType === 'company-video' && 'Upload company brand videos and testimonials'}
-              {contentType === 'product-video' && 'Upload product review videos and demos'}
-            </p>
+            <p className="text-slate-400 dark:text-slate-500 text-[10px] mb-2 pointer-events-none">{contentType === 'company-video' || contentType === 'product-video' ? 'Support for MP4, MOV, AVI up to 100MB' : 'Support for PNG, JPG, JPEG up to 50MB per file'}</p>
+            <div className="px-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 shadow-sm pointer-events-none group-hover:bg-[#FF6B35] group-hover:text-white group-hover:border-[#FF6B35] transition-all">Browse Files</div>
+            {selectedFiles.length > 0 && <p className="text-[10px] text-[#FF6B35] mt-2 font-bold pointer-events-none">{selectedFiles.length} file(s) selected</p>}
           </div>
         )}
+
+        {/* Video upload progress tiles */}
         {videoUploadProgress.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-2">
             {videoUploadProgress.map((vp, idx) => {
               const r = 28;
               const circ = 2 * Math.PI * r;
@@ -1151,49 +1260,26 @@ const ContentTab: React.FC<ContentTabProps> = ({
               const file = videoFiles[idx] ?? null;
               const thumbUrl = file ? URL.createObjectURL(file) : null;
               return (
-                <div key={idx} className="flex flex-col items-center gap-2">
-                  <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-900 flex items-center justify-center shrink-0 shadow-md">
-                    {thumbUrl
-                      ? <video src={thumbUrl} className="absolute inset-0 w-full h-full object-cover opacity-50" muted playsInline preload="metadata" />
-                      : <span className="material-symbols-outlined text-gray-500 text-3xl">movie</span>
-                    }
+                <div key={idx} className="flex flex-col items-center gap-2 p-3 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center shrink-0 shadow-md">
+                    {thumbUrl ? <video src={thumbUrl} className="absolute inset-0 w-full h-full object-cover opacity-50" muted playsInline preload="metadata" /> : <span className="material-symbols-outlined text-slate-500 text-3xl">movie</span>}
                     <div className="absolute inset-0 bg-black/40" />
                     {vp.error ? (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-red-500 rounded-full p-1.5">
-                          <span className="material-symbols-outlined !text-[22px] text-white">close</span>
-                        </div>
-                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center"><div className="bg-red-500 rounded-full p-1.5 shadow-md"><span className="material-symbols-outlined !text-[20px] text-white">close</span></div></div>
                     ) : vp.done ? (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-green-500 rounded-full p-1.5">
-                          <span className="material-symbols-outlined !text-[22px] text-white">check</span>
-                        </div>
-                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center"><div className="bg-emerald-500 rounded-full p-1.5 shadow-md"><span className="material-symbols-outlined !text-[20px] text-white">check</span></div></div>
                     ) : (
                       <svg className="absolute" width="80" height="80" viewBox="0 0 80 80">
-                        <circle cx="40" cy="40" r={r} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="5" />
-                        <circle
-                          cx="40" cy="40" r={r} fill="none"
-                          stroke="white" strokeWidth="5"
-                          strokeLinecap="round"
-                          strokeDasharray={circ}
-                          strokeDashoffset={offset}
-                          transform="rotate(-90 40 40)"
-                          style={{ transition: 'stroke-dashoffset 0.3s ease' }}
-                        />
-                        <text x="40" y="45" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold">{vp.percent}%</text>
+                        <circle cx="40" cy="40" r={r} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
+                        <circle cx="40" cy="40" r={r} fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 0.3s ease' }} />
+                        <text x="40" y="44" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{vp.percent}%</text>
                       </svg>
                     )}
                   </div>
-                  <p className="text-xs text-gray-600 truncate w-full text-center max-w-[96px]">{vp.name}</p>
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-350 truncate w-full text-center max-w-[96px]">{vp.name}</p>
                   {vp.error && (
-                    <button
-                      onClick={() => handleRetryVideo(idx)}
-                      className="text-xs text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-full flex items-center gap-1 transition-colors"
-                    >
-                      <span className="material-symbols-outlined !text-[13px]">refresh</span>
-                      Retry
+                    <button onClick={() => handleRetryVideo(idx)} className="text-xs text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-full flex items-center gap-1 transition-colors cursor-pointer">
+                      <span className="material-symbols-outlined !text-[14px]">refresh</span>Retry
                     </button>
                   )}
                 </div>
@@ -1201,123 +1287,106 @@ const ContentTab: React.FC<ContentTabProps> = ({
             })}
           </div>
         )}
+
+        {/* Finalize button */}
         {pendingVideoFinalize && (
-          <button
-            onClick={handleFinalizeUpload}
-            disabled={finalizeInProgress}
-            className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-green-600/20"
-          >
-            <span className="material-symbols-outlined !text-[20px]">save</span>
+          <button onClick={handleFinalizeUpload} disabled={finalizeInProgress} className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/10 cursor-pointer">
+            <span className="material-symbols-outlined !text-[18px]">save</span>
             {finalizeInProgress ? 'Saving…' : `Finalize Upload (${pendingVideoFinalize.videos.length} video${pendingVideoFinalize.videos.length !== 1 ? 's' : ''})`}
           </button>
         )}
+
+        {/* Upload button */}
         {(selectedFiles.length > 0 || uploadInProgress) && (
-          <button
-            onClick={handleFileUpload}
-            disabled={uploadInProgress}
-            className="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
-          >
-            <span className="material-symbols-outlined !text-[20px]">cloud_upload</span>
+          <button onClick={handleFileUpload} disabled={uploadInProgress} className="w-full bg-[#FF6B35] hover:bg-[#E5521C] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/10 cursor-pointer">
+            <span className="material-symbols-outlined !text-[18px]">cloud_upload</span>
             {uploadInProgress ? 'Uploading…' : `Upload ${selectedFiles.length} File(s)`}
           </button>
         )}
-      </div>
-    </div>
-  );
+      </>
+    );
 
-  const renderViewForm = () => (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-          <span className="material-symbols-outlined">visibility</span>
-        </div>
-        <h2 className="text-lg font-bold text-primary-text">
-          View Existing {contentType === 'review' ? 'Review Images' : contentType === 'whatsapp' ? 'WhatsApp Images' : contentType === 'company-video' ? 'Company Videos' : 'Product Videos'}
-        </h2>
-      </div>
-      <div className="flex flex-col gap-5">
-        <div className={`grid gap-4 ${isCompanyAutoSelected ? (contentType === 'company-video' ? 'grid-cols-1' : 'grid-cols-1') : (contentType === 'company-video' ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2')}`}>
+    return renderContentLayoutWrapper(
+      theme.icon,
+      theme.colorClass,
+      title,
+      'Add high-quality media content to your customer-facing pages.',
+      rightPanelContent
+    );
+  };
+
+
+
+
+  const renderViewLayout = () => {
+    let title = 'View Existing Images/Videos';
+    if (contentType === 'review') title = 'View Existing Review Images';
+    if (contentType === 'whatsapp') title = 'View Existing WhatsApp Images';
+    if (contentType === 'company-video') title = 'View Existing Company Videos';
+    if (contentType === 'product-video') title = 'View Existing Product Videos';
+
+    const rightPanelContent = (
+      <>
+        <div className={`grid gap-3.5 ${isCompanyAutoSelected ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
           {!isCompanyAutoSelected && (
             <label className="flex flex-col w-full">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Company *</p>
-              {renderSearchableCompanyDropdown(viewLoading, (companyId) => { setSelectedCompany(companyId); setError(''); setSuccess(''); setExistingContent(null); }, 'Search by company ID...', 'focus:ring-2 focus:ring-primary/20 focus:border-primary', false)}
+              <span className="text-slate-700 dark:text-slate-300 text-xs font-bold leading-normal pb-1.5">Company *</span>
+              {renderSearchableCompanyDropdown(
+                viewLoading,
+                (companyId) => { setSelectedCompany(companyId); setError(''); setSuccess(''); setExistingContent(null); },
+                'Search by company ID...',
+                'focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]',
+                false
+              )}
             </label>
           )}
           {contentType !== 'company-video' && !(contentType === 'whatsapp' && whatsappImageScope === 'company') && (
             <label className="flex flex-col w-full">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Product *</p>
-              {renderSearchableProductDropdown(!selectedCompany || viewLoading, (productId) => { setSelectedProduct(productId); setError(''); setSuccess(''); setExistingContent(null); }, 'Select product...', 'focus:ring-2 focus:ring-primary/20 focus:border-primary')}
+              <span className="text-slate-700 dark:text-slate-300 text-xs font-bold leading-normal pb-1.5">Product *</span>
+              {renderSearchableProductDropdown(
+                !selectedCompany || viewLoading,
+                (productId) => { setSelectedProduct(productId); setError(''); setSuccess(''); setExistingContent(null); },
+                'Select product...',
+                'focus:ring-[#FF6B35]/20 focus:border-[#FF6B35]'
+              )}
             </label>
           )}
           {contentType === 'company-video' && (
             <label className="flex flex-col w-full">
-              <div className="flex items-center justify-between pb-2">
-                <p className="text-primary-text text-sm font-semibold leading-normal">Category</p>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => selectedCompany && setAddCategoryOpen(true)}
-                    disabled={!selectedCompany}
-                    className="text-xs text-primary hover:underline font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
-                  >
-                    + Add Category
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!selectedCompany || !companyVideoCategory) return;
-                      const current = videoCategories.find((c) => c.slug === companyVideoCategory);
-                      setEditCategoryName(current?.label || '');
-                      setEditCategoryOpen(true);
-                    }}
-                    disabled={!selectedCompany || !companyVideoCategory}
-                    className="text-xs text-secondary-text hover:text-primary hover:underline font-medium disabled:opacity-40 disabled:cursor-not-allowed disabled:no-underline"
-                  >
-                    Rename
-                  </button>
+              <div className="flex items-center justify-between pb-1.5">
+                <span className="text-slate-700 dark:text-slate-300 text-xs font-bold leading-normal">Category</span>
+                <div className="flex items-center gap-2.5">
+                  <button type="button" onClick={() => selectedCompany && setAddCategoryOpen(true)} disabled={!selectedCompany} className="text-[10px] text-[#FF6B35] hover:underline font-bold disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline cursor-pointer">+ Add Category</button>
+                  <button type="button" onClick={() => { if (!selectedCompany || !companyVideoCategory) return; const current = videoCategories.find((c) => c.slug === companyVideoCategory); setEditCategoryName(current?.label || ''); setEditCategoryOpen(true); }} disabled={!selectedCompany || !companyVideoCategory} className="text-[10px] text-slate-400 hover:text-[#FF6B35] hover:underline font-bold disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">Rename</button>
                 </div>
               </div>
-              <select
-                value={!selectedCompany ? "" : companyVideoCategory}
-                onChange={(e) => { setCompanyVideoCategory(e.target.value); setExistingContent(null); }}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-primary-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                disabled={videoCategoriesLoading || !selectedCompany}
-              >
-                {!selectedCompany ? (
-                  <option value="">Select company first</option>
-                ) : (
-                  videoCategories.map((opt) => (
-                    <option key={opt.slug} value={opt.slug}>{opt.label}</option>
-                  ))
-                )}
+              <select value={!selectedCompany ? "" : companyVideoCategory} onChange={(e) => { setCompanyVideoCategory(e.target.value); setExistingContent(null); }} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-3 py-2 text-sm text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] outline-none transition-all" disabled={videoCategoriesLoading || !selectedCompany}>
+                {!selectedCompany ? <option value="">Select company first</option> : videoCategories.map((opt) => <option key={opt.slug} value={opt.slug}>{opt.label}</option>)}
               </select>
             </label>
           )}
         </div>
-        <button
-          onClick={() => fetchExistingContent()}
-          disabled={viewLoading || !selectedCompany || (contentType !== 'company-video' && !(contentType === 'whatsapp' && whatsappImageScope === 'company') && !selectedProduct)}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-        >
-          <span className="material-symbols-outlined !text-[20px]">search</span>
-          {viewLoading ? 'Loading...' : 'Fetch Content'}
+        
+        <button onClick={() => fetchExistingContent()} disabled={viewLoading || !selectedCompany || (contentType !== 'company-video' && !(contentType === 'whatsapp' && whatsappImageScope === 'company') && !selectedProduct)} className="w-full bg-[#FF6B35] hover:bg-[#E5521C] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs text-xs mt-1">
+          <span className="material-symbols-outlined !text-[15px]">search</span>
+          {viewLoading ? 'Fetching content...' : 'Fetch Content'}
         </button>
+
         {existingContent && (
-          <div className="border-t border-gray-100 pt-5 mt-2">
-            <h3 className="text-sm font-bold text-primary-text mb-4">Results ({existingContent.total_count || 0} items)</h3>
+          <div className="border-t border-slate-100 dark:border-slate-800/60 pt-6 mt-2">
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#FF6B35]">list_alt</span>
+              Results ({existingContent.total_count || 0} items)
+            </h3>
+            
             {(contentType === 'company-video' || contentType === 'product-video') && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {contentType === 'company-video' && existingContent.company_videos && (
                   <DndContext sensors={sensors} onDragEnd={handleCompanyVideosDragEnd}>
                     <SortableContext items={existingContent.company_videos.map((v) => v.id)} strategy={rectSortingStrategy}>
                       <div className="contents">
                         {existingContent.company_videos.map((video) => (
-                          <SortableCompanyVideoCard
-                            key={video.id}
-                            video={video}
-                            onDelete={handleDeleteCompanyVideo}
-                            disabled={reorderLoading || viewLoading}
-                          />
+                          <SortableCompanyVideoCard key={video.id} video={video} onDelete={handleDeleteCompanyVideo} disabled={reorderLoading || viewLoading} />
                         ))}
                       </div>
                     </SortableContext>
@@ -1328,50 +1397,46 @@ const ContentTab: React.FC<ContentTabProps> = ({
                     <SortableContext items={videos.map((v) => v.id)} strategy={rectSortingStrategy}>
                       <div className="contents">
                         {videos.map((video) => (
-                          <SortableProductVideoCard
-                              key={video.id}
-                              video={video}
-                              productId={productId}
-                              onDelete={handleDeleteProductVideo}
-                              disabled={reorderLoading || viewLoading}
-                              editingDisplayVideo={editingDisplayVideo}
-                              editingDisplayLocations={editingDisplayLocations}
-                              onEditDisplayLocations={handleEditDisplayLocations}
-                              onCancelEditDisplayLocations={handleCancelEditDisplayLocations}
-                              onSaveDisplayLocations={handleSaveDisplayLocations}
-                              displayLocationsSaving={displayLocationsSaving}
-                              setEditingDisplayLocations={setEditingDisplayLocations}
-                            />
-                          ))}
+                          <SortableProductVideoCard key={video.id} video={video} productId={productId} onDelete={handleDeleteProductVideo} disabled={reorderLoading || viewLoading} editingDisplayVideo={editingDisplayVideo} editingDisplayLocations={editingDisplayLocations} onEditDisplayLocations={handleEditDisplayLocations} onCancelEditDisplayLocations={handleCancelEditDisplayLocations} onSaveDisplayLocations={handleSaveDisplayLocations} displayLocationsSaving={displayLocationsSaving} setEditingDisplayLocations={setEditingDisplayLocations} />
+                        ))}
                       </div>
                     </SortableContext>
                   </DndContext>
                 ))}
                 {contentType === 'company-video' && !existingContent.company_videos?.length && (
-                  <div className="col-span-full text-center py-8 text-secondary-text"><span className="material-symbols-outlined text-4xl mb-2">movie</span><p>No company videos found</p></div>
+                  <div className="col-span-full text-center py-12 text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-800/80 rounded-2xl">
+                    <span className="material-symbols-outlined text-5xl mb-2 text-slate-300 dark:text-slate-700">movie</span>
+                    <p className="font-semibold text-sm">No company videos found</p>
+                  </div>
                 )}
                 {contentType === 'product-video' && !Object.keys(existingContent.product_videos || {}).length && (
-                  <div className="col-span-full text-center py-8 text-secondary-text"><span className="material-symbols-outlined text-4xl mb-2">movie</span><p>No product videos found</p></div>
+                  <div className="col-span-full text-center py-12 text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-800/80 rounded-2xl">
+                    <span className="material-symbols-outlined text-5xl mb-2 text-slate-300 dark:text-slate-700">movie</span>
+                    <p className="font-semibold text-sm">No product videos found</p>
+                  </div>
                 )}
               </div>
             )}
             {contentType === 'review' && (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {(existingContent.images as ImageItem[])?.map((image, index) => (
-                  <div key={image.image_id || index} className="relative group border border-gray-200 rounded-lg overflow-hidden">
-                    <img src={image.s3_url} alt={image.filename || `Review content ${index + 1}`} className="w-full h-32 object-cover bg-gray-100" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error'; }} />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button onClick={() => handleDeleteImage(image.review_index, image.image_id)} disabled={viewLoading} className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors disabled:opacity-50" title="Delete image">
+                  <div key={image.image_id || index} className="relative group border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-md">
+                    <img src={image.s3_url} alt={image.filename || `Review content ${index + 1}`} className="w-full h-36 object-cover bg-slate-100 dark:bg-slate-950" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error'; }} />
+                    <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-[1px]">
+                      <button onClick={() => handleDeleteImage(image.review_index, image.image_id)} disabled={viewLoading} className="p-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors disabled:opacity-50 shadow-md cursor-pointer" title="Delete image">
                         <span className="material-symbols-outlined !text-[20px]">delete</span>
                       </button>
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-xs text-white truncate">{image.filename || `Review #${image.review_index}`}</p>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-xs font-bold text-white truncate">{image.filename || `Review #${image.review_index}`}</p>
                     </div>
                   </div>
                 ))}
                 {!existingContent.images?.length && (
-                  <div className="col-span-full text-center py-8 text-secondary-text"><span className="material-symbols-outlined text-4xl mb-2">image</span><p>No images found</p></div>
+                  <div className="col-span-full text-center py-12 text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-800/80 rounded-2xl">
+                    <span className="material-symbols-outlined text-5xl mb-2 text-slate-300 dark:text-slate-700">image</span>
+                    <p className="font-semibold text-sm">No images found</p>
+                  </div>
                 )}
               </div>
             )}
@@ -1379,189 +1444,233 @@ const ContentTab: React.FC<ContentTabProps> = ({
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {existingContent?.images && Array.isArray(existingContent.images) && existingContent.images.length > 0 ? (
                   (existingContent.images as unknown as string[]).map((imageUrl, index) => (
-                    <div key={index} className="relative group border border-gray-200 rounded-lg overflow-hidden">
-                      <img src={imageUrl} alt={`WhatsApp content ${index + 1}`} className="w-full h-32 object-cover bg-gray-100" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error'; }} />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <button onClick={() => handleDeleteWhatsappImage(imageUrl)} disabled={viewLoading} className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors disabled:opacity-50" title="Delete image">
+                    <div key={index} className="relative group border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-md">
+                      <img src={imageUrl} alt={`WhatsApp content ${index + 1}`} className="w-full h-36 object-cover bg-slate-100 dark:bg-slate-950" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Error'; }} />
+                      <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-[1px]">
+                        <button onClick={() => handleDeleteWhatsappImage(imageUrl)} disabled={viewLoading} className="p-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors disabled:opacity-50 shadow-md cursor-pointer" title="Delete image">
                           <span className="material-symbols-outlined !text-[20px]">delete</span>
                         </button>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-full text-center py-8 text-secondary-text"><span className="material-symbols-outlined text-4xl mb-2">image</span><p>No images found</p></div>
+                  <div className="col-span-full text-center py-12 text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-900/35 border border-slate-100 dark:border-slate-800/80 rounded-2xl">
+                    <span className="material-symbols-outlined text-5xl mb-2 text-slate-300 dark:text-slate-700">image</span>
+                    <p className="font-semibold text-sm">No images found</p>
+                  </div>
                 )}
               </div>
             )}
           </div>
         )}
-      </div>
-    </div>
-  );
+      </>
+    );
 
-  const renderDeleteForm = () => (
-    <>
-      {contentType !== 'company-video' && contentType !== 'whatsapp' && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
-          <h3 className="text-lg font-bold text-primary-text mb-4">Select Delete Option</h3>
-          <div className="flex flex-col gap-2">
-            <label className={`flex items-center gap-3 p-3 sm:p-4 rounded-lg border cursor-pointer transition-all ${deleteOption === 'company' ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300'}`}>
-              <input type="radio" name="deleteOption" value="company" checked={deleteOption === 'company'} onChange={(e) => setDeleteOption(e.target.value as DeleteOption)} className="w-4 h-4 text-red-600" />
-              <span className="text-sm font-medium text-primary-text"> Delete from All Products</span>
-            </label>
-            <label className={`flex items-center gap-3 p-3 sm:p-4 rounded-lg border cursor-pointer transition-all ${deleteOption === 'product' ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300'}`}>
-              <input type="radio" name="deleteOption" value="product" checked={deleteOption === 'product'} onChange={(e) => setDeleteOption(e.target.value as DeleteOption)} className="w-4 h-4 text-red-600" />
-              <span className="text-sm font-medium text-primary-text">Delete by Product (Specific Product)</span>
-            </label>
+    return renderContentLayoutWrapper(
+      'visibility',
+      'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400',
+      title,
+      'Retrieve and manage uploaded images or videos for your brand or products.',
+      rightPanelContent
+    );
+  };
+
+  const renderDeleteLayout = () => {
+    let title = 'Delete Images/Videos';
+    if (contentType === 'review') title = 'Delete Review Images';
+    if (contentType === 'whatsapp') title = 'Delete WhatsApp Images';
+    if (contentType === 'company-video') title = 'Delete Company Videos';
+    if (contentType === 'product-video') title = 'Delete Product Videos';
+
+    const rightPanelContent = (
+      <>
+        {contentType !== 'company-video' && contentType !== 'whatsapp' && (
+          <div className="mb-2.5">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-100 mb-1.5 block">Select Delete Scope</span>
+            <div className="flex items-center gap-5">
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" name="deleteOption" value="company" checked={deleteOption === 'company'} onChange={(e) => setDeleteOption(e.target.value as DeleteOption)} className="w-3.5 h-3.5 text-red-600 focus:ring-red-500" />
+                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200">Delete from All Products</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" name="deleteOption" value="product" checked={deleteOption === 'product'} onChange={(e) => setDeleteOption(e.target.value as DeleteOption)} className="w-3.5 h-3.5 text-red-600 focus:ring-red-500" />
+                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200">Delete by Product</span>
+              </label>
+            </div>
           </div>
-        </div>
-      )}
-      {contentType === 'whatsapp' && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg flex items-center gap-2">
-          <span className="material-symbols-outlined !text-[20px]">warning</span>
-          <span className="text-sm">
-            {whatsappImageScope === 'company'
-              ? 'This will delete all company-level WhatsApp images for the selected company.'
-              : 'This will delete all WhatsApp images for the selected product.'}
-          </span>
-        </div>
-      )}
-      {contentType === 'company-video' && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg flex items-center gap-2">
-          <span className="material-symbols-outlined !text-[20px]">warning</span>
-          <span className="text-sm">
-            {companyVideoCategory === 'company_videos'
-              ? 'This will delete all company videos for the selected company.'
-              : `This will delete all "${videoCategories.find((c) => c.slug === companyVideoCategory)?.label || companyVideoCategory}" videos for the selected company.`}
-          </span>
-        </div>
-      )}
-      {contentType === 'product-video' && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg flex items-center gap-2">
-          <span className="material-symbols-outlined !text-[20px]">warning</span>
-          <span className="text-sm">
-            {deleteOption === 'company' ? 'This will delete ALL product videos for all products in the selected company.' : 'This will delete ALL videos for the selected product.'}
-          </span>
-        </div>
-      )}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-red-50 text-red-600 rounded-lg"><span className="material-symbols-outlined">delete</span></div>
-          <h2 className="text-lg font-bold text-primary-text">
-            Delete {contentType === 'review' ? 'Review Images' : contentType === 'whatsapp' ? 'WhatsApp Images' : contentType === 'company-video' ? 'Company Videos' : 'Product Videos'}
-          </h2>
-        </div>
-        <div className="flex flex-col gap-5">
-          {!isCompanyAutoSelected && (
-            <label className="flex flex-col w-full">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Select Company *</p>
-              {renderSearchableCompanyDropdown(loading, (companyId) => { setSelectedCompany(companyId); setError(''); setSuccess(''); setDeleteResult(null); }, '-- Select Company --', 'focus:ring-2 focus:ring-red-200 focus:border-red-400', false)}
-            </label>
-          )}
-          {contentType === 'company-video' && selectedCompany && (
-            <label className="flex flex-col w-full">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Category to Delete *</p>
-              <select
-                value={companyVideoCategory}
-                onChange={(e) => setCompanyVideoCategory(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-primary-text focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200"
-                disabled={videoCategoriesLoading}
-              >
-                {videoCategories.map((opt) => (
-                  <option key={opt.slug} value={opt.slug}>{opt.label}</option>
-                ))}
-              </select>
-            </label>
-          )}
-          {((deleteOption === 'product' && contentType !== 'company-video' && contentType !== 'whatsapp') || (contentType === 'product-video' && deleteOption === 'product') || (contentType === 'whatsapp' && whatsappImageScope === 'product')) && (
-            <label className="flex flex-col w-full">
-              <p className="text-primary-text text-sm font-semibold leading-normal pb-2">Select Product *</p>
-              {renderSearchableProductDropdown(!selectedCompany || loading, (productId) => { setSelectedProduct(productId); setError(''); setSuccess(''); setDeleteResult(null); }, '-- Select Product --', 'focus:ring-2 focus:ring-red-200 focus:border-red-400')}
-            </label>
-          )}
-          <button
-            onClick={handleDeleteContent}
-            disabled={loading || !selectedCompany || (((contentType !== 'company-video' && contentType !== 'whatsapp' && deleteOption === 'product') || (contentType === 'product-video' && deleteOption === 'product') || (contentType === 'whatsapp' && whatsappImageScope === 'product')) && !selectedProduct)}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
-          >
-            <span className="material-symbols-outlined !text-[20px]">delete</span>
+        )}
+        
+        {/* Warnings */}
+        {contentType === 'whatsapp' && (
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 px-2.5 py-1.5 rounded flex items-center gap-1.5 mb-2.5">
+            <span className="material-symbols-outlined !text-[14px] text-amber-500 shrink-0">warning</span>
+            <span className="text-[10px] font-semibold">
+              {whatsappImageScope === 'company'
+                ? 'Deletes all company-level WhatsApp images for the selected company.'
+                : 'Deletes all WhatsApp images for the selected product.'}
+            </span>
+          </div>
+        )}
+        {contentType === 'company-video' && (
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 px-2.5 py-1.5 rounded flex items-center gap-1.5 mb-2.5">
+            <span className="material-symbols-outlined !text-[14px] text-amber-500 shrink-0">warning</span>
+            <span className="text-[10px] font-semibold">
+              {companyVideoCategory === 'company_videos'
+                ? 'Deletes all company videos for the selected company.'
+                : `Deletes all "${videoCategories.find((c) => c.slug === companyVideoCategory)?.label || companyVideoCategory}" videos.`}
+            </span>
+          </div>
+        )}
+        {contentType === 'product-video' && (
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 px-2.5 py-1.5 rounded flex items-center gap-1.5 mb-2.5">
+            <span className="material-symbols-outlined !text-[14px] text-amber-500 shrink-0">warning</span>
+            <span className="text-[10px] font-semibold">
+              {deleteOption === 'company' ? 'Deletes ALL product videos for all products in the selected company.' : 'Deletes ALL videos for the selected product.'}
+            </span>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Select Company */}
+            {!isCompanyAutoSelected && (
+              <label className="flex flex-col w-full z-20">
+                <span className="text-slate-700 dark:text-slate-300 text-[10px] font-bold leading-normal pb-1">Select Company *</span>
+                {renderSearchableCompanyDropdown(
+                  loading,
+                  (companyId) => { setSelectedCompany(companyId); setError(''); setSuccess(''); setDeleteResult(null); },
+                  '-- Select Company --',
+                  'focus:ring-red-200/50 focus:border-red-400',
+                  false
+                )}
+              </label>
+            )}
+
+            {/* Category to Delete (Company Video) */}
+            {contentType === 'company-video' && selectedCompany && (
+              <label className="flex flex-col w-full z-10">
+                <span className="text-slate-700 dark:text-slate-300 text-[10px] font-bold leading-normal pb-1">Category to Delete *</span>
+                <select value={companyVideoCategory} onChange={(e) => setCompanyVideoCategory(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-2.5 py-2 text-xs text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-2 focus:ring-red-200/50 focus:border-red-400 outline-none transition-all h-[38px]" disabled={videoCategoriesLoading}>
+                  {videoCategories.map((opt) => <option key={opt.slug} value={opt.slug}>{opt.label}</option>)}
+                </select>
+              </label>
+            )}
+
+            {/* Select Product */}
+            {((deleteOption === 'product' && contentType !== 'company-video' && contentType !== 'whatsapp') || (contentType === 'product-video' && deleteOption === 'product') || (contentType === 'whatsapp' && whatsappImageScope === 'product')) && (
+              <label className="flex flex-col w-full z-10">
+                <span className="text-slate-700 dark:text-slate-300 text-[10px] font-bold leading-normal pb-1">Select Product *</span>
+                {renderSearchableProductDropdown(
+                  !selectedCompany || loading,
+                  (productId) => { setSelectedProduct(productId); setError(''); setSuccess(''); setDeleteResult(null); },
+                  '-- Select Product --',
+                  'focus:ring-red-200/50 focus:border-red-400'
+                )}
+              </label>
+            )}
+          </div>
+
+          <button onClick={handleDeleteContent} disabled={loading || !selectedCompany || (((contentType !== 'company-video' && contentType !== 'whatsapp' && deleteOption === 'product') || (contentType === 'product-video' && deleteOption === 'product') || (contentType === 'whatsapp' && whatsappImageScope === 'product')) && !selectedProduct)} className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-3 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm text-xs mt-2">
+            <span className="material-symbols-outlined !text-[16px]">delete</span>
             {loading ? 'Deleting...' : `Delete ${contentType === 'whatsapp' ? 'WhatsApp Images' : contentType === 'company-video' ? 'Company Videos' : contentType === 'product-video' ? 'Product Videos' : 'Review Images'}`}
           </button>
         </div>
-      </div>
-    </>
-  );
+      </>
+    );
+
+    return renderContentLayoutWrapper(
+      'delete',
+      'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400',
+      title,
+      'Permanently remove resources. Once deleted, they cannot be recovered.',
+      rightPanelContent
+    );
+  };
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
-        <h3 className="text-lg font-bold text-primary-text mb-4">Select Content Type</h3>
-        <div className="flex flex-col gap-2">
-          {(['review', 'whatsapp', 'company-video', 'product-video'] as const).map((type) => (
-            <React.Fragment key={type}>
-            <label className={`flex items-center gap-3 p-3 sm:p-4 rounded-lg border cursor-pointer transition-all ${contentType === type ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}>
-              <input type="radio" name="contentType" value={type} checked={contentType === type} onChange={(e) => { setContentType(e.target.value as ContentType); if (e.target.value !== 'whatsapp') setWhatsappImageScope('product'); }} className="w-4 h-4 text-primary" />
-              <span className="flex items-center gap-2 text-sm font-medium text-primary-text">
-                {type === 'company-video' && <span className="material-symbols-outlined !text-[18px]">movie</span>}
-                {type === 'product-video' && <span className="material-symbols-outlined !text-[18px]">movie</span>}
-                {type === 'review' && 'Review (Images)'}
-                {type === 'whatsapp' && 'WhatsApp (Images)'}
-                {type === 'company-video' && 'Company Video'}
-                {type === 'product-video' && 'Product Video'}
-              </span>
-            </label>
-            {type === 'whatsapp' && contentType === 'whatsapp' && (
-              <div className="ml-6 flex gap-3">
-                {(['company', 'product'] as const).map((scope) => (
-                  <label key={scope} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer text-sm transition-all ${whatsappImageScope === scope ? 'border-primary bg-primary/10 text-primary font-medium' : 'border-gray-200 text-secondary-text hover:border-gray-300'}`}>
-                    <input type="radio" name="whatsappScope" value={scope} checked={whatsappImageScope === scope} onChange={() => { setWhatsappImageScope(scope); setExistingContent(null); }} className="w-3.5 h-3.5 text-primary" />
-                    {scope === 'company' ? 'Company Images' : 'Product Images'}
-                  </label>
-                ))}
-              </div>
-            )}
-            </React.Fragment>
-          ))}
+      {/* Card 1: Header & Action Navigation */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/80 shadow-sm p-4 transition-all duration-300">
+        <div className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800/60 pb-3 mb-3.5">
+          <div className="p-2 bg-[#FF6B35]/10 text-[#FF6B35] rounded-lg shadow-sm">
+            <span className="material-symbols-outlined !text-[18px]">cloud_upload</span>
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">Content</h2>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+              Upload and organize customer photo reviews, WhatsApp images, company video testimonials, and product demo clips.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          {(['upload', 'view', 'delete'] as const).map((action) => {
+            const isActive = contentAction === action;
+            let actionColor = '';
+            if (isActive) {
+              if (action === 'upload') actionColor = 'bg-[#FF6B35] text-white shadow-sm';
+              else if (action === 'view') actionColor = 'bg-blue-600 text-white shadow-sm';
+              else if (action === 'delete') actionColor = 'bg-red-600 text-white shadow-sm';
+            } else {
+              actionColor = 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200';
+            }
+
+            return (
+              <button
+                key={action}
+                onClick={() => {
+                  setContentAction(action);
+                  setError('');
+                  setSuccess('');
+                }}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${actionColor}`}
+              >
+                <span className="material-symbols-outlined !text-[14px]">
+                  {action === 'upload' ? 'cloud_upload' : action === 'view' ? 'visibility' : 'delete'}
+                </span>
+                {action === 'upload' ? 'Upload' : action === 'view' ? 'View Existing' : 'Delete'}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
-        <h3 className="text-lg font-bold text-primary-text mb-4">Select Action</h3>
-        <div className="flex flex-wrap gap-3 sm:gap-4">
-          {(['upload', 'view', 'delete'] as const).map((action) => (
-            <label key={action} className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border cursor-pointer transition-all ${contentAction === action ? (action === 'upload' ? 'border-primary bg-primary/5' : action === 'view' ? 'border-blue-400 bg-blue-50' : 'border-red-400 bg-red-50') : 'border-gray-200 hover:border-gray-300'}`}>
-              <input type="radio" name="contentAction" value={action} checked={contentAction === action} onChange={(e) => setContentAction(e.target.value as ContentAction)} className={`w-4 h-4 ${action === 'delete' ? 'text-red-600' : action === 'view' ? 'text-blue-600' : 'text-primary'}`} />
-              <span className="material-symbols-outlined !text-[20px]">{action === 'upload' ? 'cloud_upload' : action === 'view' ? 'visibility' : 'delete'}</span>
-              <span className="text-sm font-medium text-primary-text whitespace-nowrap">{action === 'upload' ? 'Upload' : action === 'view' ? 'View Existing' : 'Delete'}</span>
-            </label>
-          ))}
+       {/* Notice: Selection pills for Content Type have been moved to the side panel */}
+
+      {error && (
+        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/60 text-red-750 dark:text-red-400 px-4 py-3.5 rounded-xl text-sm font-semibold shadow-sm flex items-center gap-2 animate-fade-in">
+          <span className="material-symbols-outlined !text-[18px]">error</span>
+          {error}
         </div>
-      </div>
+      )}
+      {success && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 text-emerald-750 dark:text-emerald-400 px-4 py-3.5 rounded-xl text-sm font-semibold shadow-sm flex items-center gap-2 animate-fade-in">
+          <span className="material-symbols-outlined !text-[18px]">check_circle</span>
+          {success}
+        </div>
+      )}
 
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
-      {success && <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">{success}</div>}
-
-      {contentAction === 'upload' && renderUploadForm()}
-      {contentAction === 'view' && renderViewForm()}
-      {contentAction === 'delete' && renderDeleteForm()}
+      {contentAction === 'upload' && renderUploadLayout()}
+      {contentAction === 'view' && renderViewLayout()}
+      {contentAction === 'delete' && renderDeleteLayout()}
 
       {/* Error Modal */}
       {errorModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-red-50 rounded-lg">
-                  <span className="material-symbols-outlined text-red-600">error</span>
+                <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl">
+                  <span className="material-symbols-outlined text-red-650">error</span>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900">Upload Error</h3>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Upload Error</h3>
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">{errorModal}</p>
+              <p className="text-slate-650 dark:text-slate-400 text-sm leading-relaxed">{errorModal}</p>
             </div>
-            <div className="flex px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <div className="flex px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
               <button
                 onClick={() => setErrorModal(null)}
-                className="w-full px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-all cursor-pointer shadow-sm"
               >
                 Dismiss
               </button>
@@ -1570,158 +1679,162 @@ const ContentTab: React.FC<ContentTabProps> = ({
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
-      {deleteDialogOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+      {/* Delete Confirmation Dialo      {deleteDialogOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-red-100 text-red-600 rounded-full"><span className="material-symbols-outlined">warning</span></div>
-                <h3 className="text-lg font-bold text-gray-900">Confirm Delete</h3>
+                <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"><span className="material-symbols-outlined">warning</span></div>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Confirm Delete</h3>
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">{deleteDialogMessage}</p>
+              <p className="text-slate-655 dark:text-slate-400 text-sm leading-relaxed">{deleteDialogMessage}</p>
             </div>
-            <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-              <button onClick={() => setDeleteDialogOpen(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-              <button onClick={performDelete} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">Delete</button>
+            <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => setDeleteDialogOpen(false)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>utton>
+              <button onClick={performDelete} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer">Delete</button>
             </div>
           </div>
         </div>
       )}
 
-      {imageDeleteDialogOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+      {/* Delete Image Dialo      {imageDeleteDialogOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-red-100 text-red-600 rounded-full"><span className="material-symbols-outlined">delete</span></div>
-                <h3 className="text-lg font-bold text-gray-900">Delete Image</h3>
+                <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"><span className="material-symbols-outlined">delete</span></div>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Delete Image</h3>
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">Are you sure you want to delete this image? This action cannot be undone.</p>
+              <p className="text-slate-655 dark:text-slate-400 text-sm leading-relaxed">Are you sure you want to delete this image? This action cannot be undone.</p>
             </div>
-            <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-              <button onClick={() => { setImageDeleteDialogOpen(false); setImageToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-              <button onClick={performImageDelete} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">Delete</button>
+            <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => { setImageDeleteDialogOpen(false); setImageToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>utton>
+              <button onClick={performImageDelete} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer">Delete</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Delete WhatsApp Image Dialog */}
       {whatsappImageDeleteDialogOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-red-100 text-red-600 rounded-full"><span className="material-symbols-outlined">delete</span></div>
-                <h3 className="text-lg font-bold text-gray-900">Delete WhatsApp Image</h3>
+                <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"><span className="material-symbols-outlined">delete</span></div>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Delete WhatsApp Image</h3>
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">Are you sure you want to delete this WhatsApp image? This action cannot be undone.</p>
+              <p className="text-slate-655 dark:text-slate-400 text-sm leading-relaxed">Are you sure you want to delete this WhatsApp image? This action cannot be undone.</p>
             </div>
-            <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-              <button onClick={() => { setWhatsappImageDeleteDialogOpen(false); setWhatsappImageToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-              <button onClick={performWhatsappImageDelete} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">Delete</button>
+            <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => { setWhatsappImageDeleteDialogOpen(false); setWhatsappImageToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>
+              <button onClick={performWhatsappImageDelete} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-650 hover:bg-red-750 rounded-xl transition-colors cursor-pointer">Delete</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Delete Company Video Dialog */}
       {companyVideoDeleteDialogOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-red-100 text-red-600 rounded-full"><span className="material-symbols-outlined">delete</span></div>
-                <h3 className="text-lg font-bold text-gray-900">Delete Company Video</h3>
+                <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"><span className="material-symbols-outlined">delete</span></div>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Delete Company Video</h3>
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">Are you sure you want to delete the video <strong>{companyVideoToDelete?.filename}</strong>? This action cannot be undone.</p>
+              <p className="text-slate-655 dark:text-slate-400 text-sm leading-relaxed">Are you sure you want to delete the video <strong>{companyVideoToDelete?.filename}</strong>? This action cannot be undone.</p>
             </div>
-            <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-              <button onClick={() => { setCompanyVideoDeleteDialogOpen(false); setCompanyVideoToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-              <button onClick={performCompanyVideoDelete} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">Delete</button>
+            <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => { setCompanyVideoDeleteDialogOpen(false); setCompanyVideoToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>
+              <button onClick={performCompanyVideoDelete} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-650 hover:bg-red-750 rounded-xl transition-colors cursor-pointer">Delete</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Delete Product Video Dialog */}
       {productVideoDeleteDialogOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-red-100 text-red-600 rounded-full"><span className="material-symbols-outlined">delete</span></div>
-                <h3 className="text-lg font-bold text-gray-900">Delete Product Video</h3>
+                <div className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"><span className="material-symbols-outlined">delete</span></div>
+                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Delete Product Video</h3>
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">Are you sure you want to delete the video <strong>{productVideoToDelete?.filename}</strong>? This action cannot be undone.</p>
+              <p className="text-slate-655 dark:text-slate-400 text-sm leading-relaxed">Are you sure you want to delete the video <strong>{productVideoToDelete?.filename}</strong>? This action cannot be undone.</p>
             </div>
-            <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-              <button onClick={() => { setProductVideoDeleteDialogOpen(false); setProductVideoToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-              <button onClick={performProductVideoDelete} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">Delete</button>
+            <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => { setProductVideoDeleteDialogOpen(false); setProductVideoToDelete(null); }} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>
+              <button onClick={performProductVideoDelete} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer">Delete</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Add Video Category Dialog */}
       {addCategoryOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
             <div className="p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Add Video Category</h3>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Add Video Category</h3>
               <label className="block">
-                <span className="text-sm font-medium text-gray-700">Category Name *</span>
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-350">Category Name *</span>
                 <input
                   type="text"
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   placeholder="e.g. Wedding Videos"
-                  className="mt-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="mt-2 block w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] outline-none transition-all"
                 />
               </label>
             </div>
-            <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
-              <button onClick={() => { setAddCategoryOpen(false); setNewCategoryName(''); }} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-              <button onClick={handleAddCategory} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors">Add Category</button>
+            <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => { setAddCategoryOpen(false); setNewCategoryName(''); }} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">Cancel</button>
+              <button onClick={handleAddCategory} className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-[#FF6B35] hover:bg-[#E5521C] rounded-xl transition-colors cursor-pointer">Add Category</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Rename Video Category Dialog */}
       {editCategoryOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-base font-semibold text-primary-text">Rename Category</h3>
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-slate-955/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 dark:border-slate-800 animate-scale-up">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+              <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">Rename Category</h3>
               <button
                 onClick={() => { setEditCategoryOpen(false); setEditCategoryName(''); }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined !text-[20px]">close</span>
               </button>
             </div>
             <div className="px-6 py-4 space-y-3">
-              <p className="text-xs text-secondary-text">
+              <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold">
                 This only changes the visible name. Videos stay in the same category bucket.
               </p>
               <label className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-primary-text">New category name</span>
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-350">New category name</span>
                 <input
                   type="text"
                   value={editCategoryName}
                   onChange={(e) => setEditCategoryName(e.target.value)}
                   placeholder="e.g. Homepage Hero Video"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="mt-2 block w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-950 focus:ring-4 focus:ring-[#FF6B35]/20 focus:border-[#FF6B35] outline-none transition-all"
                 />
               </label>
             </div>
-            <div className="flex gap-3 px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <div className="flex gap-3 px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800">
               <button
                 onClick={() => { setEditCategoryOpen(false); setEditCategoryName(''); }}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-750 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-350 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRenameCategory}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-[#FF6B35] hover:bg-[#E5521C] rounded-xl transition-colors cursor-pointer"
               >
                 Save
               </button>

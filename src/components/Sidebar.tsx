@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import logo1 from '../assets/logo1.jpeg';
 
 interface SidebarProps {
   userData: {
@@ -61,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const getLockedNavItemClass = () => {
-    return "flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 cursor-not-allowed opacity-50 group";
+    return "flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 cursor-not-allowed opacity-50 group";
   };
 
   // Close dropdown when clicking outside
@@ -88,23 +89,23 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const getNavItemClass = (page: string) => {
     if (activePage === page) {
-      return "flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 text-white transition-colors group";
+      return "flex items-center gap-3 px-4 py-2.5 rounded-xl bg-[#FF6B35]/15 text-[#FF6B35] font-semibold border-l-4 border-[#FF6B35] rounded-l-none pl-3 transition-all group shadow-sm";
     }
-    return "flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors group cursor-pointer";
+    return "flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 border-l-4 border-transparent pl-3 transition-all group cursor-pointer";
   };
 
   const getIconClass = (page: string) => {
     if (activePage === page) {
-      return "material-symbols-outlined icon-filled text-white";
+      return "material-symbols-outlined icon-filled text-[#FF6B35] scale-105 transition-transform";
     }
-    return "material-symbols-outlined group-hover:text-white transition-colors";
+    return "material-symbols-outlined text-slate-500 group-hover:text-slate-300 group-hover:scale-105 transition-all";
   };
 
   const getTextClass = (page: string) => {
     if (activePage === page) {
-      return "text-sm font-semibold";
+      return "text-sm font-bold text-[#FF6B35]";
     }
-    return "text-sm font-medium";
+    return "text-sm font-medium text-slate-400 group-hover:text-slate-200 transition-colors";
   };
 
   return (
@@ -112,29 +113,29 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 lg:hidden"
           onClick={onMobileClose}
         />
       )}
       
       {/* Sidebar */}
-      <aside className={`w-72 bg-primary flex flex-col h-full shrink-0 transition-all duration-300 relative z-50 lg:z-20 ${
+      <aside className={`w-72 bg-slate-900 border-r border-slate-800 flex flex-col h-full shrink-0 transition-all duration-300 relative z-50 lg:z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)] ${
         isMobileOpen ? 'fixed inset-y-0 left-0 lg:relative' : 'hidden lg:flex'
       }`}>
       {/* Brand Logo */}
-      <div className="h-20 flex items-center justify-between px-8 border-b border-white/10">
+      <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 bg-slate-900/50">
         <div className="flex items-center gap-3">
-          <div className="size-8">
-            <img src="/WOM_Logo.png" alt="Word of Mouth Logo" className="w-full h-full object-contain" />
+          <div className="size-9 rounded-xl overflow-hidden bg-white flex items-center justify-center shrink-0 border border-slate-700 shadow-sm p-1">
+            <img src={logo1} alt="MyBizPartner" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-white text-lg font-bold font-heading leading-tight tracking-tight">Word of Mouth</h1>
-            <p className="text-gray-400 text-xs font-medium tracking-wide">TRUST INFRASTRUCTURE</p>
+            <h1 className="text-white text-base font-bold font-heading leading-tight tracking-tight">MyBizPartner</h1>
+            <p className="text-[#FF6B35] text-[10px] font-semibold tracking-widest uppercase">ADMIN PORTAL</p>
           </div>
         </div>
         {/* Mobile Close Button */}
         <button
-          className="lg:hidden text-white hover:text-gray-300 transition-colors"
+          className="lg:hidden text-slate-400 hover:text-white transition-colors"
           onClick={onMobileClose}
         >
           <span className="material-symbols-outlined">close</span>
@@ -142,9 +143,9 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Navigation Menu */}
-      <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-6">
+      <div className="flex-1 overflow-hidden py-4 px-4 flex flex-col gap-4">
         {/* Main Links */}
-        <nav className="flex flex-col gap-1.5">
+        <nav className="flex flex-col gap-1">
           {hasAccess('dashboard') ? (
             <button className={getNavItemClass('dashboard')} onClick={onNavigateToDashboard}>
               <span className={getIconClass('dashboard')}>dashboard</span>
@@ -216,11 +217,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </nav>
 
-        <div className="h-px bg-white/10 mx-4"></div>
+        <div className="h-px bg-slate-800 mx-4"></div>
 
         {/* Secondary Links */}
-        <nav className="flex flex-col gap-1.5">
-          <p className="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">System</p>
+        <nav className="flex flex-col gap-1">
+          <p className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">System</p>
           <button className={getNavItemClass('profile')} onClick={onNavigateToProfile}>
             <span className={getIconClass('profile')}>person</span>
             <span className={getTextClass('profile')}>Profile</span>
@@ -237,20 +238,20 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* User Profile (Bottom) */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-3 border-t border-slate-800">
         <div className="relative" ref={dropdownRef}>
           <button
-            className="flex items-center gap-3 w-full p-2 rounded-xl hover:bg-white/5 transition-colors text-left"
+            className="flex items-center gap-3 w-full p-2 rounded-xl hover:bg-slate-800 transition-colors text-left group"
             onClick={() => setProfileOpen(!profileOpen)}
           >
-            <div className="size-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+            <div className="size-10 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#E5521C] flex items-center justify-center text-white font-bold text-lg">
               {userData?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="flex flex-col overflow-hidden flex-1">
-              <p className="text-white text-sm font-bold truncate">{userData?.name || 'User'}</p>
-              <p className="text-gray-400 text-xs truncate">{userData?.email || 'user@example.com'}</p>
+              <p className="text-slate-200 text-sm font-bold truncate group-hover:text-white transition-colors">{userData?.name || 'User'}</p>
+              <p className="text-slate-500 text-xs truncate group-hover:text-slate-400 transition-colors">{userData?.email || 'user@example.com'}</p>
             </div>
-            <span className={`material-symbols-outlined text-gray-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`}>expand_more</span>
+            <span className={`material-symbols-outlined text-slate-500 group-hover:text-slate-300 transition-transform ${profileOpen ? 'rotate-180' : ''}`}>expand_more</span>
           </button>
 
           {/* Dropdown Menu */}
